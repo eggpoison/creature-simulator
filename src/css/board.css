@@ -1,0 +1,17 @@
+#board {
+   position: absolute;
+   top: 50%;
+   left: 50%;
+   transform: translate(-50%, -50%);
+}
+
+#board .cell-row {
+   background-color: blue;
+}
+#board .cell {
+   width: var(--cell-size);
+   height: var(--cell-size);
+   background-color: red;
+   display: inline-block;
+   box-shadow: 0 0 0 calc(var(--cell-border-size) / 2) #000 inset;
+}

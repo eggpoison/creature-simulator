@@ -1,0 +1,20 @@
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600&display=swap');
+
+h1 {
+   text-align: center;
+   font-family: "Source Sans 3";
+   font-size: 4rem;
+}
+
+#title-options-container button {
+   font-family: "Source Sans 3";
+   font-size: 1rem;
+   margin: 1rem 0 1rem 50%;
+   padding: 0.1rem 0.4rem;
+   display: block;
+   transform: translateX(-50%);
+}
+
+.confetti {
+   position: absolute;
+}
