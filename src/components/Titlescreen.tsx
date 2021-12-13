@@ -6,7 +6,7 @@ import Button from "./Button";
 
 const Titlescreen = () => {
    return (
-      <div>
+      <div id="titlescreen">
          <h1>Creature Simulator</h1>
          <div id="title-options-container">
             <Button onClick={StartGame}>Start</Button>
