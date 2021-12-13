@@ -27,9 +27,6 @@ export abstract class Entity {
       
       this.age = 0;
 
-      // this.size = attributes.size;
-      // this.lifespan = attributes.lifespan;
-
       // Set all attributes
       for (const attribute of Object.entries(attributes)) {
          this[attribute[0]] = attribute[1];
