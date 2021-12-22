@@ -33,3 +33,29 @@
                0 0 0 var(--vision-size) rgba(0, 0, 0, 0.3); /* The creature's shadow */
    z-index: 1;
 }
+.creature .life {
+   height: 10px;
+   width: 50px;
+   background-color: #fff;
+   border: 3px solid #000;
+   position: absolute;
+   left: 50%;
+   transform: translate(-50%, -100%);
+   z-index: 2;
+   pointer-events: none;
+   top: -2px;
+}
+.creature .life-bar {
+   position: absolute;
+   top: -1px;
+   right: -1px;
+   bottom: -1px;
+   left: -1px;
+}
+
+.fruit {
+   border-radius: 100%;
+   position: absolute;
+   transform: translate(-50%, -50%);
+   z-index: 1;
+}

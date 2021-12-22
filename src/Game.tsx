@@ -1,4 +1,5 @@
-import { createCreature } from "./entities/Creature";
+import { createCreature, Creature } from "./entities/Creature";
+import { createFruit } from "./entities/Fruit";
 import { cells } from "./main";
 
 const renderListeners: Array<Function> = [];
@@ -28,10 +29,12 @@ const Game = {
          }
       }
 
-      // Chance for a creature to spawn each second
-      const CREATURE_SPAWN_CHANCE = 0.3;
-      if (Math.random() <= CREATURE_SPAWN_CHANCE / this.tps) {
-         createCreature();
+      // Number of fruits which spawn in a cell each second
+      const FRUIT_SPAWN_RATE = 0.1;
+      for (let cellNumber = 0; cellNumber < cells.length; cellNumber++) {
+         if (Math.random() <= FRUIT_SPAWN_RATE / this.tps) {
+            createFruit(cellNumber);
+         }
       }
    },
    createRenderListener(func: Function): void {

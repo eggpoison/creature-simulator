@@ -74,6 +74,14 @@ export abstract class Entity {
    };
    die(): void {
       this.element.remove();
+
+      // Remove all instances of this entity from the cells object
+      for (const cell of cells) {
+         const index = cell.indexOf(this);
+         if (index !== -1) {
+            cell.splice(index, 1);
+         }
+      }
    };
 
    /**
@@ -148,7 +156,15 @@ export abstract class Entity {
       return surroundingCells;
    }
 
-   randomPositionInCell(cellNumber: number) {
+   getEntitiesInCells(cells: ReadonlyArray<Cell>): ReadonlyArray<Entity> {
+      let entities = new Array<Entity>();
+      for (const cell of cells) {
+         entities = entities.concat(cell);
+      }
+      return entities;
+   };
+
+   static randomPositionInCell(cellNumber: number) {
       const cellX = cellNumber % Game.boardSize.width;
       const cellY = Math.floor(cellNumber / Game.boardSize.width);
 
@@ -156,5 +172,12 @@ export abstract class Entity {
       const y = randFloat(0, Game.cellSize);
 
       return new Vector(cellX * Game.cellSize + x, cellY * Game.cellSize + y);
+   }
+
+   isCollidingWithEntity(entity: Entity): boolean {
+      const distance = this.position.distanceFrom(entity.position);
+
+      // Inaccurate for entites with a different width and height, problem for future self
+      return distance - this.size.x/2 - entity.size.x/2 <= 0;
    }
 }

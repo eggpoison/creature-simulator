@@ -2,6 +2,7 @@ import Game from "../Game";
 import { Cell, cells } from "../main";
 import { PolarVector, randFloat, randItem, Vector } from "../utils";
 import { Entity, EntityAttributes } from "./Entity";
+import { Fruit } from "./Fruit";
 
 interface CreatureAttributes extends EntityAttributes {
    speed: number;
@@ -105,14 +106,33 @@ export class Creature extends Entity {
 
       element.innerHTML = `
       <div class="shadow"></div>
+
+      <div class="life">
+         <div class="life-bar"></div>
+      </div>
       `;
       
       element.style.setProperty("--vision-size", `${this.vision}px`);
       element.style.setProperty("--creature-size", `${this.size.x}px`);
    };
 
+   get life(): number {
+      return (this.lifespan - this.age) / this.lifespan * 100;
+   }
+
+   updateLifebar(): void {
+      const lifebar = this.element.querySelector(".life-bar") as HTMLElement;
+      
+      lifebar.style.width = `${this.life}%`;
+      // Colour the lifebar a shade of red corresponding to how much life the creature has left
+      const color = 155 + this.life;
+      lifebar.style.backgroundColor = `rgb(${color}, 0, 0)`;
+   };
+
    tick(): void {
       super.tick();
+
+      this.updateLifebar();
 
       // If the creature has a target position, move to it
       if (this.targetPosition !== null) {
@@ -122,18 +142,66 @@ export class Creature extends Entity {
          } else {
             // Otherwise continue moving
             this.moveToTargetPosition();
-            return;
          }
       }
 
       const visionInCells = Math.floor((this.size.x/2 + this.vision) / Game.cellSize) + 1;
       const surroundingCells = super.getSurroundingCells(visionInCells);
 
-      // Chance for the creature to move each second
-      const MOVE_CHANCE = 0.95;
-      if (Math.random() < MOVE_CHANCE / Game.tps) {
-         this.targetPosition = this.findRandomPosition(surroundingCells);
+      const surroundingEntities = super.getEntitiesInCells(surroundingCells);
+
+      // Filter out entites which the creature cannot see
+      const entitiesInVision = this.getEntitiesInVision(surroundingEntities);
+
+      // Search for any nearby fruit
+      let distanceToNearestFruit = Number.MAX_SAFE_INTEGER;
+      let closestFruit: Fruit | null = null;
+      for (const entity of entitiesInVision) {
+         if (!(entity instanceof Fruit)) continue;
+
+         if (super.isCollidingWithEntity(entity)) {
+            this.eatFruit(entity);
+         }
+
+         const distanceToFruit = this.position.distanceFrom(entity.position);
+         if (distanceToFruit < distanceToNearestFruit) {
+            closestFruit = entity;
+            distanceToNearestFruit = distanceToFruit;
+         }
       }
+
+      // If there is a nearby fruit, go to it
+      if (closestFruit !== null) {
+         this.targetPosition = closestFruit.position;
+         return;
+      }
+
+      // If the creautre isn't looking for fruit, try to move to a random surrounding position
+      if (!this.isMoving) {
+         // Chance for the creature to move each second
+         const MOVE_CHANCE = 0.95;
+         if (Math.random() < MOVE_CHANCE / Game.tps) {
+            this.targetPosition = this.findRandomPosition(surroundingCells);
+         }
+      }
+   };
+
+   eatFruit(fruit: Fruit): void {
+      // Number of seconds of life it gives
+      const FEED_AMOUNT = 10;
+      this.age -= FEED_AMOUNT * Game.tps;
+      // Stop the creature's age from going below 0
+      this.age = Math.max(this.age, 0);
+
+      fruit.die();
+   };
+
+   getEntitiesInVision(entitiesToCheck: ReadonlyArray<Entity>): ReadonlyArray<Entity> {
+      return entitiesToCheck.filter(entity => this.canSeeEntity(entity));
+   };
+
+   canSeeEntity(entity: Entity): boolean {
+      return this.position.distanceFrom(entity.position) <= this.vision + this.size.x/2;
    };
 
    findRandomPosition(surroundingCells: ReadonlyArray<Cell>): Vector {
@@ -144,7 +212,7 @@ export class Creature extends Entity {
 
       const cellNumber = cells.indexOf(targetCell);
 
-      return super.randomPositionInCell(cellNumber);
+      return Entity.randomPositionInCell(cellNumber);
    };
 
    moveToTargetPosition(): void {

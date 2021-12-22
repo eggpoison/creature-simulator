@@ -1,0 +1,69 @@
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600&display=swap');
+
+#control-panel {
+   color: #fff;
+   font-family: "Source Sans 3";
+   width: 20rem;
+   height: 100%;
+   background-color: #28282b;
+   box-shadow: 5px 0 7px 0 rgba(40, 40, 43, 0.4);
+   position: absolute;
+   top: 0;
+   left: 0;
+}
+
+#control-panel h1 {
+   color: #ccc;
+   font-size: 2.2rem;
+   text-align: center;
+}
+
+#control-panel h2 {
+   font-size: 1.7rem;
+   margin-left: 0.5rem;
+   position: relative;
+   display: table;
+}
+#control-panel h2::after {
+   content: "";
+   height: 2px;
+   background-color: rgb(135, 142, 146);
+   position: absolute;
+   bottom: 2px;
+   left: 0;
+   right: 0;
+}
+
+#control-panel .panel {
+   margin-left: 1rem;
+}
+#control-panel .panel * {
+   margin: 0.4rem 0;
+}
+
+#control-panel p {
+   font-size: 1.05rem;
+}
+
+#control-panel input {
+   display: table;
+}
+
+#control-panel button {
+   color: #fff;
+   font-size: 1rem;
+   font-family: "Source Sans 3";
+   background-color: transparent;
+   margin-left: 50% !important;
+   border-radius: 3px;
+   border: 2px solid #fff;
+   cursor: pointer;
+   transform: translateX(-50%);
+}
+#control-panel button:hover {
+   background-color: #fff;
+   color: #28282b;
+}
+#control-panel button:active {
+   color: #818188;
+}

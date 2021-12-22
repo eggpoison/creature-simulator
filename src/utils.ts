@@ -31,7 +31,7 @@ export class Vector {
       );
    };
 
-   distance(vec2: Vector): number {
+   distanceFrom(vec2: Vector): number {
       const distance = Math.sqrt(Math.pow(this.x - vec2.x, 2) + Math.pow(this.y - vec2.y, 2));
       return distance;
    };
@@ -44,7 +44,7 @@ export class Vector {
    convertToPolar(vec2?: Vector): PolarVector {
       const targetVector = vec2 || new Vector(0, 0);
 
-      const distance = this.distance(targetVector);
+      const distance = this.distanceFrom(targetVector);
       const angle = this.angleBetween(targetVector);
       return new PolarVector(distance, angle);
    }
@@ -70,6 +70,10 @@ export function getElem(id: string): HTMLElement {
    const elem = document.getElementById(id);
    if (!elem) throw new Error(`ungaming: tried to find element with an id of '${id}' but could not find any.'`);
    return elem;
+}
+
+export function getSuffix(num: number): string {
+   return num === 1 ? "" : "s";
 }
 
 /**

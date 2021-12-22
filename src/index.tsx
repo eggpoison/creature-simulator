@@ -6,10 +6,12 @@ import './css/index.css';
 import './css/board.css';
 import { setupTitlescreen } from './start';
 import Board from './components/Board';
+import ControlPanel from './components/ControlPanel';
 
 ReactDOM.render(
   <React.StrictMode>
     <Titlescreen />
+    <ControlPanel />
     <Board />
   </React.StrictMode>,
   document.getElementById("root")
