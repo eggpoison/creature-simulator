@@ -3,8 +3,9 @@ import { Cell, cells } from "../main";
 import { getElem, randFloat, Vector } from "../utils";
 
 export interface EntityAttributes {
-   lifespan: number;
-   size: Vector;
+   [key: string]: number | Vector | undefined;
+   lifespan?: number;
+   readonly size: Vector;
 }
 
 export abstract class Entity {
@@ -159,7 +160,8 @@ export abstract class Entity {
    getEntitiesInCells(cells: ReadonlyArray<Cell>): ReadonlyArray<Entity> {
       let entities = new Array<Entity>();
       for (const cell of cells) {
-         entities = entities.concat(cell);
+         const newEntities = cell.filter(entity => !(entity === this));
+         entities = entities.concat(newEntities);
       }
       return entities;
    };

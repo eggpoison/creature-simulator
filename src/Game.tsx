@@ -1,5 +1,6 @@
-import { createCreature, Creature } from "./entities/Creature";
-import { createFruit } from "./entities/Fruit";
+import { updateControlPanel } from "./control-panel";
+import { Creature } from "./entities/Creature";
+import { createFruit, Fruit } from "./entities/Fruit";
 import { cells } from "./main";
 
 const renderListeners: Array<Function> = [];
@@ -22,10 +23,15 @@ const Game = {
       ***/
       if (!Game.hasStarted) return;
 
+      let creatureCount: number = 0;
+      let fruitCount: number = 0;
+
       // Call all entities' tick functions
       for (const cell of cells) {
          for (const entity of cell) {
             entity.tick();
+            if (entity instanceof Creature) creatureCount++;
+            else if (entity instanceof Fruit) fruitCount++;
          }
       }
 
@@ -36,6 +42,8 @@ const Game = {
             createFruit(cellNumber);
          }
       }
+
+      updateControlPanel(creatureCount, fruitCount);
    },
    createRenderListener(func: Function): void {
       renderListeners.push(func);

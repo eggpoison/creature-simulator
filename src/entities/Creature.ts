@@ -7,75 +7,94 @@ import { Fruit } from "./Fruit";
 interface CreatureAttributes extends EntityAttributes {
    speed: number;
    vision: number;
+   reproductiveRate: number;
 }
 
-interface Attribute {
+interface AttributeInfo {
    min: number;
    max: number;
+   /*** How strongly an attribute is factored into deciding a creature's lifespan  */
+   weight: number;
+   positivelyAffectsLifespan?: boolean;
 }
 
-const creatureAttributeBounds: { [key: string]: Attribute } = {
+const creatureAttributeInfo: { [key: string]: AttributeInfo } = {
    speed: {
       min: 3,
-      max: 10
+      max: 10,
+      weight: 1,
+      positivelyAffectsLifespan: false
    },
    // Size of the creature in px
    size: {
       min: 10,
-      max: 30
+      max: 30,
+      weight: 1,
+      positivelyAffectsLifespan: true
    },
    // Vision of the creature in px
    vision: {
       min: 25,
-      max: 75
+      max: 75,
+      weight: 1,
+      positivelyAffectsLifespan: false
+   },
+   // How quickly the creature gains reproductive urge
+   reproductiveRate: {
+      min: 0.5,
+      max: 2,
+      weight: 1
    }
 };
 
-const calculateLifespan = (size: number, speed: number, vision: number): number => {
+const calculateLifespan = (attributes: CreatureAttributes): number => {
    // Base number of seconds that a creature will live.
    const BASE_LIFESPAN: number = 10;
 
    let lifespan: number = BASE_LIFESPAN * Game.tps;
 
-   // Larger size increases lifespan, smaller size decreases lifespan
-   const SIZE_WEIGHT = 1;
-   lifespan *= Math.pow(size / ((creatureAttributeBounds.size.min + creatureAttributeBounds.size.max) / 2), SIZE_WEIGHT);
+   for (const attributeInfo of Object.entries(creatureAttributeInfo)) {
+      if (!attributeInfo[1].positivelyAffectsLifespan) continue;
 
-   // Higher speed decreases lifespan, slower speed increases lifespan
-   const SPEED_WEIGHT = 1;
-   lifespan *= Math.pow(((creatureAttributeBounds.speed.min + creatureAttributeBounds.speed.max) / 2) / speed, SPEED_WEIGHT);
+      const attributeVal = attributeInfo[0] !== "size" ? attributes[attributeInfo[0]] as number : attributes[attributeInfo[0]].x;
 
-   // High vision decreases lifespan, low vision increases lifespan
-   const VISION_WEIGHT = 1;
-   lifespan *= Math.pow(((creatureAttributeBounds.vision.min + creatureAttributeBounds.vision.max) / 2) / vision, VISION_WEIGHT);
+      if (attributeInfo[1].positivelyAffectsLifespan) {
+         lifespan *= Math.pow(attributeVal / ((attributeInfo[1].min + attributeInfo[1].max) / 2), attributeInfo[1].weight);
+      } else {
+         lifespan *= Math.pow(((attributeInfo[1].min + attributeInfo[1].max) / 2) / attributeVal, attributeInfo[1].weight);
+      }
+   }
 
    return lifespan;
 }
 
 // Generate a random gene in a specified range.
-const generateGene = (attribute: Attribute): number => {
+const generateGene = (attributeName: keyof CreatureAttributes): number => {
+   const attribute: AttributeInfo = creatureAttributeInfo[attributeName];
    return randFloat(attribute.min, attribute.max);
 }
 
 export function createCreature(): void {
+
    // Generate random attributes for the creature
-   let size = generateGene(creatureAttributeBounds.size),
-         speed = generateGene(creatureAttributeBounds.speed),
-         vision = generateGene(creatureAttributeBounds.vision);
+   let size = generateGene("size"),
+      speed = generateGene("speed"),
+      vision = generateGene("vision"),
+      reproductiveRate = generateGene("reproductiveRate");
 
    // Make larger creatures slower
    const SPEED_REDUCTION_MULTIPLIER = 1.1;
    const MAX_REDUCTION = 3;
-   const reduction = creatureAttributeBounds.size.max / creatureAttributeBounds.size.min / MAX_REDUCTION;
-   speed /= Math.pow(size / creatureAttributeBounds.size.min / reduction, SPEED_REDUCTION_MULTIPLIER);
+   const reduction = creatureAttributeInfo.size.max / creatureAttributeInfo.size.min / MAX_REDUCTION;
+   speed /= Math.pow(size / creatureAttributeInfo.size.min / reduction, SPEED_REDUCTION_MULTIPLIER);
 
-   const lifespan = calculateLifespan(size, speed, vision);
    const attributes: CreatureAttributes = {
-      lifespan: lifespan,
       size: new Vector(size, size),
       speed: speed,
-      vision: vision
+      vision: vision,
+      reproductiveRate: reproductiveRate
    };
+   attributes.lifespan = calculateLifespan(attributes);
 
    // Get a random position for the creature
    const x = randFloat(0, Game.boardSize.width * Game.cellSize);
@@ -88,15 +107,19 @@ export function createCreature(): void {
 export class Creature extends Entity {
    speed: number;
    vision: number;
+   reproductiveRate: number;
 
    isMoving: boolean;
    targetPosition: Vector | null = null;
+   reproductiveUrge: number = 0;
+   partner: Creature | null = null;
 
    constructor(position: Vector, attributes: CreatureAttributes) {
       super(position, attributes);
 
       this.speed = attributes.speed;
       this.vision = attributes.vision;
+      this.reproductiveRate = attributes.reproductiveRate;
 
       this.isMoving = false;
    }
@@ -109,6 +132,10 @@ export class Creature extends Entity {
 
       <div class="life">
          <div class="life-bar"></div>
+
+         </div>
+      <div class="reproduction">
+         <div class="reproduction-bar"></div>
       </div>
       `;
       
@@ -129,10 +156,26 @@ export class Creature extends Entity {
       lifebar.style.backgroundColor = `rgb(${color}, 0, 0)`;
    };
 
+   updateReproductionBar(): void {
+      const reproductionBar = this.element.querySelector(".reproduction-bar") as HTMLElement;
+      
+      reproductionBar.style.width = `${this.reproductiveUrge}%`;
+   };
+
+   get wantsToReproduce(): boolean {
+      return this.reproductiveUrge > this.life;
+   }
+
    tick(): void {
       super.tick();
 
+      // Base amount of reproductive urge gained per second
+      const BASE_REPRODUCTIVE_RATE = 5;
+      this.reproductiveUrge += BASE_REPRODUCTIVE_RATE * this.reproductiveRate / Game.tps;
+      this.reproductiveUrge = Math.min(100, this.reproductiveUrge);
+
       this.updateLifebar();
+      this.updateReproductionBar();
 
       // If the creature has a target position, move to it
       if (this.targetPosition !== null) {
@@ -148,35 +191,53 @@ export class Creature extends Entity {
       const visionInCells = Math.floor((this.size.x/2 + this.vision) / Game.cellSize) + 1;
       const surroundingCells = super.getSurroundingCells(visionInCells);
 
-      const surroundingEntities = super.getEntitiesInCells(surroundingCells);
+      let surroundingEntities = super.getEntitiesInCells(surroundingCells);
 
       // Filter out entites which the creature cannot see
       const entitiesInVision = this.getEntitiesInVision(surroundingEntities);
 
-      // Search for any nearby fruit
-      let distanceToNearestFruit = Number.MAX_SAFE_INTEGER;
+      // Search through all nearby entities for any that are of use
       let closestFruit: Fruit | null = null;
+      let distanceToNearestFruit = Number.MAX_SAFE_INTEGER;
+      let closestPartner: Creature | null = null;
+      let distanceToClosestPartner = Number.MAX_SAFE_INTEGER;
       for (const entity of entitiesInVision) {
-         if (!(entity instanceof Fruit)) continue;
-
-         if (super.isCollidingWithEntity(entity)) {
-            this.eatFruit(entity);
+         // If it wants to, look for any available partners
+         if (this.wantsToReproduce && entity instanceof Creature && entity.wantsToReproduce && (entity.partner === null || entity.partner === this)) {
+            const distanceToCreature = this.position.distanceFrom(entity.position);
+            if (distanceToCreature < distanceToClosestPartner) {
+               closestPartner = entity;
+               distanceToClosestPartner = distanceToCreature;
+            }
          }
 
-         const distanceToFruit = this.position.distanceFrom(entity.position);
-         if (distanceToFruit < distanceToNearestFruit) {
-            closestFruit = entity;
-            distanceToNearestFruit = distanceToFruit;
+         else if (entity instanceof Fruit) {
+            if (super.isCollidingWithEntity(entity)) {
+               this.eatFruit(entity);
+            }
+
+            const distanceToFruit = this.position.distanceFrom(entity.position);
+            if (distanceToFruit < distanceToNearestFruit) {
+               closestFruit = entity;
+               distanceToNearestFruit = distanceToFruit;
+            }
          }
       }
 
-      // If there is a nearby fruit, go to it
+      // If there are any available partners, move to them
+      if (closestPartner !== null) {
+         this.targetPosition = closestPartner.position;
+         this.isReproducing = true;
+         return;
+      }
+
+      // Otherwise if there is a nearby fruit, go to it
       if (closestFruit !== null) {
          this.targetPosition = closestFruit.position;
          return;
       }
 
-      // If the creautre isn't looking for fruit, try to move to a random surrounding position
+      // Otherwise, try to move to a random surrounding position
       if (!this.isMoving) {
          // Chance for the creature to move each second
          const MOVE_CHANCE = 0.95;

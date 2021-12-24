@@ -9,3 +9,18 @@ export function createCreatures(input: HTMLInputElement): void {
    const amount = Number(input.value);
    for (let i = 0; i < amount; i++) createCreature();
 }
+
+let creatureAmountElem: HTMLElement;
+let fruitAmountElem: HTMLElement;
+
+export function setCreatureAmount(elem: HTMLElement): void {
+   creatureAmountElem = elem;
+}
+export function setFruitAmount(elem: HTMLElement): void {
+   fruitAmountElem = elem;
+}
+
+export function updateControlPanel(creatureCount: number, fruitCount: number): void {
+   creatureAmountElem.innerHTML = `Creatures: ${creatureCount}`;
+   fruitAmountElem.innerHTML = `Fruit: ${fruitCount}`;
+}
