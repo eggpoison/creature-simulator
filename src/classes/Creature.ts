@@ -1,10 +1,13 @@
 import Game from "../Game";
 import { Cell, cells } from "../main";
-import { PolarVector, randFloat, randItem, Vector } from "../utils";
+import { PolarVector, randFloat, randInt, randItem, Vector } from "../utils";
 import { Entity, EntityAttributes } from "./Entity";
 import { Fruit } from "./Fruit";
+import GameImage from "../GameImage";
 
-interface CreatureAttributes extends EntityAttributes {
+interface CreatureAttributes extends Omit<EntityAttributes, "size"> {
+   name: string;
+   size: number;
    speed: number;
    vision: number;
    reproductiveRate: number;
@@ -56,7 +59,7 @@ const calculateLifespan = (attributes: CreatureAttributes): number => {
    for (const attributeInfo of Object.entries(creatureAttributeInfo)) {
       if (!attributeInfo[1].positivelyAffectsLifespan) continue;
 
-      const attributeVal = attributeInfo[0] !== "size" ? attributes[attributeInfo[0]] as number : attributes[attributeInfo[0]].x;
+      const attributeVal = attributes[attributeInfo[0]] as number;
 
       if (attributeInfo[1].positivelyAffectsLifespan) {
          lifespan *= Math.pow(attributeVal / ((attributeInfo[1].min + attributeInfo[1].max) / 2), attributeInfo[1].weight);
@@ -74,6 +77,43 @@ const generateGene = (attributeName: keyof CreatureAttributes): number => {
    return randFloat(attribute.min, attribute.max);
 }
 
+const getRandomName = (): string => {
+   const firstNames = ["Glorb", "James", "Obama"];
+   const adjectives = ["Feeble", "Crippled", "Schizophrenic"];
+   const nouns = ["Amoeba"];
+
+   let chosenAdjectives = [];
+   let potentialAdjectives = adjectives.slice();
+   while (true) {
+      if (potentialAdjectives.length === 0) break;
+      if (Math.random() <= 0.4) {
+         const idx = randInt(0, potentialAdjectives.length);
+         chosenAdjectives.push(potentialAdjectives[idx]);
+         potentialAdjectives.splice(idx, 1);
+      }
+      else break;
+   }
+   const adjectiveList = chosenAdjectives.reduce((previousValue, currentValue, i) => {
+      let newVal = previousValue;
+      if (i > 0 && chosenAdjectives.length - i > 1) newVal += ", ";
+      else if (chosenAdjectives.length > 1 && chosenAdjectives.length - i === 1) newVal += " and ";
+      return newVal + currentValue;
+   }, "");
+
+   const hasNoun = Math.random() <= 0.3;
+
+   let name = randItem(firstNames);
+   if (hasNoun && chosenAdjectives.length > 0) {
+      name += " the " + adjectiveList + " " + randItem(nouns);
+   } else if (chosenAdjectives.length > 0) {
+      name += " the " + adjectiveList;
+   } else if (hasNoun) {
+      name += " the " + randItem(nouns);
+   }
+
+   return name as string;
+}
+
 export function createCreature(): void {
 
    // Generate random attributes for the creature
@@ -89,7 +129,8 @@ export function createCreature(): void {
    speed /= Math.pow(size / creatureAttributeInfo.size.min / reduction, SPEED_REDUCTION_MULTIPLIER);
 
    const attributes: CreatureAttributes = {
-      size: new Vector(size, size),
+      name: getRandomName(),
+      size: size,
       speed: speed,
       vision: vision,
       reproductiveRate: reproductiveRate
@@ -113,6 +154,7 @@ export class Creature extends Entity {
    targetPosition: Vector | null = null;
    reproductiveUrge: number = 0;
    partner: Creature | null = null;
+   reproductionStage: number = 0;
 
    constructor(position: Vector, attributes: CreatureAttributes) {
       super(position, attributes);
@@ -140,7 +182,7 @@ export class Creature extends Entity {
       `;
       
       element.style.setProperty("--vision-size", `${this.vision}px`);
-      element.style.setProperty("--creature-size", `${this.size.x}px`);
+      element.style.setProperty("--creature-size", `${this.size}px`);
    };
 
    get life(): number {
@@ -170,7 +212,8 @@ export class Creature extends Entity {
       super.tick();
 
       // Base amount of reproductive urge gained per second
-      const BASE_REPRODUCTIVE_RATE = 5;
+      const BASE_REPRODUCTIVE_RATE = 50;
+      // const BASE_REPRODUCTIVE_RATE = 5;
       this.reproductiveUrge += BASE_REPRODUCTIVE_RATE * this.reproductiveRate / Game.tps;
       this.reproductiveUrge = Math.min(100, this.reproductiveUrge);
 
@@ -182,13 +225,30 @@ export class Creature extends Entity {
          if (this.hasReachedTargetPosition()) {
             // If it has reached its target, stop moving
             this.reachTargetPosition();
+            if (this.partner !== null) {
+
+            }
          } else {
             // Otherwise continue moving
             this.moveToTargetPosition();
          }
       }
 
-      const visionInCells = Math.floor((this.size.x/2 + this.vision) / Game.cellSize) + 1;
+      switch (this.reproductionStage) {
+         case 1: {
+            /*** Average amount of particles which spawn each second */
+            const particleAmount = 2;
+            if (Math.random() <= particleAmount / Game.tps) {
+               new GameImage("heart", 4, 16, 16, Object.assign({}, this.position));
+            }
+            break;
+         }
+         case 2: {
+
+         }
+      }
+
+      const visionInCells = Math.floor(((this.size as number)/2 + this.vision) / Game.cellSize) + 1;
       const surroundingCells = super.getSurroundingCells(visionInCells);
 
       let surroundingEntities = super.getEntitiesInCells(surroundingCells);
@@ -202,24 +262,30 @@ export class Creature extends Entity {
       let closestPartner: Creature | null = null;
       let distanceToClosestPartner = Number.MAX_SAFE_INTEGER;
       for (const entity of entitiesInVision) {
-         // If it wants to, look for any available partners
-         if (this.wantsToReproduce && entity instanceof Creature && entity.wantsToReproduce && (entity.partner === null || entity.partner === this)) {
+         const entityIsCreature: boolean = entity instanceof Creature;
+         const entityIsFruit: boolean = entity instanceof Fruit;
+
+         if (this.wantsToReproduce && entityIsCreature && entity.wantsToReproduce && (entity.partner === null || entity.partner === this)) {
+            // If it wants to, look for any available partners
             const distanceToCreature = this.position.distanceFrom(entity.position);
             if (distanceToCreature < distanceToClosestPartner) {
-               closestPartner = entity;
+               closestPartner = entity as Creature;
                distanceToClosestPartner = distanceToCreature;
             }
          }
-
-         else if (entity instanceof Fruit) {
-            if (super.isCollidingWithEntity(entity)) {
-               this.eatFruit(entity);
-            }
-
+         else if (entityIsFruit) {
             const distanceToFruit = this.position.distanceFrom(entity.position);
             if (distanceToFruit < distanceToNearestFruit) {
                closestFruit = entity;
                distanceToNearestFruit = distanceToFruit;
+            }
+         }
+
+         if (super.isCollidingWithEntity(entity)) {
+            if (entityIsCreature && entity === this.partner) {
+               this.handleReproduction();
+            } else if (entityIsFruit) {
+               this.eatFruit(entity);
             }
          }
       }
@@ -227,7 +293,9 @@ export class Creature extends Entity {
       // If there are any available partners, move to them
       if (closestPartner !== null) {
          this.targetPosition = closestPartner.position;
+         this.partner = closestPartner;
          this.isReproducing = true;
+         this.reproductionStage = 1;
          return;
       }
 
@@ -262,7 +330,7 @@ export class Creature extends Entity {
    };
 
    canSeeEntity(entity: Entity): boolean {
-      return this.position.distanceFrom(entity.position) <= this.vision + this.size.x/2;
+      return this.position.distanceFrom(entity.position) <= this.vision + (this.size as number)/2;
    };
 
    findRandomPosition(surroundingCells: ReadonlyArray<Cell>): Vector {
@@ -293,11 +361,47 @@ export class Creature extends Entity {
       return dotProduct > 0;
    };
 
-   reachTargetPosition(): void {
+    reachTargetPosition(): void {
       this.isMoving = false;
 
       this.velocity = new Vector(0, 0);
 
       this.targetPosition = null;
    };
+
+   handleReproduction(): void {
+      this.reproduce()
+      .then(() => this.startIncubation())
+      .then(() => this.finishReproduction());
+   };
+
+   reproduce(): Promise<void> {
+      return new Promise(resolve => {
+         this.reproductionStage = 2;
+         
+         const REPRODUCTION_TIME = 2000;
+         setTimeout(() => {
+            resolve(); 
+         }, REPRODUCTION_TIME);
+      });
+   }
+
+   startIncubation(): Promise<void> {
+      return new Promise(resolve => {
+         this.reproductionStage = 3;
+
+         const INCUBATION_TIME = 5000;
+         setTimeout(() => {
+            resolve();
+         }, INCUBATION_TIME);
+      });
+   }
+
+   finishReproduction(): Promise<void> {
+      return new Promise(resolve => {
+         this.reproductionStage = 0;
+
+         resolve();
+      });
+   }
 }

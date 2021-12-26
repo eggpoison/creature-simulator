@@ -1,7 +1,9 @@
 import { updateControlPanel } from "./control-panel";
-import { Creature } from "./entities/Creature";
-import { createFruit, Fruit } from "./entities/Fruit";
+import { Creature } from "./classes/Creature";
+import { createFruit, Fruit } from "./classes/Fruit";
 import { cells } from "./main";
+import { gameImages } from "./GameImage";
+import { updateMouse } from "./Mouse";
 
 const renderListeners: Array<Function> = [];
 
@@ -35,6 +37,10 @@ const Game = {
          }
       }
 
+      for (const gameImage of gameImages) {
+         gameImage.tick();
+      }
+
       // Number of fruits which spawn in a cell each second
       const FRUIT_SPAWN_RATE = 0.1;
       for (let cellNumber = 0; cellNumber < cells.length; cellNumber++) {
@@ -44,6 +50,8 @@ const Game = {
       }
 
       updateControlPanel(creatureCount, fruitCount);
+
+      updateMouse();
    },
    createRenderListener(func: Function): void {
       renderListeners.push(func);

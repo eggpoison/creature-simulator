@@ -104,3 +104,26 @@ export function randItem(arr: Array<unknown>): unknown {
 export function lerp(start: number, target: number, amount: number): number {
    return (1 - amount) * start + amount * target;
 }
+
+export function randomGaussianBell(): number {
+   // Box Muller method from https://stackoverflow.com/questions/25582882/javascript-math-random-normal-distribution-gaussian-bell-curve
+
+   let u = 0, v = 0;
+   while(u === 0) u = Math.random(); //Converting [0,1) to (0,1)
+   while(v === 0) v = Math.random();
+   let num = Math.sqrt( -2.0 * Math.log( u ) ) * Math.cos( 2.0 * Math.PI * v );
+   num = num / 10.0 + 0.5; // Translate to 0 -> 1
+   if (num > 1 || num < 0) return randomGaussianBell() // resample between 0 and 1
+   return num;
+ }
+
+export function createHoverBox(text: string, position: Vector, parent: HTMLElement): HTMLElement {
+   const hoverBox = document.createElement("div");
+   hoverBox.className = "hover-box";
+   hoverBox.style.left = position.x + "px";
+   hoverBox.style.top = position.y + "px";
+   hoverBox.innerHTML = text;
+   parent.appendChild(hoverBox);
+
+   return hoverBox;
+}

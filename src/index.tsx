@@ -7,6 +7,7 @@ import './css/board.css';
 import { setupTitlescreen } from './start';
 import Board from './components/Board';
 import ControlPanel from './components/ControlPanel';
+import handleMouse from './Mouse';
 
 ReactDOM.render(
   <React.StrictMode>
@@ -25,3 +26,5 @@ const setup = (): void => {
 };
 
 window.onload = setup;
+
+document.onmousemove = handleMouse;

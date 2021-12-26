@@ -3,9 +3,9 @@ import { Cell, cells } from "../main";
 import { getElem, randFloat, Vector } from "../utils";
 
 export interface EntityAttributes {
-   [key: string]: number | Vector | undefined;
+   [key: string]: number | string | Vector | undefined;
    lifespan?: number;
-   readonly size: Vector;
+   readonly size: Vector | number;
 }
 
 export abstract class Entity {
@@ -17,7 +17,7 @@ export abstract class Entity {
 
    age: number;
    lifespan!: number;
-   size!: Vector;
+   size!: Vector | number;
 
    element: HTMLElement;
 
@@ -49,10 +49,20 @@ export abstract class Entity {
       const entity = document.createElement("div");
       getElem("board").appendChild(entity);
 
-      const width = `${this.size.x}px`;
-      const height = `${this.size.y}px`;
-      entity.style.width = width;
-      entity.style.height = height;
+      let width: number, height: number;
+
+      if (typeof this.size === "number") {
+         // Number
+         width = this.size;
+         height = this.size;
+      } else {
+         // Vector
+         width = this.size.x;
+         height = this.size.y;
+      }
+
+      entity.style.width = width + "px";
+      entity.style.height = height + "px";
 
       return entity;
    };
@@ -179,7 +189,15 @@ export abstract class Entity {
    isCollidingWithEntity(entity: Entity): boolean {
       const distance = this.position.distanceFrom(entity.position);
 
-      // Inaccurate for entites with a different width and height, problem for future self
-      return distance - this.size.x/2 - entity.size.x/2 <= 0;
+      if (typeof this.size === "number") {
+         return distance - this.size/2 <= 0;
+      } else {
+         // TODO: Inaccurate for entites with a different width and height, problem for future self
+         if (typeof entity.size === "number") {
+            return distance - this.size.x/2 - entity.size/2 <= 0;
+         } else {
+            return distance - this.size.x/2 - entity.size.x/2 <= 0;
+         }
+      }
    }
 }

@@ -7,3 +7,12 @@ body {
 .hidden {
    display: none !important;
 }
+
+.hover-box {
+   font-family: "Source Sans 3";
+   color: #fff;
+   background-color: #28282b;
+   position: absolute;
+   transform: translate(-50%, -50%);
+   white-space: pre;
+}

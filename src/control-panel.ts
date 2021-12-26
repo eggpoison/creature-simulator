@@ -1,4 +1,4 @@
-import { createCreature } from "./entities/Creature";
+import { createCreature } from "./classes/Creature";
 import { getSuffix } from "./utils";
 
 export function updateCreatureCreateAmount(creatureCreateAmount: HTMLElement, input: HTMLInputElement): void {
