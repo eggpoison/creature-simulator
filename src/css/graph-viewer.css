@@ -1,0 +1,75 @@
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600&display=swap');
+
+#graph-viewer {
+   color: #fff;
+   background-color: #28282b;
+   border-radius: 10px;
+   padding: 10px;
+   position: absolute;
+   top: 50%;
+   left: 50%;
+   transform: translate(-50%, -50%);
+   z-index: 5;
+   box-shadow: 2px 2px 5px 0 rgba(0, 0, 0, 0.5);
+}
+
+#graph-viewer * {
+   font-family: "Source Sans 3" !important;
+}
+
+#graph-viewer h1 {
+   font-size: 2rem;
+   margin: 0 0 5px;
+}
+
+#graph-viewer h3 {
+   font-size: 1.3rem;
+   margin: 0 0 9px 50%;
+   text-align: center;
+   position: relative;
+   display: inline-block;
+   transform: translateX(-50%);
+   white-space: pre;
+}
+#graph-viewer h3::after {
+   content: "";
+   height: 2px;
+   background-color: rgb(109, 109, 126);
+   position: absolute;
+   bottom: -1px;
+   left: 0;
+   right: 0;
+}
+
+#graph-viewer .option {
+   color: #ddd;
+   margin-bottom: 3px;
+   cursor: pointer;
+}
+#graph-viewer input[type='checkbox'] {
+   opacity: 0.6;
+   margin-right: 5px;
+}
+#graph-viewer .option.selected input[type='checkbox'] {
+   opacity: 1;
+}
+
+#graph-viewer .side {
+   background-color: #3d3d4b;
+}
+
+#graph-viewer .option.selected {
+   color: #fff;
+}
+
+#graph-viewer #graph-options-container {
+   max-width: 40%;
+   padding: 2px 3px;
+   border-radius: 5px;
+   float: left;
+}
+
+#graph-viewer #graph-container {
+   min-width: 400px;
+   float: right;
+}

@@ -48,6 +48,17 @@ export class Vector {
       const angle = this.angleBetween(targetVector);
       return new PolarVector(distance, angle);
    }
+
+   randomOffset(radius: number): Vector {
+      const dist = randFloat(0, radius);
+      const ang = randFloat(0, 360);
+      const offset = new PolarVector(dist, ang);
+      return this.add(offset.convertToCartesian());
+   }
+
+   copy(): Vector {
+      return new Vector(this.x, this.y);
+   }
 }
 
 export class PolarVector {
@@ -126,4 +137,22 @@ export function createHoverBox(text: string, position: Vector, parent: HTMLEleme
    parent.appendChild(hoverBox);
 
    return hoverBox;
+}
+
+export function roundNum(num: number, dpp: number): number {
+   const power = Math.pow(10, dpp)
+   return Math.round((num + Number.EPSILON) * power) / power;
+}
+
+export function drawRay(start: Vector, end: Vector) {
+   const dist = start.distanceFrom(end);
+   const ang = start.angleBetween(end);
+
+   const ray = document.createElement("div");
+   getElem("board").appendChild(ray);
+   ray.className = "ray";
+   ray.style.transform = `rotate(${ang}rad)`;
+   ray.style.width = dist + "px";
+   ray.style.left = start.x + "px";
+   ray.style.top = start.y + "px";
 }

@@ -7,24 +7,41 @@ import './css/board.css';
 import { setupTitlescreen } from './start';
 import Board from './components/Board';
 import ControlPanel from './components/ControlPanel';
-import handleMouse from './Mouse';
+import CreatureInspector from './components/CreatureInspector';
+import { handleMouse, mouseClick } from './Mouse';
+import GraphViewer from './components/GraphViewer';
+import { getElem } from './utils';
+import { setupGraphs } from './graph-viewer';
 
 ReactDOM.render(
   <React.StrictMode>
     <Titlescreen />
     <ControlPanel />
     <Board />
+    <CreatureInspector />
+    <GraphViewer />
+    <div id="mask" className="hidden"></div>
   </React.StrictMode>,
   document.getElementById("root")
 );
 
-const setup = (): void => {
-   setupTitlescreen();
+export function hideMask(): void {
+  getElem("mask").classList.add("hidden");
+}
 
-   // Create the game loop
-   setInterval(() => Game.runTick(), 1000 / Game.tps);
+export function showMask(): void {
+  getElem("mask").classList.remove("hidden");
+}
+
+const setup = (): void => {
+  setupTitlescreen();
+  setupGraphs();
+
+  // Start the game loop
+  Game.runTick();
 };
 
 window.onload = setup;
 
 document.onmousemove = handleMouse;
+document.onclick = mouseClick;

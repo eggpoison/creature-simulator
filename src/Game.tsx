@@ -1,57 +1,55 @@
-import { updateControlPanel } from "./control-panel";
-import { Creature } from "./classes/Creature";
-import { createFruit, Fruit } from "./classes/Fruit";
+import { createFruit } from "./classes/Fruit";
 import { cells } from "./main";
 import { gameImages } from "./GameImage";
 import { updateMouse } from "./Mouse";
+import { inspectorIsOpen, rerenderInspector } from "./creature-inspector";
+import { updateControlPanel } from "./components/ControlPanel";
 
 const renderListeners: Array<Function> = [];
 
 const Game = {
    hasStarted: false,
    // The number of ticks that have elapsed since the load of the web page
-   tick: 0,
+   ticks: 0,
    // Effectively changes the number of rerenders each second. Affects everything from confetti to creatures.
    tps: 20,
+   timewarp: 1,
    // Runs every {tps} seconds.
    runTick: function(): void {
-      this.tick++;
 
       // Call all external render listeners
       for (const func of renderListeners) func();
 
-      /***
-      The following lines only run if the game has started 
-      ***/
-      if (!Game.hasStarted) return;
+      if (this.hasStarted) {
+         this.ticks++;
 
-      let creatureCount: number = 0;
-      let fruitCount: number = 0;
-
-      // Call all entities' tick functions
-      for (const cell of cells) {
-         for (const entity of cell) {
-            entity.tick();
-            if (entity instanceof Creature) creatureCount++;
-            else if (entity instanceof Fruit) fruitCount++;
+         // Remove all rays
+         document.querySelectorAll(".ray").forEach(ray => ray.remove());
+   
+         // Call all entities' tick functions
+         for (const cell of cells) {
+            for (const entity of cell) {
+               entity.tick();
+            }
          }
-      }
-
-      for (const gameImage of gameImages) {
-         gameImage.tick();
-      }
-
-      // Number of fruits which spawn in a cell each second
-      const FRUIT_SPAWN_RATE = 0.1;
-      for (let cellNumber = 0; cellNumber < cells.length; cellNumber++) {
-         if (Math.random() <= FRUIT_SPAWN_RATE / this.tps) {
-            createFruit(cellNumber);
+   
+         for (const gameImage of gameImages) gameImage.tick();
+   
+         // Number of fruits which spawn in a cell each second
+         const FRUIT_SPAWN_RATE = 0.1;
+         for (let cellNumber = 0; cellNumber < cells.length; cellNumber++) {
+            if (Math.random() <= FRUIT_SPAWN_RATE / this.tps) {
+               createFruit(cellNumber);
+            }
          }
+   
+         updateControlPanel();
+         updateMouse();
+   
+         if (inspectorIsOpen) rerenderInspector();
       }
 
-      updateControlPanel(creatureCount, fruitCount);
-
-      updateMouse();
+      setTimeout(() => this.runTick(), 1000 / this.tps / this.timewarp);
    },
    createRenderListener(func: Function): void {
       renderListeners.push(func);

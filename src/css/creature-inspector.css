@@ -1,0 +1,33 @@
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600&display=swap');
+
+#creature-inspector {
+    color: #fff;
+    font-family: "Source Sans 3";
+    background-color: #28282b;
+    padding: 0 0.5rem;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+#creature-inspector h1 {
+    color: #ccc;
+    font-size: 2.2rem;
+    text-align: center;
+}
+
+#control-panel h2 {
+   font-size: 1.7rem;
+   margin-left: 0.5rem;
+   position: relative;
+   display: table;
+}
+#control-panel h2::after {
+   content: "";
+   height: 2px;
+   background-color: rgb(135, 142, 146);
+   position: absolute;
+   bottom: 2px;
+   left: 0;
+   right: 0;
+}

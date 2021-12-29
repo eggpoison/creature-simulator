@@ -4,11 +4,11 @@ import { getElem, randFloat, Vector } from "../utils";
 
 export interface EntityAttributes {
    [key: string]: number | string | Vector | undefined;
-   lifespan?: number;
-   readonly size: Vector | number;
+   lifespan: number;
+   readonly size: number;
 }
 
-export abstract class Entity {
+abstract class Entity {
    [key: string]: any;
 
    cellNumber: number;
@@ -17,7 +17,6 @@ export abstract class Entity {
 
    age: number;
    lifespan!: number;
-   size!: Vector | number;
 
    element: HTMLElement;
 
@@ -33,8 +32,8 @@ export abstract class Entity {
          this[attribute[0]] = attribute[1];
       }
 
-      this.element = this.createEntity();
-      this.instantiate(this.element);
+      this.element = this.instantiate();
+      this.createEntity();
 
       this.updatePosition();
 
@@ -43,11 +42,20 @@ export abstract class Entity {
    };
 
    // Used in derived classes to create the actual visual thing
-   abstract instantiate(element: HTMLElement): void;
+   abstract instantiate(): HTMLElement;
+
+   static count(entityType: any): number {
+      let count = 0;
+      for (const cell of cells) {
+         for (const entity of cell) {
+            if (entityType.prototype.isPrototypeOf(entity)) count++;
+         }
+      }
+      return count;
+   }
 
    createEntity(): HTMLElement {
-      const entity = document.createElement("div");
-      getElem("board").appendChild(entity);
+      getElem("board").appendChild(this.element);
 
       let width: number, height: number;
 
@@ -61,10 +69,10 @@ export abstract class Entity {
          height = this.size.y;
       }
 
-      entity.style.width = width + "px";
-      entity.style.height = height + "px";
+      this.element.style.width = width + "px";
+      this.element.style.height = height + "px";
 
-      return entity;
+      return this.element;
    };
 
    tick(): void {
@@ -201,3 +209,5 @@ export abstract class Entity {
       }
    }
 }
+
+export default Entity;

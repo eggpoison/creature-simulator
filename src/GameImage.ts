@@ -12,12 +12,14 @@ class GameImage {
 
     numFrames: number;
     frame: number = 0;
+    ticksPerFrame: number;
 
-    constructor(name: string, numFrames:number, width: number, height: number, position: Vector) {
+    constructor(name: string, numFrames: number, ticksPerFrame: number, width: number, height: number, position: Vector) {
         this.name = name;
         this.width = width;
         this.height = height;
         this.numFrames = numFrames;
+        this.ticksPerFrame = ticksPerFrame;
         this.position = position;
 
         this.init();
@@ -38,12 +40,14 @@ class GameImage {
     }
 
     updateBackgroundImage() {
-        const src = require(`./images/${this.name}/${this.name}-${this.frame}.png`).default;
+        const frame = Math.floor(this.frame);
+        const src = require(`./images/${this.name}/${this.name}-${frame}.png`).default;
         this.element.style.backgroundImage = `url(${src})`;
     }
 
     tick(): void {
-        if (++this.frame >= this.numFrames) {
+        this.frame += 1 / this.ticksPerFrame;
+        if (this.frame >= this.numFrames) {
             this.die();
             return;
         }

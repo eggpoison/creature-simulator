@@ -1,4 +1,4 @@
-import { Entity } from "./classes/Entity";
+import Entity from "./classes/Entity";
 import Game from "./Game";
 import { getElem } from "./utils";
 
