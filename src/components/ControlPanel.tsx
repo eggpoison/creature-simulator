@@ -64,7 +64,7 @@ const ControlPanel = () => {
             <p>Width:</p>
             <p>Height:</p>
             <p>Timewarp: {timewarp}</p>
-            <input ref={timewarpRef} type="range" min="0.5" max="10" defaultValue = "1" step="0.1" />
+            <input ref={timewarpRef} type="range" min="1" max="10" defaultValue="1" step="1" />
          </div>
          </>
          ) : (

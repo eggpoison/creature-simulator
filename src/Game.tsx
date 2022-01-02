@@ -1,11 +1,48 @@
-import { createFruit } from "./classes/Fruit";
+import Fruit, { createFruit } from "./classes/Fruit";
 import { cells } from "./main";
 import { gameImages } from "./GameImage";
 import { updateMouse } from "./Mouse";
 import { inspectorIsOpen, rerenderInspector } from "./creature-inspector";
 import { updateControlPanel } from "./components/ControlPanel";
+import Creature, { creatureAttributeInfo } from "./classes/Creature";
 
 const renderListeners: Array<Function> = [];
+
+// Seconds between gene samples
+const GENE_SAMPLE_INTERVAL = 20;
+
+export const geneSamples: Array<GeneSample> = new Array<GeneSample>();
+
+interface GeneSample {
+   [key: string]: any;
+   creatures: number;
+   fruit: number;
+   genes: {
+      [key: string]: number;
+   }
+}
+
+const sampleGenes = (fruitCount: number, creatures: Array<Creature>) => {
+   const genes: { [key: string]: number } = {};
+   for (const creature of creatures) {
+      for (const geneName of Object.keys(creatureAttributeInfo)) {
+         if (!genes.hasOwnProperty(geneName)) {
+            genes[geneName] = creature[geneName];
+         } else {
+            genes[geneName] += creature[geneName];
+         }
+      }
+   }
+   for (const geneName of Object.keys(genes)) {
+      genes[geneName] /= creatures.length;
+   }
+
+   geneSamples.push({
+      creatures: creatures.length,
+      fruit: fruitCount,
+      genes: genes
+   });
+};
 
 const Game = {
    hasStarted: false,
@@ -25,10 +62,15 @@ const Game = {
 
          // Remove all rays
          document.querySelectorAll(".ray").forEach(ray => ray.remove());
+
+         let fruitCount = 0;
+         let creatures = new Array<Creature>();
    
          // Call all entities' tick functions
          for (const cell of cells) {
             for (const entity of cell) {
+               if (entity instanceof Fruit) fruitCount++;
+               else if (entity instanceof Creature) creatures.push(entity);
                entity.tick();
             }
          }
@@ -47,6 +89,10 @@ const Game = {
          updateMouse();
    
          if (inspectorIsOpen) rerenderInspector();
+
+         if (this.ticks % GENE_SAMPLE_INTERVAL * this.tps === 0) {
+            sampleGenes(fruitCount, creatures);
+         }
       }
 
       setTimeout(() => this.runTick(), 1000 / this.tps / this.timewarp);
