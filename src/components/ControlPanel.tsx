@@ -5,7 +5,6 @@ import Fruit from '../classes/Fruit';
 import "../css/control-panel.css";
 import Game from '../Game';
 import { getSuffix, roundNum } from '../utils';
-import { openGraphViewer } from '../graph-viewer';
 
 export let updateControlPanel: Function;
 
@@ -40,7 +39,7 @@ const ControlPanel = () => {
 
          {Game.hasStarted ? (
          <>
-         <button onClick={openGraphViewer}>View Graphs</button>
+         <button id="open-graph-viewer-button">View Graphs</button>
 
          <h2>Overview</h2>
          

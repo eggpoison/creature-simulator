@@ -18,17 +18,8 @@ const GraphViewer = () => {
             </div>
          </div>
          <div className="graph-container">
-
+            <p>Your graph will appear here once you choose an option.</p>
          </div>
-         {/* <div className="main">
-            <div id="graph-options-container" className="side">
-               <h3>Displayed graphs:</h3>
-               <div id="graph-options">
-
-               </div>
-            </div>
-            <div id="graph-container" className="side"></div>
-         </div> */}
       </div>
    );
 }

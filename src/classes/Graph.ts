@@ -41,8 +41,9 @@ class Graph {
          }
    
          let previousPos: Vector = new Vector(0, 0);
-         for (let i = 0; i < dataPoints.length; i++) {
-            const dataPoint = dataPoints[i];
+         for (let j = 0; j < dataPoints.length; j++) {
+            const dataPoint = dataPoints[j];
+            console.log(dataPoint);
             const stepSize = this.width / dataPoints.length;
    
             const point = document.createElement("div");
@@ -51,7 +52,7 @@ class Graph {
             this.element.appendChild(point);
    
             const pos = new Vector(
-               stepSize * i,
+               stepSize * j,
                dataPoint / dataMaxY * this.height * this.maxYHeight
             );
    
@@ -65,6 +66,7 @@ class Graph {
    
                line.style.left = previousPos.x + "px";
                line.style.bottom = previousPos.y + "px";
+               line.style.backgroundColor = colours[i];
    
                const dist = previousPos.distanceFrom(pos);
                const ang = -previousPos.angleBetween(pos);
@@ -102,8 +104,6 @@ class Graph {
       }
 
       let dataMaxY = 0;
-      console.log(this.allDataPoints);
-      console.log(this.allDataPoints[0]);
       for (const dataPoint of this.allDataPoints[0]) {
          if (dataPoint > dataMaxY) dataMaxY = dataPoint;
       }

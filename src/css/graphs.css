@@ -1,9 +1,6 @@
 .graph {
-   background-color: #5c5c6b;
-   /* position: absolute;
-   top: 50%;
-   left: 50%;
-   transform: translate(-50%, -50%); */
+   background-color: rgba(92, 92, 107, 0.6);
+   border: 1px solid #000;
    margin-left: 50%;
    transform: translateX(-50%);
 }
@@ -11,25 +8,28 @@
 .graph .point {
    width: 2px;
    height: 2px;
-   background-color: red;
    position: absolute;
    transform: translate(-50%, -50%);
+   z-index: 3;
 }
 
 .graph .line {
    height: 2px;
-   background-color: green;
    position: absolute;
    transform-origin: top left;
+   opacity: 0.8;
+   z-index: 2;
 }
 
 .graph .measurement {
+   color: #ccc;
+   font-size: 0.85rem;
    position: absolute;
 }
 .graph .measurement.y {
    transform: translateX(-100%);
 }
 .graph .measurement.x {
-   bottom: -5px;
+   bottom: 2px;
    transform: translate(-50%, 100%);
 }

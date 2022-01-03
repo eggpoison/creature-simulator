@@ -2,10 +2,12 @@ import ReactDOM from 'react-dom';
 import { creatureAttributeInfo } from './classes/Creature';
 import Graph from './classes/Graph';
 import { geneSamples } from './Game';
-import { showMask } from './index';
+import { hideMask, showMask } from './index';
 import { getElem } from './utils';
 
 let graphOptions: Array<GraphOption> = new Array<GraphOption>();
+
+export let graphViewerIsVisible: boolean = false;
 
 interface GraphOption {
    display: string;
@@ -15,17 +17,17 @@ interface GraphOption {
 const createOptions = (): Array<GraphOption> => {
    let options: Array<GraphOption> = [
       {
-         display: "Creatures over time",
+         display: "Number of creatures",
          id: "creatures"
       },
       {
-         display: "Fruit over time",
+         display: "Number of fruit",
          id: "fruit"
       }
    ];
    for (const geneName of Object.keys(creatureAttributeInfo)) {
       options.push({
-         display: `Creature ${geneName} over time`,
+         display: `Creature ${geneName}`,
          id: geneName
       });
    }
@@ -40,11 +42,16 @@ const selectOption = (optionClass: string): void => {
       optionElem.classList.remove("selected");
    } else {
       optionElem.classList.add("selected");
-
-      showGraph();
    }
    const optionInput = optionElem.querySelector("input") as HTMLInputElement;
    optionInput.checked = !isSelected;
+
+   if (!isSelected) showGraph();
+}
+
+const stopClick = () => {
+   const e = window.event;
+   e?.stopPropagation();
 }
 
 interface CheckboxReference {
@@ -62,7 +69,7 @@ export function setupGraphs(): void {
    const optionElems = <>{
       graphOptions.map((option, i) => {
          return <div className={`option option-${i}`} key={i} onClick={() => selectOption(`option-${i}`)}>
-            <input type="checkbox" name={option.id} />
+            <input onClick={stopClick} type="checkbox" name={option.id} />
             <label htmlFor={option.id}>{option.display}</label>
          </div>
       })
@@ -71,14 +78,20 @@ export function setupGraphs(): void {
    ReactDOM.render(optionElems, optionsContainer);
 }
 
+export function closeGraphViewer(): void {
+   hideMask();
+   getElem("graph-viewer").classList.add("hidden");
+   graphViewerIsVisible = false;
+}
+
 export function openGraphViewer(): void {
    showMask();
-
    getElem("graph-viewer").classList.remove("hidden");
+   graphViewerIsVisible = true;
 }
 
 function showGraph(): void {
-   const graphViewer = getElem("graph-viewer");
+   const graphViewer = getElem("graph-viewer") as HTMLElement;
    const optionsContainer = graphViewer.querySelector(".options-container") as HTMLElement;
 
    if (checkboxReferences.length === 0) {
@@ -95,6 +108,9 @@ function showGraph(): void {
       if (ref.elem.checked) options.push(ref.option);
    }
    if (options.length === 0) return;
+
+   // Remove any previous graphs
+   (graphViewer.querySelector(".graph-container") as HTMLElement).innerHTML = "";
 
    let allDataPoints: Array<Array<number>> = new Array<Array<number>>();
    for (const option of options) {

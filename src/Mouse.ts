@@ -2,6 +2,7 @@ import Creature from "./classes/Creature";
 import { cells } from "./main";
 import { createHoverBox, getElem, Vector } from "./utils";
 import { closeInspector, openInspector } from "./creature-inspector";
+import { closeGraphViewer, graphViewerIsVisible, openGraphViewer } from "./graph-viewer";
 
 const MIN_HOVER_DIST: number = 30;
 let hoverBox: HTMLElement | null = null;
@@ -72,9 +73,20 @@ export function updateMouse(): void {
 }
 
 export function mouseClick(): void {
-    if (closestCreature !== null) {
-        openInspector(closestCreature);
+    const e = window.event;
+    const targetElem = e?.target as HTMLElement;
+
+    if (targetElem.id === "open-graph-viewer-button") {
+        openGraphViewer();
+    } else if (graphViewerIsVisible) {
+        if (e?.composedPath().includes(getElem("graph-viewer"))) return;
+        
+        closeGraphViewer();
     } else {
-        closeInspector();
+        if (closestCreature !== null) {
+            openInspector(closestCreature);
+        } else {
+            closeInspector();
+        }
     }
 }

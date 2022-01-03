@@ -468,12 +468,7 @@ class Creature extends Entity {
 
          // Chance to mutate the gene
          if (Math.random() <= 0.3) {
-            console.log("Mutating " + geneName);
-            console.log(`min ${creatureAttributeInfo[geneName].min} max ${creatureAttributeInfo[geneName].max}`);
-            console.log("Initial value: " + gene);
             gene = this.mutateGene(geneName, gene);
-            console.log("Mutated value: " + gene);
-            console.log("-=".repeat(20));
          }
       }
 
@@ -484,14 +479,11 @@ class Creature extends Entity {
 
    mutateGene(name: string, initialGeneVal: number): number {
       const gene = creatureAttributeInfo[name];
-      console.log(gene);
 
       let newGeneVal: number = 0;
 
-      const minMutateAmount = (gene.min + gene.max) / 100;
-      console.log(`Minimum mutate amount: ${minMutateAmount}`);
+      const minMutateAmount = (gene.min + gene.max) / 150;
       const dir = randInt(0, 2);
-      console.log(`dir: ${dir}`);
       if (dir === 1) {
          const lerpAmount = randFloat(0.01, 0.05);
          newGeneVal = lerp(initialGeneVal, gene.max, lerpAmount);

@@ -29,9 +29,9 @@
 }
 
 #graph-viewer h1 {
-   color: #ccc;
-   font-size: 2rem;
-   margin: 0;
+   color: rgb(159, 154, 179);
+   font-size: 1.8rem;
+   margin: 0 0 5px;
 }
 
 #graph-viewer h2 {
@@ -70,6 +70,17 @@
 
 #graph-viewer .graph-container {
    margin: 10px 0 20px;
+}
+
+#graph-viewer .graph-container p {
+   max-width: 60%;
+   color: #878799;
+   text-align: center;
+   font-weight: bold;
+   font-style: italic;
+   margin-left: 50%;
+   display: inline-block;
+   transform: translateX(-50%);
 }
 
 /* #graph-viewer #graph-options-container {
