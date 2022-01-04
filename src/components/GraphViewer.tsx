@@ -15,6 +15,9 @@ const GraphViewer = () => {
             </div>
             <div className="settings">
                <h2>Settings</h2>
+               <div className="settings-container">
+
+               </div>
             </div>
          </div>
          <div className="graph-container">

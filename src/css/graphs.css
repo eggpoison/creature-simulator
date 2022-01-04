@@ -14,7 +14,7 @@
 }
 
 .graph .line {
-   height: 2px;
+   height: 1px;
    position: absolute;
    transform-origin: top left;
    opacity: 0.8;

@@ -4,7 +4,6 @@ import Titlescreen from './components/Titlescreen';
 import Game from './Game';
 import './css/index.css';
 import './css/board.css';
-import { setupTitlescreen } from './start';
 import Board from './components/Board';
 import ControlPanel from './components/ControlPanel';
 import CreatureInspector from './components/CreatureInspector';
@@ -34,7 +33,6 @@ export function showMask(): void {
 }
 
 const setup = (): void => {
-  setupTitlescreen();
   setupGraphs();
 
   // Start the game loop

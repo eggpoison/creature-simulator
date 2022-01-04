@@ -13,6 +13,17 @@ h1 {
    padding: 0.1rem 0.4rem;
    display: block;
    transform: translateX(-50%);
+   cursor: pointer;
+}
+
+#source-code-button {
+   color: #fff;
+   background-color: #28282b;
+   border-radius: 7px;
+   box-shadow: 1px 1px 5px 1px rgba(0, 0, 0, 0.6);
+}
+#source-code-button:hover {
+   color: #ccc;
 }
 
 .confetti {

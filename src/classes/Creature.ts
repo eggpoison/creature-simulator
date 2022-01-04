@@ -228,7 +228,7 @@ class Creature extends Entity {
       // Base amount of reproductive urge gained per second
       if (this.reproductionStage === 0 && (Game.ticks - this.lastReproductionTime) * 1000 / Game.tps > REPRODUCTION_TIME + INCUBATION_TIME + ABSTINENCE_TIME) {
          this.element.classList.remove("abstaining");
-         const BASE_REPRODUCTIVE_RATE = 5;
+         const BASE_REPRODUCTIVE_RATE = 3;
          this.reproductiveUrge += BASE_REPRODUCTIVE_RATE * this.reproductiveRate / Game.tps;
          this.reproductiveUrge = Math.min(100, this.reproductiveUrge);
       } else if (this.reproductionStage >= 2) {
@@ -416,7 +416,6 @@ class Creature extends Entity {
 
    reproduce(): Promise<void> {
       return new Promise(resolve => {
-         // console.log("Reproduction started");
          this.reproductionStage = 2;
          this.targetPosition = null;
          this.velocity = new Vector(0, 0);
@@ -433,7 +432,6 @@ class Creature extends Entity {
 
    layEgg(): Promise<void> {
       return new Promise(resolve => {
-         // console.log("Reproduction ended, incubation started.");
          this.reproductionStage = 0;
          // Ensure that only 1 egg is created
          if ((this.partner as Creature).reproductionStage !== 0) {

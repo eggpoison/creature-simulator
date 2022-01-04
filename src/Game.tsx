@@ -5,11 +5,12 @@ import { updateMouse } from "./Mouse";
 import { inspectorIsOpen, rerenderInspector } from "./creature-inspector";
 import { updateControlPanel } from "./components/ControlPanel";
 import Creature, { creatureAttributeInfo } from "./classes/Creature";
+import Entity from "./classes/Entity";
 
 const renderListeners: Array<Function> = [];
 
 // Seconds between gene samples
-const GENE_SAMPLE_INTERVAL = 20;
+const GENE_SAMPLE_INTERVAL = 1;
 
 export const geneSamples: Array<GeneSample> = new Array<GeneSample>();
 
@@ -22,7 +23,7 @@ interface GeneSample {
    }
 }
 
-const sampleGenes = (fruitCount: number, creatures: Array<Creature>) => {
+const sampleGenes = (creatures: Array<Creature>) => {
    const genes: { [key: string]: number } = {};
    for (const creature of creatures) {
       for (const geneName of Object.keys(creatureAttributeInfo)) {
@@ -38,8 +39,8 @@ const sampleGenes = (fruitCount: number, creatures: Array<Creature>) => {
    }
 
    geneSamples.push({
-      creatures: creatures.length,
-      fruit: fruitCount,
+      creatures: Entity.count(Creature),
+      fruit: Entity.count(Fruit),
       genes: genes
    });
 };
@@ -63,14 +64,12 @@ const Game = {
          // Remove all rays
          document.querySelectorAll(".ray").forEach(ray => ray.remove());
 
-         let fruitCount = 0;
          let creatures = new Array<Creature>();
    
          // Call all entities' tick functions
          for (const cell of cells) {
             for (const entity of cell) {
-               if (entity instanceof Fruit) fruitCount++;
-               else if (entity instanceof Creature) creatures.push(entity);
+               if (entity instanceof Creature) creatures.push(entity);
                entity.tick();
             }
          }
@@ -78,7 +77,7 @@ const Game = {
          for (const gameImage of gameImages) gameImage.tick();
    
          // Number of fruits which spawn in a cell each second
-         const FRUIT_SPAWN_RATE = 0.1;
+         const FRUIT_SPAWN_RATE = 0.05;
          for (let cellNumber = 0; cellNumber < cells.length; cellNumber++) {
             if (Math.random() <= FRUIT_SPAWN_RATE / this.tps) {
                createFruit(cellNumber);
@@ -90,8 +89,8 @@ const Game = {
    
          if (inspectorIsOpen) rerenderInspector();
 
-         if (this.ticks % GENE_SAMPLE_INTERVAL * this.tps === 0) {
-            sampleGenes(fruitCount, creatures);
+         if (this.ticks / this.tps % GENE_SAMPLE_INTERVAL === 0) {
+            sampleGenes(creatures);
          }
       }
 
