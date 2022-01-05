@@ -11,6 +11,7 @@ import { handleMouse, mouseClick } from './Mouse';
 import GraphViewer from './components/GraphViewer';
 import { getElem } from './utils';
 import { setupGraphs } from './graph-viewer';
+import { keyPress } from './keyboard';
 
 ReactDOM.render(
   <React.StrictMode>
@@ -43,3 +44,4 @@ window.onload = setup;
 
 document.onmousemove = handleMouse;
 document.onclick = mouseClick;
+document.onkeydown = keyPress;

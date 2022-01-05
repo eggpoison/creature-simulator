@@ -12,6 +12,7 @@
    left: 0;
    overflow: hidden;
    text-overflow: ellipsis;
+   z-index: 4;
 }
 
 #control-panel h1 {

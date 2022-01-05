@@ -6,6 +6,7 @@ import { inspectorIsOpen, rerenderInspector } from "./creature-inspector";
 import { updateControlPanel } from "./components/ControlPanel";
 import Creature, { creatureAttributeInfo } from "./classes/Creature";
 import Entity from "./classes/Entity";
+import { Vector } from "./utils";
 
 const renderListeners: Array<Function> = [];
 
@@ -54,7 +55,6 @@ const Game = {
    timewarp: 1,
    // Runs every {tps} seconds.
    runTick: function(): void {
-
       // Call all external render listeners
       for (const func of renderListeners) func();
 
@@ -111,6 +111,10 @@ const Game = {
    boardSize: {
       width: 10,
       height: 10
+   },
+   transform: {
+      zoom: 1,
+      translate: new Vector(0, 0)
    },
    // Size of the border between cells in px
    cellBorderSize: 2,
