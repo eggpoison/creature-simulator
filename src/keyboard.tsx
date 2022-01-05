@@ -1,6 +1,10 @@
 import Game from "./Game";
 import { getElem } from "./utils";
 
+const boardIsVisible = (): boolean => {
+   return !getElem("board")!.classList.contains("hidden");
+}
+
 const updateTransform = (): void => {
    const board = getElem("board");
 
@@ -11,6 +15,8 @@ const updateTransform = (): void => {
 
 type translateDirection = "up" | "right" | "down" | "left";
 const translateBoard = (dir: translateDirection): void => {
+   if (!boardIsVisible()) return;
+
    const TRANSLATE_AMOUNT = 5;
 
    const translate = Game.transform.translate;
@@ -38,6 +44,8 @@ const translateBoard = (dir: translateDirection): void => {
 
 type zoomDirection = "in" | "out";
 const zoomBoard = (dir: zoomDirection): void => {
+   if (!boardIsVisible()) return;
+   
    const ZOOM_AMOUNT = 0.15;
 
    switch (dir) {

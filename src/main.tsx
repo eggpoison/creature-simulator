@@ -7,6 +7,7 @@ export const cells: Array<Cell> = [];
 
 const createBoard = (): void => {
    const board = getElem("board");
+   board.classList.remove("hidden");
 
    board.style.setProperty("--cell-size", `${Game.cellSize}px`);
    board.style.setProperty("--cell-border-size", `${Game.cellBorderSize}px`);

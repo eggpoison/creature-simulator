@@ -1,10 +1,6 @@
-import React from "react";
-
 const Board = () => {
    return (
-      <div id="board">
-         
-      </div>
+      <div id="board" className="hidden"></div>
    );
 }
 
