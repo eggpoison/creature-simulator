@@ -51,14 +51,12 @@
 #creature-inspector .gene .slider {
     width: 80%;
     height: 1.5rem;
-    /* background-color: red; */
     margin-left: 50%;
     border: 2px solid #ccc;
     transform: translateX(-50%);
 }
 #creature-inspector .gene .slider .slider-fill {
     height: 1.5rem;
-    background-color: red;
 }
 
 #creature-inspector .gene .min {

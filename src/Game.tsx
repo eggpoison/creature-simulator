@@ -7,6 +7,7 @@ import { updateControlPanel } from "./components/ControlPanel";
 import Creature, { creatureGeneInfo } from "./classes/Creature";
 import Entity from "./classes/Entity";
 import { Vector } from "./utils";
+import { drawGraph, graphSettingData } from "./graph-viewer";
 
 const renderListeners: Array<Function> = [];
 
@@ -44,10 +45,15 @@ const sampleGenes = (creatures: Array<Creature>) => {
       fruit: Entity.count(Fruit),
       genes: genes
    });
+
+   if (graphSettingData[1].isChecked) {
+      drawGraph();
+   }
 };
 
 const Game = {
    hasStarted: false,
+   isPaused: false,
    // The number of ticks that have elapsed since the load of the web page
    ticks: 0,
    // Effectively changes the number of rerenders each second. Affects everything from confetti to creatures.
@@ -55,6 +61,11 @@ const Game = {
    timewarp: 1,
    // Runs every {tps} seconds.
    runTick: function(): void {
+      if (this.isPaused) {
+         setTimeout(() => this.runTick(), 1000 / this.tps / this.timewarp);
+         return;
+      }
+
       // Call all external render listeners
       for (const func of renderListeners) func();
 

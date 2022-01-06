@@ -9,9 +9,11 @@ import ControlPanel from './components/ControlPanel';
 import CreatureInspector from './components/CreatureInspector';
 import { handleMouse, mouseClick } from './Mouse';
 import GraphViewer from './components/GraphViewer';
+import PauseScreen from './components/PauseScreen';
 import { getElem } from './utils';
 import { setupGraphs } from './graph-viewer';
 import { keyPress } from './keyboard';
+import './css/pause-screen.css';
 
 ReactDOM.render(
   <React.StrictMode>
@@ -20,6 +22,7 @@ ReactDOM.render(
     <Board />
     <CreatureInspector />
     <GraphViewer />
+    <PauseScreen />
     <div id="mask" className="hidden"></div>
   </React.StrictMode>,
   document.getElementById("root")

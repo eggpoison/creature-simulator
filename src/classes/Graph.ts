@@ -4,14 +4,19 @@ import { lerp, roundNum, Vector } from "../utils";
 type timeUnits = "seconds" | "minutes";
 
 export interface GraphSettings {
-   shouldExtrapolate: boolean;
+   readonly shouldExtrapolate: boolean;
+}
+
+export type dataPointArray = {
+   readonly colour: string;
+   readonly dataPoints: Array<number>;
 }
 
 class Graph {
    element: HTMLElement;
    width: number;
    height: number;
-   allDataPoints: Array<Array<number>>;
+   allDataPoints: Array<dataPointArray>;
    time = Game.ticks;
    settings: GraphSettings;
    
@@ -19,7 +24,7 @@ class Graph {
    xAxisMeasurements = 10;
    timeUnit: timeUnits = this.calculateTimeUnit(this.time);
 
-   constructor(width: number, height: number, allDataPoints: Array<Array<number>>, settings: GraphSettings) {
+   constructor(width: number, height: number, allDataPoints: Array<dataPointArray>, settings: GraphSettings) {
       this.width = width;
       this.height = height;
       this.allDataPoints = allDataPoints;
@@ -76,9 +81,11 @@ class Graph {
    }
 
    plotData() {
-      const colours = ["red", "green", "purple", "aqua", "yellow"];
+      // const colours = ["red", "green", "purple", "aqua", "yellow"];
 
-      this.allDataPoints.forEach((dataPoints, i) => {
+      this.allDataPoints.forEach((dataPointArray, i) => {
+         const dataPoints = dataPointArray.dataPoints, colour = dataPointArray.colour;
+
          let dataMaxY = 0;
          for (const dataPoint of dataPoints) {
             if (dataPoint > dataMaxY) dataMaxY = dataPoint;
@@ -109,9 +116,9 @@ class Graph {
                   dataPoint / dataMaxY * this.height * this.maxYHeight
                );
 
-               this.drawPoint(pos, colours[i]);
+               this.drawPoint(pos, colour);
                if (j > 0) {
-                  this.drawLine(previousPos, pos, colours[i]);
+                  this.drawLine(previousPos, pos, colour);
                }
                
                previousPos = pos;
@@ -127,9 +134,9 @@ class Graph {
                   dataPoint / dataMaxY * this.height * this.maxYHeight
                );
 
-               this.drawPoint(pos, colours[i]);
+               this.drawPoint(pos, colour);
                if (j > 0) {
-                  this.drawLine(previousPos, pos, colours[i]);
+                  this.drawLine(previousPos, pos, colour);
                }
 
                previousPos = pos;
@@ -163,7 +170,7 @@ class Graph {
 
       // VALUES
       let dataMaxY = 0;
-      for (const dataPoint of this.allDataPoints[0]) {
+      for (const dataPoint of this.allDataPoints[0].dataPoints) {
          if (dataPoint > dataMaxY) dataMaxY = dataPoint;
       }
       for (let i = 0; i < Y_AXIS_MEASUREMENTS; i++) {

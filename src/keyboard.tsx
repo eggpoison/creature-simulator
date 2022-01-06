@@ -62,6 +62,15 @@ const zoomBoard = (dir: zoomDirection): void => {
    updateTransform();
 }
 
+const pauseGame = (): void => {
+   Game.isPaused = true;
+   getElem("pause-screen").classList.remove("hidden");
+}
+const unpauseGame = (): void => {
+   Game.isPaused = false;
+   getElem("pause-screen").classList.add("hidden");
+}
+
 export function keyPress(): void {
    const e = window.event as KeyboardEvent;
    const key = e.key;
@@ -92,6 +101,9 @@ export function keyPress(): void {
       case "=": {
          zoomBoard("in");
          break;
+      }
+      case " ": {
+         Game.isPaused ? unpauseGame() : pauseGame();
       }
    }
 }

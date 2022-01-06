@@ -1,6 +1,6 @@
 import ReactDOM from 'react-dom';
 import { creatureGeneInfo } from './classes/Creature';
-import Graph, { GraphSettings } from './classes/Graph';
+import Graph, { dataPointArray, GraphSettings } from './classes/Graph';
 import { geneSamples } from './Game';
 import { hideMask, showMask } from './index';
 import { getElem } from './utils';
@@ -17,20 +17,29 @@ interface Setting {
    description?: string;
    isChecked?: boolean;
    value?: number;
+   defaultValue: boolean | number;
 }
-const settings: ReadonlyArray<Setting> = [
+export const graphSettingData: ReadonlyArray<Setting> = [
    {
       name: "Extrapolate values",
       type: "checkbox",
-      description: "Reduces the amount of nodes rendered, will probably reduce lag in extreme scenarios."
+      description: "Reduces the amount of nodes rendered, will probably reduce lag in extreme scenarios.",
+      defaultValue: false
+   },
+   {
+      name: "Automatically update",
+      type: "checkbox",
+      defaultValue: true
    },
    {
       name: "Show points",
-      type: "checkbox"
+      type: "checkbox",
+      defaultValue: true
    },
    {
       name: "Show lines",
-      type: "checkbox"
+      type: "checkbox",
+      defaultValue: true
    }
 ];
 
@@ -50,23 +59,24 @@ const selectSetting = (setting: Setting, settingElemClass: string): void => {
    if (setting.type === "checkbox") {
       setting.isChecked = !setting.isChecked;
    } else if (setting.type === "range") {
-      // setting.value
+      // TODO: setting.value
    }
+
+   drawGraph();
 }
 
 const createSettings = (): void => {
    const graphViewer = getElem("graph-viewer") as HTMLElement;
    const settingsContainer = graphViewer.querySelector(".settings-container");
 
-   const elems: Array<JSX.Element> = settings.map((setting, i) => {
-      const elemName: string = `setting-input-${i}`;
-
+   const elems: Array<JSX.Element> = graphSettingData.map((setting, i) => {
       // Create the element
+      const elemName: string = `setting-input-${i}`;
       let elem: JSX.Element;
       switch (setting.type) {
          case "checkbox": {
-            elem = <div key={i} className={`option ${elemName}`} onClick={() => selectSetting(setting, elemName)}>
-               <input name={elemName} type="checkbox" />
+            elem = <div key={i} className={`option ${elemName} ${setting.defaultValue ? "selected" : ""}`} onClick={() => selectSetting(setting, elemName)}>
+               <input name={elemName} defaultChecked={setting.defaultValue as boolean} type="checkbox" />
                <label htmlFor={elemName}>{setting.name}</label>
                {setting.description ? 
                <p className="description">{setting.description}</p>
@@ -82,25 +92,37 @@ const createSettings = (): void => {
    ReactDOM.render(elems, settingsContainer);
 }
 
+const setupSettings = (): void => {
+   for (const setting of graphSettingData) {
+      if (setting.type === "checkbox") {
+         setting.isChecked = setting.defaultValue as boolean;
+      }
+   }
+}
+
 interface GraphOption {
    display: string;
    id: string;
+   colour: string;
 }
 const createOptions = (): Array<GraphOption> => {
    let options: Array<GraphOption> = [
       {
          display: "Number of creatures",
-         id: "creatures"
+         id: "creatures",
+         colour: "#26ff1f"
       },
       {
          display: "Number of fruit",
-         id: "fruit"
+         id: "fruit",
+         colour: "#19c6ff"
       }
    ];
-   for (const geneName of Object.keys(creatureGeneInfo)) {
+   for (const gene of Object.entries(creatureGeneInfo)) {
       options.push({
-         display: `Creature ${geneName}`,
-         id: geneName
+         display: `Creature ${gene[1].display}`,
+         id: gene[0],
+         colour: gene[1].colour
       });
    }
    return options;
@@ -121,7 +143,7 @@ const selectOption = (optionClass: string): void => {
    drawGraph();
 }
 
-const stopClick = () => {
+const stopClick = (): void => {
    const e = window.event;
    e?.stopPropagation();
 }
@@ -135,6 +157,7 @@ export function setupGraphs(): void {
    graphOptions = createOptions();
 
    createSettings();
+   setupSettings();
 
    const graphViewer = getElem("graph-viewer");
    const optionsContainer = graphViewer.querySelector(".options-container");
@@ -164,7 +187,7 @@ export function openGraphViewer(): void {
    graphViewerIsVisible = true;
 }
 
-function drawGraph(): void {
+export function drawGraph(): void {
    const graphViewer = getElem("graph-viewer") as HTMLElement;
    const optionsContainer = graphViewer.querySelector(".options-container") as HTMLElement;
 
@@ -193,7 +216,7 @@ function drawGraph(): void {
    // Remove any previous graphs
    graphContainer.innerHTML = "";
 
-   let allDataPoints: Array<Array<number>> = new Array<Array<number>>();
+   let allDataPoints: Array<dataPointArray> = new Array<dataPointArray>();
    for (const option of options) {
       let dataPoints: Array<number>;
       switch (option.id) {
@@ -204,11 +227,14 @@ function drawGraph(): void {
          default:
             dataPoints = geneSamples.map(sample => sample.genes[option.id]);
       }
-      allDataPoints.push(dataPoints);
+      allDataPoints.push({
+         colour: option.colour,
+         dataPoints: dataPoints
+      });
    }
    
    const graphSettings: GraphSettings = {
-      shouldExtrapolate: settings[0].isChecked!
+      shouldExtrapolate: graphSettingData[0].isChecked!
    }
 
    const graph = new Graph(300, 150, allDataPoints, graphSettings);
