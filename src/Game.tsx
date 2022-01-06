@@ -4,7 +4,7 @@ import { gameImages } from "./GameImage";
 import { updateMouse } from "./Mouse";
 import { inspectorIsOpen, rerenderInspector } from "./creature-inspector";
 import { updateControlPanel } from "./components/ControlPanel";
-import Creature, { creatureAttributeInfo } from "./classes/Creature";
+import Creature, { creatureGeneInfo } from "./classes/Creature";
 import Entity from "./classes/Entity";
 import { Vector } from "./utils";
 
@@ -27,7 +27,7 @@ interface GeneSample {
 const sampleGenes = (creatures: Array<Creature>) => {
    const genes: { [key: string]: number } = {};
    for (const creature of creatures) {
-      for (const geneName of Object.keys(creatureAttributeInfo)) {
+      for (const geneName of Object.keys(creatureGeneInfo)) {
          if (!genes.hasOwnProperty(geneName)) {
             genes[geneName] = creature[geneName];
          } else {

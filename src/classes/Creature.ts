@@ -5,7 +5,7 @@ import Entity, { EntityAttributes } from "./Entity";
 import Fruit from "./Fruit";
 import Egg from './Egg';
 import GameImage from "../GameImage";
-import { inspectorCreature } from "../creature-inspector";
+import { closeInspector, inspectorCreature } from "../creature-inspector";
 
 export interface CreatureAttributes extends EntityAttributes {
    name: string;
@@ -14,7 +14,9 @@ export interface CreatureAttributes extends EntityAttributes {
    reproductiveRate: number;
 }
 
-interface AttributeInfo {
+interface GeneInfo {
+   display: string;
+   colour: string;
    min: number;
    max: number;
    /*** How strongly an attribute is factored into deciding a creature's lifespan  */
@@ -22,8 +24,10 @@ interface AttributeInfo {
    positivelyAffectsLifespan?: boolean;
 }
 
-export const creatureAttributeInfo: { [key: string]: AttributeInfo } = {
+export const creatureGeneInfo: { [key: string]: GeneInfo } = {
    speed: {
+      display: "speed",
+      colour: "#e8f52f",
       min: 3,
       max: 10,
       weight: 1,
@@ -31,6 +35,8 @@ export const creatureAttributeInfo: { [key: string]: AttributeInfo } = {
    },
    // Size of the creature in px
    size: {
+      display: "size",
+      colour: "#cc2900",
       min: 10,
       max: 30,
       weight: 1,
@@ -38,6 +44,8 @@ export const creatureAttributeInfo: { [key: string]: AttributeInfo } = {
    },
    // Vision of the creature in px
    vision: {
+      display: "vision",
+      colour: "#322bff",
       min: 25,
       max: 75,
       weight: 1,
@@ -45,6 +53,8 @@ export const creatureAttributeInfo: { [key: string]: AttributeInfo } = {
    },
    // How quickly the creature gains reproductive urge
    reproductiveRate: {
+      display: "reproductive rate",
+      colour: "#ff1ff4",
       min: 0.5,
       max: 2,
       weight: 1
@@ -57,7 +67,7 @@ const calculateLifespan = (attributes: CreatureAttributes): number => {
 
    let lifespan: number = BASE_LIFESPAN * Game.tps;
 
-   for (const attributeInfo of Object.entries(creatureAttributeInfo)) {
+   for (const attributeInfo of Object.entries(creatureGeneInfo)) {
       if (!attributeInfo[1].positivelyAffectsLifespan) continue;
 
       const attributeVal = attributes[attributeInfo[0]] as number;
@@ -74,7 +84,7 @@ const calculateLifespan = (attributes: CreatureAttributes): number => {
 
 // Generate a random gene in a specified range.
 const generateGene = (attributeName: keyof CreatureAttributes): number => {
-   const attribute: AttributeInfo = creatureAttributeInfo[attributeName];
+   const attribute: GeneInfo = creatureGeneInfo[attributeName];
    return randFloat(attribute.min, attribute.max);
 }
 
@@ -127,10 +137,10 @@ export function createCreature(): void {
    attributes.lifespan = calculateLifespan(attributes)
 
    // Make larger creatures slower
-   const SPEED_REDUCTION_MULTIPLIER = 1.1;
-   const MAX_REDUCTION = 3;
-   const reduction = creatureAttributeInfo.size.max / creatureAttributeInfo.size.min / MAX_REDUCTION;
-   attributes.speed /= Math.pow(attributes.size / creatureAttributeInfo.size.min / reduction, SPEED_REDUCTION_MULTIPLIER);
+   // const SPEED_REDUCTION_MULTIPLIER = 1.1;
+   // const MAX_REDUCTION = 3;
+   // const reduction = creatureGeneInfo.size.max / creatureGeneInfo.size.min / MAX_REDUCTION;
+   // attributes.speed /= Math.pow(attributes.size / creatureGeneInfo.size.min / reduction, SPEED_REDUCTION_MULTIPLIER);
 
    // Get a random position for the creature
    const x = randFloat(0, Game.boardSize.width * Game.cellSize);
@@ -146,10 +156,12 @@ const ABSTINENCE_TIME = 4000;
 
 interface CreatureStats {
    fruitEaten: number;
+   generation: number;
 }
 
 class Creature extends Entity {
    speed: number;
+   moveSpeed: number;
    vision: number;
    reproductiveRate: number;
 
@@ -163,7 +175,8 @@ class Creature extends Entity {
    lastReproductionTime: number = -REPRODUCTION_TIME - INCUBATION_TIME - ABSTINENCE_TIME;
 
    stats: CreatureStats = {
-      fruitEaten: 0
+      fruitEaten: 0,
+      generation: 1
    }
 
    constructor(position: Vector, attributes: CreatureAttributes) {
@@ -175,6 +188,15 @@ class Creature extends Entity {
 
       this.isMoving = false;
       this.birthTime = Game.ticks;
+
+      this.moveSpeed = this.calculateMoveSpeed();
+   }
+
+   calculateMoveSpeed(): number {
+      const SPEED_REDUCTION_MULTIPLIER = 1.1;
+      const MAX_REDUCTION = 3;
+      const reduction = creatureGeneInfo.size.max / creatureGeneInfo.size.min / MAX_REDUCTION;
+      return this.speed /  Math.pow(this.size / creatureGeneInfo.size.min / reduction, SPEED_REDUCTION_MULTIPLIER);
    }
 
    instantiate(): HTMLElement {
@@ -383,7 +405,7 @@ class Creature extends Entity {
 
       // Convert from cartesian to polar coordinates
       const angleToTarget = this.position.angleBetween(this.targetPosition!);
-      const nextPosition = new PolarVector(this.speed, angleToTarget);
+      const nextPosition = new PolarVector(this.moveSpeed, angleToTarget);
 
       if (this === inspectorCreature) {
          drawRay(this.position, this.targetPosition as Vector);
@@ -443,7 +465,7 @@ class Creature extends Entity {
                lifespan: INCUBATION_TIME / 1000 * Game.tps
             };
             const eggPos = this.position.randomOffset(10);
-            new Egg(eggPos, eggAttributes, childAttributes);
+            new Egg(eggPos, eggAttributes, childAttributes, this.stats.generation + 1);
          }
 
          this.partner = null;
@@ -459,7 +481,7 @@ class Creature extends Entity {
          name: getRandomName()
       };
 
-      for (const geneName of Object.keys(creatureAttributeInfo)) {
+      for (const geneName of Object.keys(creatureGeneInfo)) {
          // Pick a random allele
          let gene = Math.random() <= 0.5 ? this[geneName] : partner[geneName];
          attributes[geneName] = gene;
@@ -476,7 +498,7 @@ class Creature extends Entity {
    }
 
    mutateGene(name: string, initialGeneVal: number): number {
-      const gene = creatureAttributeInfo[name];
+      const gene = creatureGeneInfo[name];
 
       let newGeneVal: number = 0;
 
@@ -493,6 +515,14 @@ class Creature extends Entity {
       }
 
       return newGeneVal;
+   }
+
+   die(): void {
+      if (this === inspectorCreature) {
+         closeInspector();
+      }
+
+      super.die();
    }
 }
 

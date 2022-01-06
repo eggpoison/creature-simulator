@@ -5,9 +5,12 @@ import Creature, { CreatureAttributes } from "./Creature";
 import Entity, { EntityAttributes } from "./Entity";
 
 class Egg extends Entity {
-   constructor(position: Vector, attributes: EntityAttributes, creatureAttributes: CreatureAttributes) {
+   generation: number;
+
+   constructor(position: Vector, attributes: EntityAttributes, creatureAttributes: CreatureAttributes, generation: number) {
       super(position, attributes);
 
+      this.generation = generation;
       this.creatureAttributes = creatureAttributes;
    }
 
@@ -28,17 +31,9 @@ class Egg extends Entity {
    die(): void {
       super.die();
 
-      new Creature(this.position.copy(), this.creatureAttributes);
+      const creature = new Creature(this.position.copy(), this.creatureAttributes);
+      creature.stats.generation = this.generation;   
    }
-
-   // count(): number {
-   //    let count = 0;
-   //    for (const cell of cells) {
-   //       for (const entity of cell) {
-   //          if (entity instanceof Egg) count++;
-   //       }
-   //    }
-   // }
 }
 
 export default Egg;

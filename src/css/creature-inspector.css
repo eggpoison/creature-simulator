@@ -4,7 +4,7 @@
     color: #fff;
     font-family: "Source Sans 3";
     background-color: #28282b;
-    padding: 0 0.5rem;
+    padding: 0 0.5rem 1rem;
     position: absolute;
     top: 0;
     right: 0;
@@ -16,18 +16,62 @@
     text-align: center;
 }
 
-#control-panel h2 {
-   font-size: 1.7rem;
-   margin-left: 0.5rem;
-   position: relative;
-   display: table;
+#creature-inspector h2 {
+    font-size: 1.5rem;
+    position: relative;
+    display: table;
+ }
+ #creature-inspector h2::after {
+    content: "";
+    height: 2px;
+    background-color: rgb(128, 126, 153);
+    position: absolute;
+    bottom: 4px;
+    left: 0;
+    right: 0;
+ }
+
+#creature-inspector .panel {
+    margin-left: 0.3rem;
 }
-#control-panel h2::after {
-   content: "";
-   height: 2px;
-   background-color: rgb(135, 142, 146);
-   position: absolute;
-   bottom: 2px;
-   left: 0;
-   right: 0;
+
+#creature-inspector p {
+    margin: 0.5rem 0;
+}
+
+#creature-inspector .gene {
+    width: 100%;
+    margin: 0.5rem 0 0.5rem 50%;
+    transform: translateX(-50%);
+}
+#creature-inspector .gene .label {
+    text-align: center;
+    margin: 0;
+}
+#creature-inspector .gene .slider {
+    width: 80%;
+    height: 1.5rem;
+    /* background-color: red; */
+    margin-left: 50%;
+    border: 2px solid #ccc;
+    transform: translateX(-50%);
+}
+#creature-inspector .gene .slider .slider-fill {
+    height: 1.5rem;
+    background-color: red;
+}
+
+#creature-inspector .gene .min {
+    position: absolute;
+    left: 0;
+}
+#creature-inspector .gene .val {
+    background-color: rgba(0, 0, 0, 0.3);
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, -100%);
+}
+#creature-inspector .gene .max {
+    position: absolute;
+    right: 0;
 }

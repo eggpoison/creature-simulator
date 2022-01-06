@@ -1,5 +1,5 @@
 import ReactDOM from 'react-dom';
-import { creatureAttributeInfo } from './classes/Creature';
+import { creatureGeneInfo } from './classes/Creature';
 import Graph, { GraphSettings } from './classes/Graph';
 import { geneSamples } from './Game';
 import { hideMask, showMask } from './index';
@@ -97,7 +97,7 @@ const createOptions = (): Array<GraphOption> => {
          id: "fruit"
       }
    ];
-   for (const geneName of Object.keys(creatureAttributeInfo)) {
+   for (const geneName of Object.keys(creatureGeneInfo)) {
       options.push({
          display: `Creature ${geneName}`,
          id: geneName
