@@ -27,3 +27,21 @@ body {
    bottom: 0;
    z-index: 4;
 }
+
+
+.menu input[type=text] {
+   color: #fff;
+   font-family: "Source Sans 3";
+   font-size: 1rem;
+   font-weight: bold;
+   border: none;
+   background-color: transparent;
+   margin: 0 0 2px 5px;
+   display: inline;
+   outline-width: 0;
+}
+.menu input[type=text]:focus {
+   background-color: #3a3a3d;
+   border-bottom: 2px solid #9393bd;
+   margin-bottom: 0;
+}

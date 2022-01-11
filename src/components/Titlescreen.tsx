@@ -1,7 +1,7 @@
 import React from "react";
 import { createConfettis } from "../confetti";
 import "../css/titlescreen.css";
-import { StartGame } from "../main";
+import { openStartMenu } from "./StartMenu";
 
 const openSourceCode = () => {
    const githubURL = "https://github.com/eggpoison/creature-simulator";
@@ -13,7 +13,7 @@ const Titlescreen = () => {
       <div id="titlescreen">
          <h1>Creature Simulator</h1>
          <div id="title-options-container">
-            <button onClick={StartGame}>Start</button>
+            <button onClick={openStartMenu}>Start</button>
             <button onClick={() => createConfettis(50)}>Confetti!</button>
             <button>About</button>
             <button onClick={openSourceCode} id="source-code-button">Source Code</button>

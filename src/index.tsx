@@ -10,6 +10,7 @@ import CreatureInspector from './components/CreatureInspector';
 import { handleMouse, mouseClick } from './Mouse';
 import GraphViewer from './components/GraphViewer';
 import PauseScreen from './components/PauseScreen';
+import StartMenu from './components/StartMenu';
 import { getElem } from './utils';
 import { setupGraphs } from './graph-viewer';
 import { keyPress } from './keyboard';
@@ -23,6 +24,7 @@ ReactDOM.render(
     <CreatureInspector />
     <GraphViewer />
     <PauseScreen />
+    <StartMenu />
     <div id="mask" className="hidden"></div>
   </React.StrictMode>,
   document.getElementById("root")

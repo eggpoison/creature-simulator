@@ -1,0 +1,57 @@
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600&display=swap');
+
+#start-menu {
+   background-color: #28282b;
+   border: 2px solid #000;
+   border-radius: 5px;
+   padding: 0.2rem 0.5rem;
+   position: absolute;
+   top: 50%;
+   left: 50%;
+   box-shadow: 3px 3px 5px 2px rgba(0, 0, 0, 0.4);
+}
+
+#start-menu * {
+   color: #fff;
+   font-family: "Source Sans 3";
+}
+
+#start-menu h1 {
+   font-size: 1.6rem;
+   margin: 0.3rem 0 0.5rem;
+}
+
+#start-menu button {
+   font-size: 1rem;
+   background-color: transparent;
+   border: 2px solid #ccc;
+   margin: 0.5rem 0 0.5rem 50%;
+   display: table;
+   transform: translateX(-50%);
+   white-space: pre;
+   cursor: pointer;
+}
+#start-menu button:hover {
+   background-color: #4b4b50;
+}
+#start-menu button:active {
+   background-color: #28282b;
+   color: #ccc;
+}
+
+#start-menu h2 {
+   margin: 1rem 0 0.5rem;
+}
+
+#start-menu p {
+   margin: 0;
+}
+
+#start-menu .panel {
+   margin-bottom: 0.7rem;
+}
+
+#start-menu input[type=range] {
+   margin-left: 50%;
+   transform: translateX(-50%);
+}

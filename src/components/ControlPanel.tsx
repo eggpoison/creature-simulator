@@ -72,7 +72,7 @@ const ControlPanel = () => {
    Game.timewarp = timewarp;
 
    return (
-      <div id="control-panel">
+      <div id="control-panel" className="menu">
          <h1>Control Panel</h1>
 
          {Game.hasStarted ? (
