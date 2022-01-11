@@ -43,7 +43,7 @@ export function redrawBoard(): void {
                
                const cellObj = createCell();
                row.appendChild(cellObj);
-               if ((i + j) % 2 === 0) {
+               if ((previousWidth + i + j) % 2 === 0) {
                   cellObj.classList.add("cell-1");
                } else {
                   cellObj.classList.add("cell-2");
@@ -88,7 +88,7 @@ export function redrawBoard(): void {
 
                const cellObj = createCell();
                row.appendChild(cellObj);
-               if ((i + j) % 2 === 0) {
+               if ((previousHeight + i + j) % 2 === 0) {
                   cellObj.classList.add("cell-1");
                } else {
                   cellObj.classList.add("cell-2");
@@ -105,6 +105,7 @@ export function redrawBoard(): void {
          for (let i = 0; i < removeCount; i++) {
             const rowElem = cellRows[previousHeight - i - 1];
             rowElem.remove();
+            cellRows.splice(previousHeight - i - 1, 1);
 
             const startIndex = width * (previousHeight - i - 1) - 1;
             for (let j = 0; j < width; j++) {

@@ -14,9 +14,32 @@ const createCreatures = (input: HTMLInputElement): void => {
    for (let i = 0; i < amount; i++) createCreature();
 }
 
-// let inputWidth: number;
-// let inputHeight: number;
 const updateGameSize = (inputWidth: number, inputHeight: number): void => {
+   if (isNaN(inputWidth)) {
+      alert("The board width must be a number!");
+      return;
+   }
+   if (isNaN(inputHeight)) {
+      alert("The board height must be a number!");
+      return;
+   }
+   if (inputWidth <= 0) {
+      alert("The board width must be a number above 0!");
+      return;
+   }
+   if (inputHeight <= 0) {
+      alert("The board height must be a number above 0!");
+      return;
+   }
+   if (inputWidth % 1 !== 0) {
+      alert("The board width must be an integer!");
+      return;
+   }
+   if (inputHeight % 1 !== 0) {
+      alert("The board height must be an integer!");
+      return;
+   }
+
    changeGameSize("width", inputWidth);
    changeGameSize("height", inputHeight);
 }
