@@ -4,6 +4,7 @@ import Entity from '../classes/Entity';
 import Fruit from '../classes/Fruit';
 import "../css/control-panel.css";
 import Game from '../Game';
+import { redrawBoard } from '../main';
 import { getSuffix, roundNum } from '../utils';
 
 export let updateControlPanel: Function;
@@ -13,10 +14,24 @@ const createCreatures = (input: HTMLInputElement): void => {
    for (let i = 0; i < amount; i++) createCreature();
 }
 
+// let inputWidth: number;
+// let inputHeight: number;
+const updateGameSize = (inputWidth: number, inputHeight: number): void => {
+   changeGameSize("width", inputWidth);
+   changeGameSize("height", inputHeight);
+}
+const changeGameSize = (dimension: keyof typeof Game.boardSize, newVal: number): void => {
+   Game.boardSize[dimension] = newVal;
+   
+   redrawBoard();
+}
+
 const ControlPanel = () => {
    const creatureCreateAmountRef = useRef(null);
    const creatureCreateInputRef = useRef(null);
    const timewarpRef = useRef(null);
+   const changeGameWidthRef = useRef(null);
+   const changeGameHeightRef = useRef(null);
 
    const [, updateState] = React.useState({});
    const forceUpdate = React.useCallback(() => updateState({}), []);
@@ -57,11 +72,14 @@ const ControlPanel = () => {
             <button onClick={() => createCreatures(creatureCreateInputRef.current!)}>Create creature(s)</button>
          </div>
 
-<h2>World</h2>
+         <h2>World</h2>
          
          <div className="panel">
-            <p>Width:</p>
-            <p>Height:</p>
+            <p>Width: <input ref={changeGameWidthRef} defaultValue="10" type="text" /></p>
+            <p>Height: <input ref={changeGameHeightRef} defaultValue="10" type="text" /></p>
+            <button onClick={() => updateGameSize(Number((changeGameWidthRef.current! as HTMLInputElement).value), Number((changeGameHeightRef.current! as HTMLInputElement).value))}>Update Board Size</button>
+            <p className="warning">WARNING: Modifying the board size can delete entities.</p>
+            
             <p>Timewarp: {timewarp}</p>
             <input ref={timewarpRef} type="range" min="1" max="10" defaultValue="1" step="1" />
          </div>

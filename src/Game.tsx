@@ -11,9 +11,6 @@ import { drawGraph, graphSettingData } from "./graph-viewer";
 
 const renderListeners: Array<Function> = [];
 
-// Seconds between gene samples
-const GENE_SAMPLE_INTERVAL = 1;
-
 export const geneSamples: Array<GeneSample> = new Array<GeneSample>();
 
 interface GeneSample {
@@ -100,6 +97,8 @@ const Game = {
    
          if (inspectorIsOpen) rerenderInspector();
 
+         // Seconds between gene samples
+         const GENE_SAMPLE_INTERVAL = 1;
          if (this.ticks / this.tps % GENE_SAMPLE_INTERVAL === 0) {
             sampleGenes(creatures);
          }

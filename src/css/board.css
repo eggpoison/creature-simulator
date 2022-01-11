@@ -13,9 +13,6 @@
    cursor: pointer;
 }
 
-#board .cell-row {
-   background-color: blue;
-}
 #board .cell {
    width: var(--cell-size);
    height: var(--cell-size);

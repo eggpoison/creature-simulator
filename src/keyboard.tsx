@@ -22,19 +22,19 @@ const translateBoard = (dir: translateDirection): void => {
    const translate = Game.transform.translate;
    switch (dir) {
       case "up": {
-         translate.y -= TRANSLATE_AMOUNT;
-         break;
-      }
-      case "right": {
-         translate.x += TRANSLATE_AMOUNT;
-         break;
-      }
-      case "down": {
          translate.y += TRANSLATE_AMOUNT;
          break;
       }
-      case "left": {
+      case "right": {
          translate.x -= TRANSLATE_AMOUNT;
+         break;
+      }
+      case "down": {
+         translate.y -= TRANSLATE_AMOUNT;
+         break;
+      }
+      case "left": {
+         translate.x += TRANSLATE_AMOUNT;
          break;
       }
    }
@@ -74,6 +74,9 @@ const unpauseGame = (): void => {
 export function keyPress(): void {
    const e = window.event as KeyboardEvent;
    const key = e.key;
+
+   // Don't do anything if there is an element in focus
+   if (document.activeElement !== document.body) return;
 
    switch (key) {
       case "ArrowUp": {

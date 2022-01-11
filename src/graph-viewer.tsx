@@ -100,29 +100,33 @@ const setupSettings = (): void => {
    }
 }
 
-interface GraphOption {
+export interface GraphOption {
    display: string;
    id: string;
    colour: string;
+   dependentVariable: string;
 }
 const createOptions = (): Array<GraphOption> => {
    let options: Array<GraphOption> = [
       {
          display: "Number of creatures",
          id: "creatures",
-         colour: "#26ff1f"
+         colour: "#26ff1f",
+         dependentVariable: "Creatures"
       },
       {
          display: "Number of fruit",
          id: "fruit",
-         colour: "#19c6ff"
+         colour: "#19c6ff",
+         dependentVariable: "Fruit"
       }
    ];
    for (const gene of Object.entries(creatureGeneInfo)) {
       options.push({
          display: `Creature ${gene[1].display}`,
          id: gene[0],
-         colour: gene[1].colour
+         colour: gene[1].colour,
+         dependentVariable: gene[1].display
       });
    }
    return options;
@@ -228,7 +232,7 @@ export function drawGraph(): void {
             dataPoints = geneSamples.map(sample => sample.genes[option.id]);
       }
       allDataPoints.push({
-         colour: option.colour,
+         options: option,
          dataPoints: dataPoints
       });
    }

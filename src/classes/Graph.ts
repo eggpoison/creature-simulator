@@ -1,4 +1,5 @@
 import Game from '../Game';
+import { GraphOption } from '../graph-viewer';
 import { lerp, roundNum, Vector } from "../utils";
 
 type timeUnits = "seconds" | "minutes";
@@ -8,7 +9,7 @@ export interface GraphSettings {
 }
 
 export type dataPointArray = {
-   readonly colour: string;
+   readonly options: GraphOption;
    readonly dataPoints: Array<number>;
 }
 
@@ -33,8 +34,8 @@ class Graph {
       this.element = this.instantiate();
       
       this.plotData();
-
       this.createAxes();
+      this.createLabels();
    }
    instantiate(): HTMLElement {
       const element = document.createElement("div");
@@ -84,7 +85,7 @@ class Graph {
       // const colours = ["red", "green", "purple", "aqua", "yellow"];
 
       this.allDataPoints.forEach((dataPointArray, i) => {
-         const dataPoints = dataPointArray.dataPoints, colour = dataPointArray.colour;
+         const dataPoints = dataPointArray.dataPoints, colour = dataPointArray.options.colour;
 
          let dataMaxY = 0;
          for (const dataPoint of dataPoints) {
@@ -179,6 +180,23 @@ class Graph {
          measurement.classList.add("y");
          measurement.style.bottom = this.height / Y_AXIS_MEASUREMENTS * i * this.maxYHeight + "px";
       }
+   }
+
+   createLabels(): void {
+      const xLabel = document.createElement("div");
+      xLabel.className = "label x-label";
+      this.element.appendChild(xLabel);
+      if (this.timeUnit === "seconds") {
+         xLabel.innerHTML = "Seconds";
+      } else if (this.timeUnit === "minutes") {
+         xLabel.innerHTML = "Minutes";
+      }
+
+      const yLabel = document.createElement("div");
+      yLabel.className = "label y-label";
+      this.element.appendChild(yLabel);
+      const val = this.allDataPoints[0].options.dependentVariable;
+      yLabel.innerHTML = val;
    }
 }
 
