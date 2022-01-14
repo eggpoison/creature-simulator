@@ -1,57 +1,23 @@
 @import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600&display=swap');
 
 #start-menu {
-   background-color: #28282b;
-   border: 2px solid #000;
-   border-radius: 5px;
-   padding: 0.2rem 0.5rem;
+   background-color: rgba(0, 0, 0, 0.2);
+   backdrop-filter: blur(4px);
    position: absolute;
-   top: 50%;
+   top: 0;
+   right: 0;
+   bottom: 0;
+   left: 0;
+}
+
+#start-menu .content {
+   position: absolute;
+   top: 5rem;
    left: 50%;
-   box-shadow: 3px 3px 5px 2px rgba(0, 0, 0, 0.4);
-}
-
-#start-menu * {
-   color: #fff;
-   font-family: "Source Sans 3";
-}
-
-#start-menu h1 {
-   font-size: 1.6rem;
-   margin: 0.3rem 0 0.5rem;
-}
-
-#start-menu button {
-   font-size: 1rem;
-   background-color: transparent;
-   border: 2px solid #ccc;
-   margin: 0.5rem 0 0.5rem 50%;
-   display: table;
    transform: translateX(-50%);
-   white-space: pre;
-   cursor: pointer;
-}
-#start-menu button:hover {
-   background-color: #4b4b50;
-}
-#start-menu button:active {
-   background-color: #28282b;
-   color: #ccc;
 }
 
-#start-menu h2 {
-   margin: 1rem 0 0.5rem;
-}
-
-#start-menu p {
-   margin: 0;
-}
-
-#start-menu .panel {
-   margin-bottom: 0.7rem;
-}
-
-#start-menu input[type=range] {
-   margin-left: 50%;
-   transform: translateX(-50%);
+body:not(.dark-mode) #start-menu button {
+   background-color: rgba(0, 0, 0, 0.3);
+   box-shadow: 0 0 0px 2px rgba(0, 0, 0, 0.1);
 }

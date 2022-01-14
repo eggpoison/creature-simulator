@@ -6,10 +6,13 @@
    z-index: 4;
 }
 
-h1 {
+#titlescreen h1 {
    text-align: center;
    font-family: "Source Sans 3";
    font-size: 3rem;
+}
+.dark-mode #titlescreen h1 {
+   color: #fff;
 }
 
 #title-options-container button {
@@ -19,7 +22,19 @@ h1 {
    padding: 0.1rem 0.4rem;
    display: block;
    transform: translateX(-50%);
-   cursor: pointer;
+}
+.dark-mode #title-options-container button {
+   color: #fff;
+   border: 2px solid #bbb;
+   border-radius: 4px;
+   background-color: #444;
+}
+.dark-mode #title-options-container button:hover {
+   border-color: #eee;
+}
+.dark-mode #title-options-container button:active {
+   border-color: #ccc;
+   color: #ccc;
 }
 
 #source-code-button {
@@ -30,6 +45,20 @@ h1 {
 }
 #source-code-button:hover {
    color: #ccc;
+}
+body.dark-mode #source-code-button {
+   background-color: #ccc;
+   color: #000;
+   box-shadow: 1px 1px 7px 2px rgba(200, 200, 200, 0.6);
+}
+body.dark-mode #source-code-button:hover {
+   border-color: #ddd;
+   background-color: #ddd;
+}
+body.dark-mode #source-code-button:active {
+   background-color: #ccc;
+   border-color: #ccc;
+   color: #333;
 }
 
 .confetti {

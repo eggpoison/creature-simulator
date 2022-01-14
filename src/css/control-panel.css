@@ -1,102 +1,20 @@
+@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;500;600&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600&display=swap');
 
 #control-panel {
-   color: #fff;
-   font-family: "Source Sans 3";
-   width: 20rem;
+   min-width: 20rem;
+   padding: 0.2rem 0.4rem;
    height: 100%;
-   background-color: #28282b;
-   box-shadow: 5px 0 7px 0 rgba(40, 40, 43, 0.4);
+   background-color: var(--matte-black);
+   box-shadow: 5px 0 7px 0 rgba(0, 0, 0, 0.4);
    position: absolute;
    top: 0;
    left: 0;
    overflow: hidden;
    text-overflow: ellipsis;
-   z-index: 4;
 }
-
-#control-panel h1 {
-   color: #ccc;
-   font-size: 2.2rem;
-   text-align: center;
-}
-
-#control-panel h2 {
-   font-size: 1.7rem;
-   margin-left: 0.5rem;
-   position: relative;
-   display: table;
-}
-#control-panel h2::after {
-   content: "";
-   height: 2px;
-   background-color: rgb(135, 142, 146);
-   position: absolute;
-   bottom: 2px;
-   left: 0;
-   right: 0;
-}
-
-#control-panel .panel {
-   margin-left: 1rem;
-}
-#control-panel .panel * {
-   margin: 0.4rem 0;
-}
-
-#control-panel p {
-   font-size: 1.05rem;
-}
-
-#control-panel input {
-   display: table;
-}
-
-#control-panel button {
-   color: #fff;
-   font-size: 1rem;
-   font-family: "Source Sans 3";
-   background-color: transparent;
-   margin-left: 50% !important;
-   border-radius: 3px;
-   border: 2px solid #fff;
-   cursor: pointer;
-   transform: translateX(-50%);
-}
-#control-panel button:hover {
-   background-color: #fff;
-   color: #28282b;
-}
-#control-panel button:active {
-   color: #818188;
-}
-
-#control-panel .notice {
-   color: #fff;
-   font-family: "Source Sans 3";
-   font-size: 1.3rem;
-   position: absolute;
-   top: 50%;
-   left: 50%;
-   transform: translate(-50%, -50%);
-   white-space: pre;
-}
-
-#control-panel input[type=text] {
-   color: #fff;
-   font-family: "Source Sans 3";
-   font-size: 1rem;
-   font-weight: bold;
-   border: none;
-   background-color: transparent;
-   margin: 0 0 2px 5px;
-   display: inline;
-   outline-width: 0;
-}
-#control-panel input[type=text]:focus {
-   background-color: #3a3a3d;
-   border-bottom: 2px solid #9393bd;
-   margin-bottom: 0;
+.dark-mode #control-panel {
+   background-color: #000;
 }
 
 #control-panel .warning {
@@ -104,4 +22,100 @@
    line-height: 1rem;
    font-style: italic;
    text-shadow: 0px 0px 1px #000, 0px 0px 2px #000, 0px 0px 3px #000, 0px 0px 4px #000;
+}
+
+#expand-icon {
+   --size: 13px;
+   --thickness: 3.5px;
+   --colour: #bbb;
+   --hover-colour: #fff;
+   --active-colour: #ccc;
+   --offset: 4px;
+   width: var(--size);
+   height: var(--size);
+   position: absolute;
+   top: var(--offset);
+   left: var(--offset);
+   cursor: pointer;
+   z-index: 9;
+}
+#expand-icon .formatter {
+   position: absolute;
+   top: 0;
+   right: 0;
+   bottom: 0;
+   left: 0;
+   animation: expandIconSpin 20s linear infinite;
+}
+@keyframes expandIconSpin {
+   0% {
+      transform: rotate(0deg);
+   }
+   100% {
+      transform: rotate(360deg);
+   }
+}
+#expand-icon:hover :is(.horizontal-bar, .vertical-bar) {
+   background-color: var(--hover-colour);
+}
+#expand-icon:active :is(.horizontal-bar, .vertical-bar) {
+   background-color: var(--active-colour);
+}
+#expand-icon .vertical-bar {
+   width: var(--thickness);
+   height: 100%;
+   background-color: var(--colour);
+   position: absolute;
+   top: 0;
+   left: 50%;
+   transform: translateX(-50%);
+}
+#expand-icon .horizontal-bar {
+   width: 100%;
+   height: var(--thickness);
+   background-color: var(--colour);
+   position: absolute;
+   left: 0;
+   top: 50%;
+   transform: translateY(-50%);
+}
+#expand-icon .text {
+   color: #ccc;
+   font: 400 0.9rem "Source Code Pro";
+   letter-spacing: -0.02rem;
+   white-space: pre;
+   position: absolute;
+   left: calc(100% + 0.5rem);
+   top: calc(50% - 0.05rem);
+   transform: translateY(-50%);
+}
+
+#control-panel .collapse-icon {
+   --size: 13px;
+   --thickness: 3.5px;
+   --colour: #bbb;
+   --hover-colour: #fff;
+   --active-colour: #ccc;
+   --offset: 4px;
+   width: var(--size);
+   height: var(--size);
+   position: absolute;
+   top: var(--offset);
+   left: var(--offset);
+   cursor: pointer;
+}
+#control-panel .collapse-icon:hover .horizontal-bar {
+   background-color: var(--hover-colour);
+}
+#control-panel .collapse-icon:active .horizontal-bar {
+   background-color: var(--active-colour);
+}
+#control-panel .collapse-icon .horizontal-bar {
+   width: 100%;
+   height: var(--thickness);
+   background-color: var(--colour);
+   position: absolute;
+   left: 0;
+   top: 50%;
+   transform: translateY(-50%);
 }

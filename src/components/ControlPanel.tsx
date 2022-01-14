@@ -5,13 +5,22 @@ import Fruit from '../classes/Fruit';
 import "../css/control-panel.css";
 import Game from '../Game';
 import { redrawBoard } from '../main';
-import { getSuffix, roundNum } from '../utils';
+import { getElem, getSuffix, roundNum } from '../utils';
+import InputCheckbox from './InputCheckbox';
+import InputRange from './InputRange';
 
 export let updateControlPanel: Function;
 
-const createCreatures = (input: HTMLInputElement): void => {
-   const amount = Number(input.value);
+const createCreatures = (amount: number): void => {
    for (let i = 0; i < amount; i++) createCreature();
+}
+
+const changeDarkMode = (newVal: boolean): void => {
+   if (newVal) {
+      document.body.classList.add("dark-mode");
+   } else {
+      document.body.classList.remove("dark-mode");
+   }
 }
 
 const updateGameSize = (inputWidth: number, inputHeight: number): void => {
@@ -49,10 +58,25 @@ const changeGameSize = (dimension: keyof typeof Game.boardSize, newVal: number):
    redrawBoard();
 }
 
+const changeTimewarp = (newVal: number) => {
+   console.log(newVal);
+   Game.timewarp = newVal;
+}
+
+const expandControlPanel = (): void => {
+   const controlPanel = getElem("control-panel") as HTMLElement;
+   controlPanel.classList.remove("hidden");
+   const expandIcon = getElem("expand-icon") as HTMLElement;
+   expandIcon.classList.add("hidden");
+}
+const collapseControlPanel = (): void => {
+   const controlPanel = getElem("control-panel") as HTMLElement;
+   controlPanel.classList.add("hidden");
+   const expandIcon = getElem("expand-icon") as HTMLElement;
+   expandIcon.classList.remove("hidden");
+}
+
 const ControlPanel = () => {
-   const creatureCreateAmountRef = useRef(null);
-   const creatureCreateInputRef = useRef(null);
-   const timewarpRef = useRef(null);
    const changeGameWidthRef = useRef(null);
    const changeGameHeightRef = useRef(null);
 
@@ -63,54 +87,51 @@ const ControlPanel = () => {
       updateControlPanel = forceUpdate;
    }, [forceUpdate]);
 
-   let creatureCreateAmount: HTMLElement | string | null = creatureCreateAmountRef.current;
-   if (creatureCreateAmount === null) creatureCreateAmount = "";
-
-   const creatureCreateInputVal = creatureCreateInputRef.current !== null ? Number((creatureCreateInputRef.current as HTMLInputElement).value) : 0;
-
-   const timewarp = timewarpRef.current !== null ? Number((timewarpRef.current as HTMLInputElement).value) : 1;
-   Game.timewarp = timewarp;
-
    return (
-      <div id="control-panel" className="menu">
-         <h1>Control Panel</h1>
-
-         {Game.hasStarted ? (
-         <>
-         <button id="open-graph-viewer-button">View Graphs</button>
-
-         <h2>Overview</h2>
-         
-         <div className="panel">
-            <p>Creatures: {Entity.count(Creature)}</p> 
-            <p>Fruit: {Entity.count(Fruit)}</p>
-            <p>Time elapsed: {roundNum(Game.ticks / 20, 1)} seconds <i>({Game.ticks} ticks)</i></p>
+      <>
+         <div id="expand-icon" className="hidden" onClick={expandControlPanel}>
+            <div className="formatter">
+               <div className="vertical-bar"></div>
+               <div className="horizontal-bar"></div>
+            </div>
+            <div className="text">Control Panel</div>
          </div>
-         
-         <h2>Creatures</h2>
-         
-         <div className="panel">
-            <p ref={creatureCreateAmountRef}>Create <span>{creatureCreateInputVal}</span> creature{getSuffix(creatureCreateInputVal)}</p>
-            <input ref={creatureCreateInputRef} type="range" min="1" max="10" defaultValue="1" step="1" />
-            <button onClick={() => createCreatures(creatureCreateInputRef.current!)}>Create creature(s)</button>
-         </div>
+         <div id="control-panel" className="menu">
+            <div className="collapse-icon" onClick={collapseControlPanel}>
+               <div className="horizontal-bar"></div>
+            </div>
 
-         <h2>World</h2>
-         
-         <div className="panel">
-            <p>Width: <input ref={changeGameWidthRef} defaultValue="10" type="text" /></p>
-            <p>Height: <input ref={changeGameHeightRef} defaultValue="10" type="text" /></p>
-            <button onClick={() => updateGameSize(Number((changeGameWidthRef.current! as HTMLInputElement).value), Number((changeGameHeightRef.current! as HTMLInputElement).value))}>Update Board Size</button>
-            <p className="warning">WARNING: Modifying the board size can delete entities.</p>
-            
-            <p>Timewarp: {timewarp}</p>
-            <input ref={timewarpRef} type="range" min="1" max="10" defaultValue="1" step="1" />
+            <h1 className="heading">Control Panel</h1>
+
+            <h2 className="subheading">Settings</h2>
+
+            <InputCheckbox name="dark-mode" text="Dark Mode" defaultValue={true} func={(newVal: boolean) => changeDarkMode(newVal)} />
+
+            { Game.hasStarted ? ( <>
+               <button id="open-graph-viewer-button">View Graphs</button>
+
+               <h2 className="subheading">Overview</h2>
+               <p>Creatures: {Entity.count(Creature)}</p> 
+               <p>Fruit: {Entity.count(Fruit)}</p>
+               <p>Time elapsed: {roundNum(Game.ticks / 20, 1)} seconds <i>({Game.ticks} ticks)</i></p>
+               
+               <h2 className="subheading">Creatures</h2>
+               
+               <InputRange button="Create" text="Create creatures" min={1} max={10} defaultValue={1} step={1} func={createCreatures} />
+
+               <h2 className="subheading">World</h2>
+               
+               <div className="panel">
+                  <p>Width: <input ref={changeGameWidthRef} defaultValue="10" type="text" /></p>
+                  <p>Height: <input ref={changeGameHeightRef} defaultValue="10" type="text" /></p>
+                  <button onClick={() => updateGameSize(Number((changeGameWidthRef.current! as HTMLInputElement).value), Number((changeGameHeightRef.current! as HTMLInputElement).value))}>Update Board Size</button>
+                  <p className="warning">WARNING: Modifying the board size can delete entities.</p>
+                  
+                  <InputRange text="Timewarp" min={1} max={10} defaultValue={1} step={1} func={changeTimewarp} />
+               </div>
+            </> ) : ""}
          </div>
-         </>
-         ) : (
-            <p className="notice">Start to view the control panel!</p>
-         )}
-      </div>
+      </>
    );
 }
 

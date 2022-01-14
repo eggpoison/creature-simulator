@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import Titlescreen from './components/Titlescreen';
 import Game from './Game';
 import './css/index.css';
+import './css/menus.css';
 import './css/board.css';
 import Board from './components/Board';
 import ControlPanel from './components/ControlPanel';

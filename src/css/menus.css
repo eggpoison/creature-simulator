@@ -1,0 +1,73 @@
+@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600&display=swap');
+
+.menu {
+   z-index: 4;
+}
+
+.menu * {
+   color: #fff;
+}
+
+.menu .heading {
+   text-align: center;
+   text-shadow: 1px 1px 1px #000, 1px 1px 2px #000, 1px 1px 3px #000;
+   font: 600 1.8rem "Source Sans 3";
+   margin: 0 0 1rem;
+}
+
+.menu .subheading {
+   text-align: center;
+   text-shadow: 1px 1px 2px #000;
+   font: 600 1.2rem "Source Code Pro";
+   margin: 1.2 rem 0 0.3rem 0;
+}
+
+.menu p {
+   font: 400 1rem "Source Sans 3";
+   margin: 0;
+}
+
+.menu button {
+   font: 400 0.9rem "Source Code Pro";
+   /* font: 400 0.9rem "Source Sans 3"; */
+   letter-spacing: -0.02rem;
+   word-spacing: -0.1rem;
+   /* letter-spacing: 0.02rem; */
+   background-color: transparent;
+   border: 2px solid #ccc;
+   border-radius: 4px;
+   margin: 0 0 0.2rem 50%;
+   padding: 0 0.3rem;
+   display: table;
+   transform: translateX(-50%);
+   white-space: pre;
+}
+.menu button:hover {
+   font-weight: 500;
+   background-color: var(--matte-black);
+}
+.menu button:active {
+   color: #ccc;
+}
+
+.menu .input-range {
+   margin: 0 0 0.5rem;
+}
+
+.menu input[type=text] {
+   color: #fff;
+   font-family: "Source Sans 3";
+   font-size: 1rem;
+   font-weight: bold;
+   border: none;
+   background-color: transparent;
+   margin: 0 0 2px 5px;
+   display: inline;
+   outline-width: 0;
+}
+.menu input[type=text]:focus {
+   background-color: #3a3a3d;
+   border-bottom: 2px solid #9393bd;
+   margin-bottom: 0;
+}
