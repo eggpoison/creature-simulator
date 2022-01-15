@@ -43,6 +43,13 @@ button {
    border: 2px solid #666;
    border-radius: 5px;
    padding: 2px 4px;
+   margin-left: 50%;
+   display: inline-block;
+   transform: translateX(-50%);
+}
+.input-range.extreme {
+   border-color: rgb(99, 56, 56);
+   box-shadow: 1px 1px 5px 1px rgba(255, 0, 0, 0.3);
 }
 .input-range .formatter {
    width: 100%;
@@ -58,23 +65,44 @@ button {
 }
 .input-range .text {
    font: 400 0.95rem "Source Code Pro";
-   letter-spacing: -0.04rem;
+   letter-spacing: -0.06rem;
+   word-spacing: -0.05rem;
+   white-space: pre;
+}
+.input-range.extreme .text {
+   color: rgb(245, 155, 122);
+   text-shadow: 0 0 2px red;
 }
 .input-range .value {
    font-weight: 600;
    text-align: center;
 }
-.input-range input {
-   display: inline-block;
+.input-range.extreme .value {
+   color: rgb(255, 51, 0);
+   animation: extremeMode 0.1s linear infinite;
+}
+@keyframes extremeMode {
+   0% {
+      transform: translateX(0);
+   }
+   20% {
+      transform: translateX(-0.1rem);
+   }
+   40% {
+      transform: translateX(0);
+   }
+   80% {
+      transform: translateX(0.1rem);
+   }
+   100% {
+      transform: translateX(0);
+   }
+}
+.input-range .bar-container {
+   display: flex;
 }
 .input-range :is(.min, .max) {
    color: #ccc;
-}
-.input-range .min {
-   float: left;
-}
-.input-range .max {
-   float: right;
 }
 .input-range button {
    margin-top: 0.5rem !important;

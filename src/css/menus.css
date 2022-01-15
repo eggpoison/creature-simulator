@@ -30,29 +30,33 @@
 
 .menu button {
    font: 400 0.9rem "Source Code Pro";
-   /* font: 400 0.9rem "Source Sans 3"; */
-   letter-spacing: -0.02rem;
+   letter-spacing: -0.03rem;
    word-spacing: -0.1rem;
-   /* letter-spacing: 0.02rem; */
    background-color: transparent;
-   border: 2px solid #ccc;
+   border: 2px solid #bbb;
    border-radius: 4px;
-   margin: 0 0 0.2rem 50%;
+   margin: 0 0 0 50%;
    padding: 0 0.3rem;
    display: table;
    transform: translateX(-50%);
    white-space: pre;
 }
+
+.menu button + button {
+   margin-top: 0.4rem;
+}
 .menu button:hover {
    font-weight: 500;
    background-color: var(--matte-black);
+   border-color: #ddd;
 }
 .menu button:active {
    color: #ccc;
+   border-color: #ccc;
 }
 
 .menu .input-range {
-   margin: 0 0 0.5rem;
+   margin-bottom: 0.5rem;
 }
 
 .menu input[type=text] {

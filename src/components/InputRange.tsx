@@ -8,9 +8,11 @@ interface InputRangeProps {
    step: number;
    func: (inputVal: number) => unknown;
    button?: string;
+   /*** If present, any values above or equal to its value will enable "extreme mode" (purely visual) */
+   extremeModeCutoff?: number;
 }
 
-const InputRange = ({ text, min, max, defaultValue, step, func, button }: InputRangeProps) => {
+const InputRange = ({ text, min, max, defaultValue, step, func, button, extremeModeCutoff }: InputRangeProps) => {
    const inputRef = useRef(null);
    const [val, setVal] = useState(defaultValue);
 
@@ -21,16 +23,20 @@ const InputRange = ({ text, min, max, defaultValue, step, func, button }: InputR
       setVal(inputVal);
    }
 
+   const extremeModeIsEnabled = extremeModeCutoff ? val >= extremeModeCutoff : false;
+   const className = `input-range  ${extremeModeIsEnabled ? "extreme" : ""}`;
    return (
-      <div className="input-range">
+      <div className={className}>
          <div className="formatter">
             <div className="text">{text}</div>
 
             <div>
                <div className="value">{val}</div>
-               <input ref={inputRef} onInput={onInputChange} type="range" min={min} max={max} step={step} defaultValue={defaultValue} />
-               <div className="min">{min}</div>
-               <div className="max">{max}</div>
+               <div className="bar-container">
+                  <div className="min">{min}</div>
+                  <input ref={inputRef} onInput={onInputChange} type="range" min={min} max={max} step={step} defaultValue={defaultValue} />
+                  <div className="max">{max}</div>
+               </div>
             </div>
          </div>
 
