@@ -1,5 +1,5 @@
 import Game from '../Game';
-import { GraphOption } from '../graph-viewer';
+import { GraphOptions } from '../graph-viewer';
 import { lerp, roundNum, Vector } from "../utils";
 
 type timeUnits = "seconds" | "minutes";
@@ -9,7 +9,7 @@ export interface GraphSettings {
 }
 
 export type dataPointArray = {
-   readonly options: GraphOption;
+   readonly options: GraphOptions;
    readonly dataPoints: Array<number>;
 }
 
@@ -17,19 +17,21 @@ class Graph {
    element: HTMLElement;
    width: number;
    height: number;
-   allDataPoints: Array<dataPointArray>;
+   dataPoints: ReadonlyArray<number>;
    time = Game.ticks;
    settings: GraphSettings;
+   options: GraphOptions;
    
    maxYHeight = 0.9;
    xAxisMeasurements = 10;
    timeUnit: timeUnits = this.calculateTimeUnit(this.time);
 
-   constructor(width: number, height: number, allDataPoints: Array<dataPointArray>, settings: GraphSettings) {
+   constructor(width: number, height: number, dataPoints: ReadonlyArray<number>, settings: GraphSettings, options: GraphOptions) {
       this.width = width;
       this.height = height;
-      this.allDataPoints = allDataPoints;
+      this.dataPoints = dataPoints;
       this.settings = settings;
+      this.options = options;
 
       this.element = this.instantiate();
       
@@ -82,68 +84,61 @@ class Graph {
    }
 
    plotData() {
-      // const colours = ["red", "green", "purple", "aqua", "yellow"];
+      let dataMaxY = 0;
+      for (const dataPoint of this.dataPoints) {
+         if (dataPoint > dataMaxY) dataMaxY = dataPoint;
+      }
+      const EXTRAPOLATION_AMOUNT = 75;
+      if (this.settings.shouldExtrapolate && this.dataPoints.length > EXTRAPOLATION_AMOUNT) {
+         let previousPos: Vector = new Vector(0, 0);
+         for (let j = 0; j < EXTRAPOLATION_AMOUNT; j++) {
+            const relativeIndex = this.dataPoints.length * j/EXTRAPOLATION_AMOUNT;
 
-      this.allDataPoints.forEach((dataPointArray, i) => {
-         const dataPoints = dataPointArray.dataPoints, colour = dataPointArray.options.colour;
+            let dataPoint: number;
+            const remainder = relativeIndex % 1;
+            if (remainder === 0) {
+               // If data point already exists, use existing value
+               dataPoint = this.dataPoints[relativeIndex];
+            } else {
+               // Otherwise extrapolate
+               const floorVal = this.dataPoints[Math.floor(relativeIndex)];
+               const ceilVal = this.dataPoints[Math.ceil(relativeIndex)];
 
-         let dataMaxY = 0;
-         for (const dataPoint of dataPoints) {
-            if (dataPoint > dataMaxY) dataMaxY = dataPoint;
-         }
-
-         const EXTRAPOLATION_AMOUNT = 75;
-         if (this.settings.shouldExtrapolate && dataPoints.length > EXTRAPOLATION_AMOUNT) {
-            let previousPos: Vector = new Vector(0, 0);
-            for (let j = 0; j < EXTRAPOLATION_AMOUNT; j++) {
-               const relativeIndex = dataPoints.length * j/EXTRAPOLATION_AMOUNT;
-
-               let dataPoint: number;
-               const remainder = relativeIndex % 1;
-               if (remainder === 0) {
-                  // If data point already exists, use existing value
-                  dataPoint = dataPoints[relativeIndex];
-               } else {
-                  // Otherwise extrapolate
-                  const floorVal = dataPoints[Math.floor(relativeIndex)];
-                  const ceilVal = dataPoints[Math.ceil(relativeIndex)];
-
-                  dataPoint = lerp(floorVal, ceilVal, remainder);
-               }
-               
-               const stepSize = this.width / EXTRAPOLATION_AMOUNT;
-               const pos = new Vector(
-                  stepSize * j,
-                  dataPoint / dataMaxY * this.height * this.maxYHeight
-               );
-
-               this.drawPoint(pos, colour);
-               if (j > 0) {
-                  this.drawLine(previousPos, pos, colour);
-               }
-               
-               previousPos = pos;
+               dataPoint = lerp(floorVal, ceilVal, remainder);
             }
-         } else {
-            let previousPos: Vector = new Vector(0, 0);
-            for (let j = 0; j < dataPoints.length; j++) {
-               const dataPoint = dataPoints[j];
-               const stepSize = this.width / dataPoints.length;
-               
-               const pos = new Vector(
-                  stepSize * j,
-                  dataPoint / dataMaxY * this.height * this.maxYHeight
-               );
+            
+            const stepSize = this.width / EXTRAPOLATION_AMOUNT;
+            const pos = new Vector(
+               stepSize * j,
+               dataPoint / dataMaxY * this.height * this.maxYHeight
+            );
 
-               this.drawPoint(pos, colour);
-               if (j > 0) {
-                  this.drawLine(previousPos, pos, colour);
-               }
-
-               previousPos = pos;
+            this.drawPoint(pos, this.options.colour);
+            if (j > 0) {
+               this.drawLine(previousPos, pos, this.options.colour);
             }
+            
+            previousPos = pos;
          }
-      });
+      } else {
+         let previousPos: Vector = new Vector(0, 0);
+         for (let j = 0; j < this.dataPoints.length; j++) {
+            const dataPoint = this.dataPoints[j];
+            const stepSize = this.width / this.dataPoints.length;
+            
+            const pos = new Vector(
+               stepSize * j,
+               dataPoint / dataMaxY * this.height * this.maxYHeight
+            );
+
+            this.drawPoint(pos, this.options.colour);
+            if (j > 0) {
+               this.drawLine(previousPos, pos, this.options.colour);
+            }
+
+            previousPos = pos;
+         }
+      }
    }
 
    createAxisMeasurement(val: number): HTMLElement {
@@ -171,7 +166,7 @@ class Graph {
 
       // VALUES
       let dataMaxY = 0;
-      for (const dataPoint of this.allDataPoints[0].dataPoints) {
+      for (const dataPoint of this.dataPoints) {
          if (dataPoint > dataMaxY) dataMaxY = dataPoint;
       }
       for (let i = 0; i < Y_AXIS_MEASUREMENTS; i++) {
@@ -195,7 +190,7 @@ class Graph {
       const yLabel = document.createElement("div");
       yLabel.className = "label y-label";
       this.element.appendChild(yLabel);
-      const val = this.allDataPoints[0].options.dependentVariable;
+      const val = this.options.dependentVariable;
       yLabel.innerHTML = val;
    }
 }

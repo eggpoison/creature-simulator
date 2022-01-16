@@ -9,10 +9,10 @@ interface InputRangeProps {
    func: (inputVal: number) => unknown;
    button?: string;
    /*** If present, any values above or equal to its value will enable "extreme mode" (purely visual) */
-   extremeModeCutoff?: number;
+   hasExtremeMode?: boolean;
 }
 
-const InputRange = ({ text, min, max, defaultValue, step, func, button, extremeModeCutoff }: InputRangeProps) => {
+const InputRange = ({ text, min, max, defaultValue, step, func, button, hasExtremeMode }: InputRangeProps) => {
    const inputRef = useRef(null);
    const [val, setVal] = useState(defaultValue);
 
@@ -23,7 +23,7 @@ const InputRange = ({ text, min, max, defaultValue, step, func, button, extremeM
       setVal(inputVal);
    }
 
-   const extremeModeIsEnabled = extremeModeCutoff ? val >= extremeModeCutoff : false;
+   const extremeModeIsEnabled = hasExtremeMode ? val >= max : false;
    const className = `input-range  ${extremeModeIsEnabled ? "extreme" : ""}`;
    return (
       <div className={className}>

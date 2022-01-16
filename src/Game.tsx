@@ -7,7 +7,7 @@ import { updateControlPanel } from "./components/ControlPanel";
 import Creature, { creatureGeneInfo } from "./classes/Creature";
 import Entity from "./classes/Entity";
 import { Vector } from "./utils";
-import { drawGraph, graphSettingData } from "./graph-viewer";
+import { drawGraphs, graphSettingData } from "./graph-viewer";
 
 const renderListeners: Array<Function> = [];
 
@@ -44,11 +44,42 @@ const sampleGenes = (creatures: Array<Creature>) => {
    });
 
    if (graphSettingData[1].isChecked) {
-      drawGraph();
+      drawGraphs();
    }
 };
 
-const Game = {
+interface GameType {
+   hasStarted: boolean;
+   isPaused: boolean;
+   ticks: number;
+   readonly tps: number;
+   timewarp: number;
+   runTick: Function;
+   createRenderListener: Function;
+   removeRenderListener: Function;
+   hasRenderListener: Function;
+   boardSize: {
+      width: number;
+      height: number;
+   },
+   transform: {
+      zoom: number;
+      translate: Vector;
+   },
+   readonly cellBorderSize: number;
+   readonly cellSize: number;
+   settings: GameSettings;
+}
+export interface GameSettings {
+   fruitSpawnRate: number;
+   creatureMutationRate: number;
+}
+
+export const defaultGameSettings: GameSettings = {
+   fruitSpawnRate: 1,
+   creatureMutationRate: 1
+}
+const Game: GameType = {
    hasStarted: false,
    isPaused: false,
    // The number of ticks that have elapsed since the load of the web page
@@ -85,9 +116,10 @@ const Game = {
          for (const gameImage of gameImages) gameImage.tick();
    
          // Number of fruits which spawn in a cell each second
-         const FRUIT_SPAWN_RATE = 0.05;
+         const FRUIT_SPAWN_RATE = 0.05 * this.settings.fruitSpawnRate;
          for (let cellNumber = 0; cellNumber < cells.length; cellNumber++) {
-            if (Math.random() <= FRUIT_SPAWN_RATE / this.tps) {
+            const rand = Math.random();
+            for (let i = 0; rand <= FRUIT_SPAWN_RATE / this.tps - i; i++) {
                createFruit(cellNumber);
             }
          }
@@ -129,7 +161,8 @@ const Game = {
    // Size of the border between cells in px
    cellBorderSize: 2,
    // Width and height of cells in px
-   cellSize: 60
+   cellSize: 60,
+   settings: defaultGameSettings
 };
 
 export default Game;

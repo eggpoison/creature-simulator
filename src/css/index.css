@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;500;600&display=swap');
 
 body {
@@ -121,4 +122,35 @@ button {
 }
 .input-checkbox.selected label {
    color: #fff;
+}
+
+.input-text .text {
+   font: 400 1rem "Source Sans 3";
+}
+.input-text input {
+   font: 400 1rem "Source Code Pro";
+   background-color: transparent;
+   margin-left: 5px;
+   border: none;
+}
+
+.warning {
+   background-color: rgba(0, 0, 0, 0.5);
+   padding: 5px;
+   border-radius: 5px;
+   position: absolute;
+   z-index: 999;
+   transform: translateX(2rem)
+}
+.warning h3 {
+   color: rgb(255, 60, 0);
+   font: 600 0.95rem "Source Code Pro";
+   background-color: #000;
+   margin: 0 0 0.2rem;
+   text-shadow: 0 0 1px red;
+   display: table;
+}
+.warning p {
+   font: 400 0.95rem "Source Sans 3";
+   margin: 0 !important;
 }

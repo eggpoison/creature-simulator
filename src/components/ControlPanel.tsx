@@ -5,7 +5,7 @@ import Fruit from '../classes/Fruit';
 import "../css/control-panel.css";
 import Game from '../Game';
 import { redrawBoard } from '../main';
-import { getElem, getSuffix, roundNum } from '../utils';
+import { getElem, roundNum } from '../utils';
 import InputCheckbox from './InputCheckbox';
 import InputRange from './InputRange';
 
@@ -111,6 +111,7 @@ const ControlPanel = () => {
                <button id="open-graph-viewer-button">View Graphs</button>
 
                <h2 className="subheading">Overview</h2>
+
                <p>Creatures: {Entity.count(Creature)}</p> 
                <p>Fruit: {Entity.count(Fruit)}</p>
                <p>Time elapsed: {roundNum(Game.ticks / 20, 1)} seconds <i>({Game.ticks} ticks)</i></p>
@@ -121,14 +122,11 @@ const ControlPanel = () => {
 
                <h2 className="subheading">World</h2>
                
-               <div className="panel">
-                  <p>Width: <input ref={changeGameWidthRef} defaultValue="10" type="text" /></p>
-                  <p>Height: <input ref={changeGameHeightRef} defaultValue="10" type="text" /></p>
-                  <button onClick={() => updateGameSize(Number((changeGameWidthRef.current! as HTMLInputElement).value), Number((changeGameHeightRef.current! as HTMLInputElement).value))}>Update Board Size</button>
-                  <p className="warning">WARNING: Modifying the board size can delete entities.</p>
-                  
-                  <InputRange text="Timewarp" min={1} max={10} defaultValue={1} step={1} func={changeTimewarp} />
-               </div>
+               <p>Width: <input ref={changeGameWidthRef} defaultValue="10" type="text" /></p>
+               <p>Height: <input ref={changeGameHeightRef} defaultValue="10" type="text" /></p>
+               <button onClick={() => updateGameSize(Number((changeGameWidthRef.current! as HTMLInputElement).value), Number((changeGameHeightRef.current! as HTMLInputElement).value))}>Update Board Size</button>
+               
+               <InputRange text="Timewarp" min={1} max={10} defaultValue={1} step={1} func={changeTimewarp} hasExtremeMode={true} />
             </> ) : ""}
          </div>
       </>

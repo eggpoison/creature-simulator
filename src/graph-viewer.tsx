@@ -1,11 +1,12 @@
 import ReactDOM from 'react-dom';
 import { creatureGeneInfo } from './classes/Creature';
-import Graph, { dataPointArray, GraphSettings } from './classes/Graph';
+import Graph, { GraphSettings } from './classes/Graph';
+import InputCheckbox from './components/InputCheckbox';
 import { geneSamples } from './Game';
 import { hideMask, showMask } from './index';
 import { getElem } from './utils';
 
-let graphOptions: Array<GraphOption> = new Array<GraphOption>();
+let graphOptions: Array<GraphOptions> = new Array<GraphOptions>();
 
 export let graphViewerIsVisible: boolean = false;
 
@@ -62,7 +63,7 @@ const selectSetting = (setting: Setting, settingElemClass: string): void => {
       // TODO: setting.value
    }
 
-   drawGraph();
+   drawGraphs();
 }
 
 const createSettings = (): void => {
@@ -100,14 +101,14 @@ const setupSettings = (): void => {
    }
 }
 
-export interface GraphOption {
+export interface GraphOptions {
    display: string;
    id: string;
    colour: string;
    dependentVariable: string;
 }
-const createOptions = (): Array<GraphOption> => {
-   let options: Array<GraphOption> = [
+const createOptions = (): Array<GraphOptions> => {
+   let options: Array<GraphOptions> = [
       {
          display: "Number of creatures",
          id: "creatures",
@@ -132,31 +133,7 @@ const createOptions = (): Array<GraphOption> => {
    return options;
 }
 
-const selectOption = (optionClass: string): void => {
-   const optionElem = getElem("graph-viewer").querySelector("." + optionClass) as HTMLElement;
-
-   const isSelected = optionElem.classList.contains("selected");
-   if (isSelected) {
-      optionElem.classList.remove("selected");
-   } else {
-      optionElem.classList.add("selected");
-   }
-   const optionInput = optionElem.querySelector("input") as HTMLInputElement;
-   optionInput.checked = !isSelected;
-
-   drawGraph();
-}
-
-const stopClick = (): void => {
-   const e = window.event;
-   e?.stopPropagation();
-}
-
-interface CheckboxReference {
-   elem: HTMLInputElement;
-   option: GraphOption;
-}
-let checkboxReferences: Array<CheckboxReference> = new Array<CheckboxReference>();
+let selectedOptions: Array<GraphOptions> = new Array<GraphOptions>();
 export function setupGraphs(): void {
    graphOptions = createOptions();
 
@@ -169,10 +146,18 @@ export function setupGraphs(): void {
    // Create JSX elements
    const optionElems = <>{
       graphOptions.map((option, i) => {
-         return <div className={`option option-${i}`} key={i} onClick={() => selectOption(`option-${i}`)}>
-            <input onClick={stopClick} type="checkbox" name={option.id} />
-            <label htmlFor={option.id}>{option.display}</label>
-         </div>
+         const clickEvent = (isSelected: boolean, elem?: HTMLElement) => {
+            if (isSelected) {
+               selectedOptions.push(option);
+            } else {
+               const idx = selectedOptions.indexOf(option);
+               selectedOptions.splice(idx, 1);
+            }
+
+            drawGraphs();
+         };
+
+         return <InputCheckbox key={i} name={option.id} text={option.display} defaultValue={false} func={clickEvent} />
       })
    }</>;
 
@@ -191,39 +176,26 @@ export function openGraphViewer(): void {
    graphViewerIsVisible = true;
 }
 
-export function drawGraph(): void {
+export function drawGraphs(): void {
    const graphViewer = getElem("graph-viewer") as HTMLElement;
-   const optionsContainer = graphViewer.querySelector(".options-container") as HTMLElement;
-
-   if (checkboxReferences.length === 0) {
-      checkboxReferences = graphOptions.map((option, i) => {
-         return {
-            elem: optionsContainer.querySelector(`.option-${i} input`)!,
-            option: option
-         }
-      });
-   }
-
-   let options: Array<GraphOption> = new Array<GraphOption>();
-   for (const ref of checkboxReferences) {
-      if (ref.elem.checked) options.push(ref.option);
-   }
-
    const graphContainer = graphViewer.querySelector(".graph-container") as HTMLElement;
 
    // If no options are selected, display text and leave
-   if (options.length === 0) {
+   if (selectedOptions.length === 0) {
       graphContainer.innerHTML = "<p>Your graph will appear here once you choose an option.</p>";
       return;
    }
 
    // Remove any previous graphs
    graphContainer.innerHTML = "";
+   
+   const graphSettings: GraphSettings = {
+      shouldExtrapolate: graphSettingData[0].isChecked!
+   };
 
-   let allDataPoints: Array<dataPointArray> = new Array<dataPointArray>();
-   for (const option of options) {
+   for (const option of selectedOptions) {
       let dataPoints: Array<number>;
-      switch (option.id) {
+      switch (option.id) { 
          case "creatures":
          case "fruit":
             dataPoints = geneSamples.map(sample => sample[option.id]);
@@ -231,17 +203,9 @@ export function drawGraph(): void {
          default:
             dataPoints = geneSamples.map(sample => sample.genes[option.id]);
       }
-      allDataPoints.push({
-         options: option,
-         dataPoints: dataPoints
-      });
-   }
-   
-   const graphSettings: GraphSettings = {
-      shouldExtrapolate: graphSettingData[0].isChecked!
-   }
 
-   const graph = new Graph(300, 150, allDataPoints, graphSettings);
-   const graphElem = graph.element;
-   graphContainer.appendChild(graphElem);
+      const graph = new Graph(300, 150, dataPoints, graphSettings, option);
+      const graphElem = graph.element;
+      graphContainer.appendChild(graphElem);
+   }
 }

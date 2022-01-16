@@ -500,21 +500,22 @@ class Creature extends Entity {
    mutateGene(name: string, initialGeneVal: number): number {
       const gene = creatureGeneInfo[name];
 
-      let newGeneVal: number = 0;
-
       const minMutateAmount = (gene.min + gene.max) / 150;
       const dir = randInt(0, 2);
+      
+      let mutateAmount = minMutateAmount;
       if (dir === 1) {
          const lerpAmount = randFloat(0.01, 0.05);
-         newGeneVal = lerp(initialGeneVal, gene.max, lerpAmount);
-         newGeneVal += minMutateAmount;
+         mutateAmount += lerp(initialGeneVal, gene.max, lerpAmount) - initialGeneVal;
       } else {
+         mutateAmount *= -1;
          const lerpAmount = randFloat(0.01, 0.05);
-         newGeneVal = lerp(initialGeneVal, gene.min, lerpAmount);
-         newGeneVal -= minMutateAmount;
+         mutateAmount -= initialGeneVal - lerp(initialGeneVal, gene.min, lerpAmount);
       }
 
-      return newGeneVal;
+      mutateAmount *= Game.settings.creatureMutationRate;
+
+      return initialGeneVal + mutateAmount;
    }
 
    die(): void {

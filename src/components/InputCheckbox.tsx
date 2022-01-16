@@ -4,7 +4,7 @@ interface InputCheckboxProps {
    name: string;
    text: string;
    defaultValue: boolean;
-   func: (inputVal: boolean) => unknown;
+   func: (inputVal: boolean, elem?: HTMLElement) => void;
 }
 
 const InputCheckbox = ({ name, text, defaultValue, func }: InputCheckboxProps) => {
@@ -14,7 +14,7 @@ const InputCheckbox = ({ name, text, defaultValue, func }: InputCheckboxProps) =
    const onInputChange = () => {
       const inputVal = !!Number((inputRef.current! as HTMLInputElement).checked);
 
-      func(inputVal);
+      func(inputVal, inputRef.current!);
       setVal(inputVal);
    }
 

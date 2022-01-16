@@ -4,17 +4,19 @@ import '../css/graphs.css';
 
 const GraphViewer = () => {
    return (
-      <div id="graph-viewer" className="hidden">
-         <h1>View Graphs</h1>
+      <div id="graph-viewer" className="menu hidden">
+         <h1 className="heading">View Graphs</h1>
+
          <div className="formatter">
             <div className="options">
-               <h2>Options</h2>
-               <div className="options-container">
+               <h2 className="subheading">Options</h2>
 
+                  <p>Select which graphs should be shown.</p>
+               <div className="options-container">
                </div>
             </div>
             <div className="settings">
-               <h2>Settings</h2>
+               <h2 className="subheading">Settings</h2>
                <div className="settings-container">
 
                </div>
