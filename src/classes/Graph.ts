@@ -22,7 +22,6 @@ class Graph {
    settings: GraphSettings;
    options: GraphOptions;
    
-   maxYHeight = 0.9;
    xAxisMeasurements = 10;
    timeUnit: timeUnits = this.calculateTimeUnit(this.time);
 
@@ -84,10 +83,11 @@ class Graph {
    }
 
    plotData() {
-      let dataMaxY = 0;
+      let maxY = 0;
       for (const dataPoint of this.dataPoints) {
-         if (dataPoint > dataMaxY) dataMaxY = dataPoint;
+         if (dataPoint > maxY) maxY = dataPoint;
       }
+
       const EXTRAPOLATION_AMOUNT = 75;
       if (this.settings.shouldExtrapolate && this.dataPoints.length > EXTRAPOLATION_AMOUNT) {
          let previousPos: Vector = new Vector(0, 0);
@@ -110,7 +110,7 @@ class Graph {
             const stepSize = this.width / EXTRAPOLATION_AMOUNT;
             const pos = new Vector(
                stepSize * j,
-               dataPoint / dataMaxY * this.height * this.maxYHeight
+               this.height * dataPoint/maxY
             );
 
             this.drawPoint(pos, this.options.colour);
@@ -128,7 +128,7 @@ class Graph {
             
             const pos = new Vector(
                stepSize * j,
-               dataPoint / dataMaxY * this.height * this.maxYHeight
+               this.height * dataPoint/maxY
             );
 
             this.drawPoint(pos, this.options.colour);
@@ -154,26 +154,26 @@ class Graph {
    createAxes(): void {
       const Y_AXIS_MEASUREMENTS = 10;
 
-      // TIME
+      // Time
       for (let i = 0; i < this.xAxisMeasurements; i++) {
          let val = this.time / this.xAxisMeasurements * i / Game.tps;
          if (this.timeUnit === "minutes") val /= 60;
 
          const measurement = this.createAxisMeasurement(val);
          measurement.classList.add("x");
-         measurement.style.left = this.width / this.xAxisMeasurements * i + "px";
+         measurement.style.left = this.width / this.xAxisMeasurements * i * (this.xAxisMeasurements+1)/this.xAxisMeasurements + "px";
       }
 
-      // VALUES
-      let dataMaxY = 0;
+      let maxY = 0;
       for (const dataPoint of this.dataPoints) {
-         if (dataPoint > dataMaxY) dataMaxY = dataPoint;
+         if (dataPoint > maxY) maxY = dataPoint;
       }
+
       for (let i = 0; i < Y_AXIS_MEASUREMENTS; i++) {
-         const val = dataMaxY / Y_AXIS_MEASUREMENTS * i;
+         const val = maxY / (Y_AXIS_MEASUREMENTS-1) * i;
          const measurement = this.createAxisMeasurement(val);
          measurement.classList.add("y");
-         measurement.style.bottom = this.height / Y_AXIS_MEASUREMENTS * i * this.maxYHeight + "px";
+         measurement.style.bottom = this.height / (Y_AXIS_MEASUREMENTS-1) * i + "px";
       }
    }
 

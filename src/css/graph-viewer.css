@@ -2,7 +2,6 @@
 
 #graph-viewer {
    width: clamp(50%, 1000px, 90%);
-   color: #fff;
    background-color: #28282b;
    border-radius: 10px;
    padding: 10px;
@@ -14,10 +13,6 @@
    box-shadow: 2px 2px 5px 0 rgba(0, 0, 0, 0.5);
 }
 
-/* #graph-viewer * {
-   font-family: "Source Sans 3" !important;
-} */
-
 #graph-viewer .formatter {
    width: 100%;
    display: flex;
@@ -28,43 +23,10 @@
    flex-basis: 50%;
 }
 
-/* #graph-viewer h1 {
-   color: rgb(159, 154, 179);
-   font-size: 1.8rem;
-   margin: 0 0 5px;
-} */
-
-/* #graph-viewer h2 {
-   position: relative;
-   margin-top: 10px;
-} */
-/* #graph-viewer h2::after {
-   content: "";
-   height: 2px;
-   background-color: #5d5d6b;
-   position: absolute;
-   left: 0;
-   right: 0;
-   bottom: -4px;
-} */
-/* #graph-viewer .formatter > *:first-child h2::after {
-   right: 20px;
-} */
-
 #graph-viewer .option {
    color: #ddd;
    margin-bottom: 3px;
    cursor: pointer;
-}
-#graph-viewer input[type='checkbox'] {
-   opacity: 0.6;
-   margin-right: 5px;
-}
-#graph-viewer .option.selected {
-   color: #fff;
-}
-#graph-viewer .option.selected input[type='checkbox'] {
-   opacity: 1;
 }
 #graph-viewer .option .description {
    font-style: italic;

@@ -1,15 +1,19 @@
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;500;600&display=swap');
+
 .graph {
-   /* background-color: rgba(92, 92, 107, 0.6); */
+   --point-size: 2px;
+
    border: 1px solid #000;
    margin: 10px 0 30px;
    position: relative;
 }
 
 .graph .point {
-   width: 2px;
-   height: 2px;
+   width: var(--point-size);
+   height: var(--point-size);
    position: absolute;
-   transform: translate(-50%, -50%);
+   /* transform: translate(-50%, -50%); */
    z-index: 3;
 }
 
@@ -22,12 +26,12 @@
 }
 
 .graph .measurement {
+   font: 400 0.85rem "Open Sans 3";
    color: #ccc;
-   font-size: 0.85rem;
    position: absolute;
 }
 .graph .measurement.y {
-   transform: translateX(-100%);
+   transform: translate(-100%, 50%);
 }
 .graph .measurement.x {
    bottom: 2px;

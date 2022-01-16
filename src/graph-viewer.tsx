@@ -148,7 +148,8 @@ export function setupGraphs(): void {
       graphOptions.map((option, i) => {
          const clickEvent = (isSelected: boolean, elem?: HTMLElement) => {
             if (isSelected) {
-               selectedOptions.push(option);
+               // selectedOptions.push(option);
+               selectedOptions.splice(i, 0, option)
             } else {
                const idx = selectedOptions.indexOf(option);
                selectedOptions.splice(idx, 1);
