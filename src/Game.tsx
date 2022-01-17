@@ -13,34 +13,45 @@ const renderListeners: Array<Function> = [];
 
 export const geneSamples: Array<GeneSample> = new Array<GeneSample>();
 
+interface GenePool {
+   [key: keyof typeof creatureGeneInfo]: number | null;
+}
 interface GeneSample {
    [key: string]: any;
-   creatures: number;
-   fruit: number;
-   genes: {
-      [key: string]: number;
-   }
+   creatures: number | null;
+   fruit: number | null;
+   genePool: GenePool
 }
 
 const sampleGenes = (creatures: Array<Creature>) => {
-   const genes: { [key: string]: number } = {};
+   let genePool: GenePool = {};
+   for (const geneName of Object.keys(creatureGeneInfo)) {
+      genePool[geneName] = 0;
+   }
+
    for (const creature of creatures) {
       for (const geneName of Object.keys(creatureGeneInfo)) {
-         if (!genes.hasOwnProperty(geneName)) {
-            genes[geneName] = creature[geneName];
+         if (!genePool.hasOwnProperty(geneName)) {
+            genePool[geneName] = creature[geneName];
          } else {
-            genes[geneName] += creature[geneName];
+            genePool[geneName] += creature[geneName];
          }
       }
    }
-   for (const geneName of Object.keys(genes)) {
-      genes[geneName] /= creatures.length;
+   for (const [ geneName, gene ] of Object.entries(genePool)) {
+      genePool[geneName]! /= creatures.length;
+      if (gene === 0) genePool[geneName] = null;
    }
 
+   let creatureCount: number | null = Entity.count(Creature);
+   if (creatureCount === 0) creatureCount = null;
+   let fruitCount: number | null = Entity.count(Fruit);
+   if (fruitCount === 0) fruitCount = null;
+
    geneSamples.push({
-      creatures: Entity.count(Creature),
-      fruit: Entity.count(Fruit),
-      genes: genes
+      creatures: creatureCount,
+      fruit: fruitCount,
+      genePool: genePool
    });
 
    if (graphSettingData[1].isChecked) {

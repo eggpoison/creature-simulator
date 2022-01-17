@@ -50,7 +50,7 @@ const updateGameSize = (inputWidth: number, inputHeight: number): void => {
    }
 
    changeGameSize("width", inputWidth);
-   changeGameSize("height", inputHeight);
+   changeGameSize("height", inputHeight); 
 }
 const changeGameSize = (dimension: keyof typeof Game.boardSize, newVal: number): void => {
    Game.boardSize[dimension] = newVal;
@@ -59,7 +59,6 @@ const changeGameSize = (dimension: keyof typeof Game.boardSize, newVal: number):
 }
 
 const changeTimewarp = (newVal: number) => {
-   console.log(newVal);
    Game.timewarp = newVal;
 }
 

@@ -13,11 +13,11 @@
    box-shadow: 2px 2px 5px 0 rgba(0, 0, 0, 0.5);
 }
 
-#graph-viewer .formatter {
+#graph-viewer > .formatter {
    width: 100%;
    display: flex;
 }
-#graph-viewer .formatter > * {
+#graph-viewer > .formatter > * {
    flex-grow: 0;
    flex-shrink: 0;
    flex-basis: 50%;
