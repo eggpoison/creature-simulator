@@ -1,6 +1,6 @@
 import Game from "../Game";
 import { Cell, cells } from "../main";
-import { drawRay, lerp, PolarVector, randFloat, randInt, randItem, Vector } from "../utils";
+import { drawRay, PolarVector, randFloat, randInt, randItem, Vector } from "../utils";
 import Entity, { EntityAttributes } from "./Entity";
 import Fruit from "./Fruit";
 import Egg from './Egg';
@@ -500,18 +500,25 @@ class Creature extends Entity {
    mutateGene(name: string, initialGeneVal: number): number {
       const gene = creatureGeneInfo[name];
 
-      const minMutateAmount = (gene.min + gene.max) / 150;
-      const dir = randInt(0, 2);
+      // const minMutateAmount = (gene.min + gene.max) / 150;
+
+      // min mutate amount * math.random() (maybe go higher )
+      let mutateAmount = (gene.min + gene.max) / 300;
+
+      mutateAmount *= randFloat(0.1, 1) * Game.settings.creatureMutationRate;
       
-      let mutateAmount = minMutateAmount;
-      if (dir === 1) {
-         const lerpAmount = randFloat(0.01, 0.05);
-         mutateAmount += lerp(initialGeneVal, gene.max, lerpAmount) - initialGeneVal;
-      } else {
-         mutateAmount *= -1;
-         const lerpAmount = randFloat(0.01, 0.05);
-         mutateAmount -= initialGeneVal - lerp(initialGeneVal, gene.min, lerpAmount);
-      }
+      // let mutateAmount = minMutateAmount;
+      // if (dir === 1) {
+      //    const lerpAmount = randFloat(0.01, 0.05);
+      //    mutateAmount += lerp(initialGeneVal, gene.max, lerpAmount) - initialGeneVal;
+      // } else {
+      //    mutateAmount *= -1;
+      //    const lerpAmount = randFloat(0.01, 0.05);
+      //    mutateAmount -= initialGeneVal - lerp(initialGeneVal, gene.min, lerpAmount);
+      // }
+
+      const dir = Math.sign(Math.random() - 0.5);
+      mutateAmount *= dir;
 
       mutateAmount *= Game.settings.creatureMutationRate;
 

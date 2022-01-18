@@ -1,16 +1,13 @@
 import ReactDOM from 'react-dom';
 import { creatureGeneInfo } from './classes/Creature';
-import Graph, { GraphSettings } from './classes/Graph';
+import Graph, { GraphData, GraphSettings, GraphType } from './classes/Graph';
 import InputCheckbox from './components/InputCheckbox';
 import InputRange from './components/InputRange';
 import { geneSamples } from './Game';
 import { hideMask, showMask } from './index';
 import { getElem } from './utils';
 
-let graphOptions: Array<GraphOptions> = new Array<GraphOptions>();
-
 export let graphViewerIsVisible: boolean = false;
-
 
 type settingType = "checkbox" | "range";
 interface Setting {
@@ -118,41 +115,43 @@ export interface GraphOptions {
    id: string;
    colour: string;
    dependentVariable: string;
+   type: GraphType;
    min?: number;
    max?: number;
 }
-const createOptions = (): Array<GraphOptions> => {
-   let options: Array<GraphOptions> = [
-      {
-         display: "Number of creatures",
-         id: "creatures",
-         colour: "#26ff1f",
-         dependentVariable: "Creatures"
-      },
-      {
-         display: "Number of fruit",
-         id: "fruit",
-         colour: "#19c6ff",
-         dependentVariable: "Fruit"
-      }
-   ];
+let graphOptions: Array<GraphOptions> = [
+   {
+      display: "Number of creatures",
+      id: "creatures",
+      colour: "#26ff1f",
+      dependentVariable: "Creatures",
+      type: "simple"
+   },
+   {
+      display: "Number of fruit",
+      id: "fruit",
+      colour: "#19c6ff",
+      dependentVariable: "Fruit",
+      type: "simple"
+   }
+];
+const createGraphOptions = (): void => {
    for (const [ geneName, gene ] of Object.entries(creatureGeneInfo)) {
-      options.push({
+      graphOptions.push({
          display: `Creature ${gene.display}`,
          id: geneName,
          colour: gene.colour,
          dependentVariable: gene.display,
          min: gene.min,
          max: gene.max,
+         type: "detailed"
       });
    }
-   return options;
 }
 
-let selectedOptions: Array<GraphOptions> = new Array<GraphOptions>();
+let selectedGraphOptions: Array<GraphOptions> = new Array<GraphOptions>();
 export function setupGraphs(): void {
-   graphOptions = createOptions();
-
+   createGraphOptions();
    createSettings();
    setupSettings();
 
@@ -164,20 +163,20 @@ export function setupGraphs(): void {
          const clickEvent = (isSelected: boolean) => {
             if (isSelected) {
                let hasInserted = false;
-               for (let j = 0; j < selectedOptions.length; j++) {
-                  const n = graphOptions.indexOf(selectedOptions[j]);
+               for (let j = 0; j < selectedGraphOptions.length; j++) {
+                  const n = graphOptions.indexOf(selectedGraphOptions[j]);
                   if (n > i) {
-                     selectedOptions.splice(j, 0, option)
+                     selectedGraphOptions.splice(j, 0, option)
                      hasInserted = true;
                      break;
                   }
                }
                if (!hasInserted) {
-                  selectedOptions.push(option);
+                  selectedGraphOptions.push(option);
                }
             } else {
-               const idx = selectedOptions.indexOf(option);
-               selectedOptions.splice(idx, 1);
+               const idx = selectedGraphOptions.indexOf(option);
+               selectedGraphOptions.splice(idx, 1);
             }
 
             drawGraphs();
@@ -207,7 +206,7 @@ export function drawGraphs(): void {
    const graphContainer = graphViewer.querySelector(".graph-container") as HTMLElement;
 
    // If no options are selected, display text and leave
-   if (selectedOptions.length === 0) {
+   if (selectedGraphOptions.length === 0) {
       graphContainer.innerHTML = "<p>Your graph will appear here once you choose an option.</p>";
       return;
    }
@@ -219,19 +218,18 @@ export function drawGraphs(): void {
       shouldExtrapolate: graphSettingData[0].isChecked!
    };
 
-   for (const option of selectedOptions) {
-      let dataPoints: Array<number | null>;
-      switch (option.id) { 
-         case "creatures":
-         case "fruit":
-            dataPoints = geneSamples.map(sample => sample[option.id]);
-            break;
-         default:
-            dataPoints = geneSamples.map(sample => sample.genePool[option.id]);
+   for (const graphOptions of selectedGraphOptions) {
+      let dataPoints: GraphData;
+      if (graphOptions.type === "simple") {
+         dataPoints = geneSamples.map(sample => sample[graphOptions.id]);
+      } else if (graphOptions.type === "detailed") {
+         dataPoints = geneSamples.map(sample => sample.genePool !== null ? sample.genePool[graphOptions.id] : null);
       }
 
-      const graph = new Graph(300, 150, dataPoints, graphSettings, option);
-      const graphElem = graph.element;
-      graphContainer.appendChild(graphElem);
+      const aspectRatio = 5/3;
+      const width = 350;
+
+      const graph = new Graph(width, width/aspectRatio, dataPoints!, graphSettings, graphOptions);
+      graphContainer.appendChild(graph.element);
    }
 }

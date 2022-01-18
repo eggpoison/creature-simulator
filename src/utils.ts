@@ -156,3 +156,80 @@ export function drawRay(start: Vector, end: Vector) {
    ray.style.left = start.x + "px";
    ray.style.top = start.y + "px";
 }
+
+export function standardDeviation(data: ReadonlyArray<number>): number {
+   const n = data.length;
+   const mean = data.reduce((a, b) => a + b) / n;
+   const sqrDeviations = data.map(val => Math.pow(val - mean, 2));
+   const variance = sqrDeviations.reduce((a, b) => a + b) / n;
+   return Math.sqrt(variance);
+}
+
+export class Colour {
+   private _hex!: string;
+   public get hex(): string {
+      return "#" + this._hex;
+   }
+
+   private _rgb: [number, number, number];
+   public get rgb(): string {
+      const [ r, g, b ] = this._rgb;
+      return `rgb(${r}, ${g}, ${b})`;
+   }
+
+   private hexDigits = "0123456789abcdef".split("");
+
+   constructor(colour: string | [number, number, number] ) {
+      if (typeof colour === "string") {
+         this._hex = colour.toLowerCase();
+         if (this._hex.length === 7) {
+            this._hex = this._hex.substring(1, 7);
+         }
+   
+         this._rgb = this.getRGB();
+      } else {
+         this._rgb = colour;
+
+         this._hex = this.getHex();
+      }
+   }
+
+   private getRGB(): [number, number, number] {
+      const rgb: [number, number, number] = [0, 0, 0];
+      for (let i = 0; i < 3; i++) {
+         const digit1 = this.hexDigits.indexOf(this._hex[i * 2]);
+         const digit2 = this.hexDigits.indexOf(this._hex[i * 2 + 1]);
+         rgb[i] = digit1 * 16 + digit2;
+      }
+      return rgb;
+   }
+   private getHex(): string {
+      let hex = "";
+      for (let i = 0; i < 3; i++) {
+         const col = this._rgb[i];
+         const digit2 = col % 16;
+         const digit1 = (col-digit2) / 16;
+         hex += this.hexDigits[digit1] + this.hexDigits[digit2];
+      }
+      return hex;
+   }
+
+   darken(amount: number): Colour {
+      // 1 = fully darkened, 0.5 = half darkened
+      // Rounds down
+      const rgb = this._rgb.map(colour => Math.round(colour * (1 - amount))) as [number, number, number];
+      return new Colour(rgb);
+   }
+
+   // https://stackoverflow.com/questions/13348129/using-native-javascript-to-desaturate-a-colour/13355255
+   desaturate(amount: number): Colour {
+      const col = this._rgb.slice();
+      const gray = col[0] * 0.3086 + col[1] * 0.6094 + col[2] * 0.0820;
+
+      col[0] = Math.round(lerp(col[0], gray, amount));
+      col[1] = Math.round(lerp(col[1], gray, amount));
+      col[2] = Math.round(lerp(col[2], gray, amount));
+
+      return new Colour([col[0], col[1], col[2]]);
+   }
+}

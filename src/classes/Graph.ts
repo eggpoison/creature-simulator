@@ -1,6 +1,6 @@
-import Game from '../Game';
+import Game, { GeneSampleEntry } from '../Game';
 import { GraphOptions } from '../graph-viewer';
-import { lerp, roundNum, Vector } from "../utils";
+import { Colour, lerp, roundNum, Vector } from "../utils";
 
 type timeUnits = "seconds" | "minutes";
 
@@ -8,11 +8,14 @@ export interface GraphSettings {
    readonly shouldExtrapolate: boolean;
 }
 
+export type GraphData = Array<GeneSampleEntry | null> | Array<number | null>;
+export type GraphType = "simple" | "detailed";
 class Graph {
+   data: GraphData;
+
    element: HTMLElement;
    width: number;
    height: number;
-   dataPoints: Array<number | null>;
    time = Game.ticks;
    settings: GraphSettings;
    options: GraphOptions;
@@ -23,10 +26,10 @@ class Graph {
    xAxisMeasurements = 10;
    timeUnit: timeUnits = this.calculateTimeUnit(this.time);
 
-   constructor(width: number, height: number, dataPoints: Array<number | null>, settings: GraphSettings, options: GraphOptions) {
+   constructor(width: number, height: number, data: GraphData, settings: GraphSettings, options: GraphOptions) {
       this.width = width;
       this.height = height;
-      this.dataPoints = dataPoints;
+      this.data = data;
       this.settings = settings;
       this.options = options;
 
@@ -55,9 +58,16 @@ class Graph {
    }
    calculateMaxY(): number {
       if (this.options.max) return this.options.max;
+
       let maxY = 0;
-      for (const dataPoint of this.dataPoints) {
-         if (dataPoint !== null && dataPoint > maxY) maxY = dataPoint;
+      if (this.options.type === "simple") {
+         for (const dataPoint of (this.data as Array<number | null>)) {
+            if (dataPoint !== null && dataPoint > maxY) maxY = dataPoint;
+         }
+      } else if (this.options.type === "detailed") {
+         for (const dataPoint of (this.data as Array<GeneSampleEntry | null>)) {
+            if (dataPoint !== null && dataPoint.max > maxY) maxY = dataPoint.max;
+         }
       }
       return maxY;
    }
@@ -96,22 +106,46 @@ class Graph {
       line.style.transform = `rotate(${ang}rad)`;
    }
 
-   plotData() {
-      let dataPoints: Array<number | null> = new Array<number | null>();
-      const EXTRAPOLATION_AMOUNT = 75;
-      if (this.settings.shouldExtrapolate && this.dataPoints.length > EXTRAPOLATION_AMOUNT) {
-         for (let i = 0; i < EXTRAPOLATION_AMOUNT; i++) {
-            const relativeIndex = this.dataPoints.length * i/EXTRAPOLATION_AMOUNT;
+   drawRect(pos: Vector, width: number, height: number, colour: string): void {
+      const rect = document.createElement("div");
+      rect.className = "rect";
+      this.element.appendChild(rect);
 
+      rect.style.width = width + "px";
+      rect.style.height = height + "px";
+      rect.style.backgroundColor = colour;
+
+      rect.style.left = pos.x + "px";
+      rect.style.bottom = pos.y + "px";
+   }
+
+   getData(): GraphData {
+      const EXTRAPOLATION_AMOUNT = 75;
+      if (!this.settings.shouldExtrapolate || this.data.length <= EXTRAPOLATION_AMOUNT) {
+         return this.data;
+      }
+
+      let data!: GraphData;
+      if (this.options.type === "simple") {
+         data = new Array<number | null>();
+      } else if (this.options.type === "detailed") {
+         data = new Array<GeneSampleEntry | null>();
+      }
+
+      for (let i = 0; i < EXTRAPOLATION_AMOUNT; i++) {
+         const relativeIndex = this.data.length * i/EXTRAPOLATION_AMOUNT;
+
+         if (this.options.type === "simple") {
             let dataPoint: number | null;
+
             const remainder = relativeIndex % 1;
             if (remainder === 0) {
                // If data point already exists, use existing value
-               dataPoint = this.dataPoints[relativeIndex];
+               dataPoint = this.data[relativeIndex] as number | null;
             } else {
                // Otherwise extrapolate
-               const floorVal = this.dataPoints[Math.floor(relativeIndex)];
-               const ceilVal = this.dataPoints[Math.ceil(relativeIndex)];
+               const floorVal = this.data[Math.floor(relativeIndex)] as number | null;
+               const ceilVal = this.data[Math.ceil(relativeIndex)] as number | null;
 
                if (floorVal === null && ceilVal === null) {
                   dataPoint = null;
@@ -123,32 +157,130 @@ class Graph {
                   dataPoint = lerp(floorVal as number, ceilVal as number, remainder);
                }
             }
-            dataPoints.push(dataPoint);
-         }
-      } else {
-         dataPoints = this.dataPoints;
-      }
+            (data as Array<number | null>).push(dataPoint);
+         } else if (this.options.type === "detailed") {
+            let dataPoint: GeneSampleEntry | null;
 
+            const remainder = relativeIndex % 1;
+            if (remainder === 0) {
+               // If data point already exists, use existing value
+               dataPoint = this.data[relativeIndex] as GeneSampleEntry | null;
+            } else {
+               // Otherwise extrapolate
+               const floorVal = this.data[Math.floor(relativeIndex)] as GeneSampleEntry | null;
+               const ceilVal = this.data[Math.ceil(relativeIndex)] as GeneSampleEntry | null;
+
+               if (floorVal === null && ceilVal === null) {
+                  dataPoint = null;
+               } else if (floorVal === null && ceilVal !== null) {
+                  dataPoint = ceilVal;
+               } else if (floorVal !== null && ceilVal === null) {
+                  dataPoint = floorVal;
+               } else {
+                  dataPoint = {
+                     average: lerp(floorVal!.average, ceilVal!.average, remainder),
+                     min: lerp(floorVal!.min, ceilVal!.min, remainder),
+                     max: lerp(floorVal!.max, ceilVal!.max, remainder),
+                     standardDeviation: lerp(floorVal!.standardDeviation, ceilVal!.standardDeviation, remainder)
+                  }
+               }
+            }
+            (data as Array<GeneSampleEntry | null>).push(dataPoint);
+         }
+      }
+      return data;
+   }
+
+   plotData(): void {
+      const data = this.getData();
+
+      if (this.options.type === "simple") {
+         this.plotSimpleData(data as Array<number | null>);
+      } else if (this.options.type === "detailed") {
+         this.plotDetailedData(data as Array<GeneSampleEntry | null>);
+      }
+   }
+
+   plotSimpleData(data: Array<number | null>): void {
       let previousPos: Vector | null = null;
-      for (let j = 0; j < dataPoints.length; j++) {
-         const dataPoint = dataPoints[j];
+      for (let i = 0; i < data.length; i++) {
+         const dataPoint = data[i];
          if (dataPoint === null) {
             previousPos = null;
             continue;
          }
-         const stepSize = this.width / (dataPoints.length-1);
+         const stepSize = this.width / (data.length-1);
          
          const pos = new Vector(
-            stepSize * j,
+            stepSize * i,
             this.height * (dataPoint - this.minY)/(this.maxY - this.minY)
          );
 
          this.drawPoint(pos, this.options.colour);
-         if (j > 0 && previousPos !== null) {
+         if (i > 0 && previousPos !== null) {
             this.drawLine(previousPos, pos, this.options.colour);
          }
 
          previousPos = pos;
+      }
+   }
+
+   draw(colour: string, stepSize: number, i: number, value: number, previousPos: Vector | null, shouldDrawPoint: boolean): Vector | null {
+      const pos = new Vector(
+         stepSize * i,
+         this.height * (value - this.minY)/(this.maxY - this.minY)
+      );
+
+      if (shouldDrawPoint) this.drawPoint(pos, colour);
+      if (i > 0 && previousPos !== null) {
+         this.drawLine(previousPos, pos, colour);
+      }
+      return pos;
+   }
+
+   plotDetailedData(data: Array<GeneSampleEntry | null>): void {
+      const averageColour = new Colour(this.options.colour);
+
+      let stdevColour = averageColour.desaturate(0.3);
+      stdevColour = stdevColour.darken(0.2);
+
+      let outerColour = averageColour.desaturate(0.7);
+      outerColour = outerColour.darken(0.2);
+
+      const n = data.length;
+
+      let previousAveragePos: Vector | null = null;
+      let previousMinPos: Vector | null = null;
+      let previousMaxPos: Vector | null = null;
+      let previousStdevMinPos: Vector | null = null;
+      let previousStdevMaxPos: Vector | null = null;
+      for (let i = 0; i < n; i++) {
+         const entry = data[i];
+         if (entry === null) {
+            continue;
+         }
+
+         const stepSize = this.width / (n-1);
+
+         previousAveragePos = this.draw(this.options.colour, stepSize, i, entry.average, previousAveragePos, true);
+         
+         previousMinPos = this.draw(outerColour.hex, stepSize, i, entry.min, previousMinPos, false);
+         previousMaxPos = this.draw(outerColour.hex, stepSize, i, entry.max, previousMaxPos, false);
+
+         const stdevMinPos = this.draw(stdevColour.hex, stepSize, i, entry.average - entry.standardDeviation, previousStdevMinPos, false);
+         const stdevMaxPos = this.draw(stdevColour.hex, stepSize, i, entry.average + entry.standardDeviation, previousStdevMaxPos, false);
+         if (i > 0 && stdevMinPos !== null && stdevMaxPos !== null && previousStdevMinPos !== null && previousStdevMaxPos !== null) {
+            const width = stdevMinPos.x - previousStdevMinPos.x;
+            const height = Math.min(previousStdevMaxPos.y, stdevMaxPos.y) - Math.max(previousStdevMinPos.y, stdevMinPos.y);
+            const rectPos = new Vector(
+               previousStdevMinPos.x,
+               Math.max(previousStdevMinPos.y, stdevMinPos.y)
+            );
+            this.drawRect(rectPos, width, height, stdevColour.hex);
+         }
+         
+         previousStdevMaxPos = stdevMaxPos;
+         previousStdevMinPos = stdevMinPos;
       }
    }
 

@@ -2,6 +2,7 @@
 
 #graph-viewer {
    width: clamp(50%, 1000px, 90%);
+   max-height: 80%;
    background-color: #28282b;
    border-radius: 10px;
    padding: 10px;
@@ -11,6 +12,7 @@
    transform: translateX(-50%);
    z-index: 5;
    box-shadow: 2px 2px 5px 0 rgba(0, 0, 0, 0.5);
+   overflow-y: scroll;
 }
 
 #graph-viewer > .formatter {

@@ -13,7 +13,6 @@
    width: var(--point-size);
    height: var(--point-size);
    position: absolute;
-   /* transform: translate(-50%, -50%); */
    z-index: 3;
 }
 
@@ -21,7 +20,12 @@
    height: 1px;
    position: absolute;
    transform-origin: top left;
-   opacity: 0.8;
+   /* opacity: 0.8; */
+   z-index: 3;
+}
+
+.graph .rect {
+   position: absolute;
    z-index: 2;
 }
 

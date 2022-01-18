@@ -6,41 +6,72 @@ import { inspectorIsOpen, rerenderInspector } from "./creature-inspector";
 import { updateControlPanel } from "./components/ControlPanel";
 import Creature, { creatureGeneInfo } from "./classes/Creature";
 import Entity from "./classes/Entity";
-import { Vector } from "./utils";
+import { standardDeviation, Vector } from "./utils";
 import { drawGraphs, graphSettingData } from "./graph-viewer";
 
 const renderListeners: Array<Function> = [];
 
 export const geneSamples: Array<GeneSample> = new Array<GeneSample>();
 
+export interface GeneSampleEntry {
+   average: number;
+   min: number;
+   max: number;
+   standardDeviation: number;
+}
 interface GenePool {
-   [key: keyof typeof creatureGeneInfo]: number | null;
+   [key: keyof typeof creatureGeneInfo]: GeneSampleEntry;
 }
 interface GeneSample {
    [key: string]: any;
    creatures: number | null;
    fruit: number | null;
-   genePool: GenePool
+   genePool: GenePool | null;
 }
 
-const sampleGenes = (creatures: Array<Creature>) => {
-   let genePool: GenePool = {};
-   for (const geneName of Object.keys(creatureGeneInfo)) {
-      genePool[geneName] = 0;
-   }
-
-   for (const creature of creatures) {
+const sampleGenes = (creatures: ReadonlyArray<Creature>) => {
+   let genePool: GenePool | null = {};
+   if (creatures.length === 0) {
+      genePool = null;
+   } else {
+      let allGenes: { [ key: keyof typeof creatureGeneInfo ]: Array<number> } = {};
       for (const geneName of Object.keys(creatureGeneInfo)) {
-         if (!genePool.hasOwnProperty(geneName)) {
-            genePool[geneName] = creature[geneName];
-         } else {
-            genePool[geneName] += creature[geneName];
+         allGenes[geneName] = new Array<number>();
+      }
+      
+      for (const creature of creatures) {
+         for (const geneName of Object.keys(allGenes)) {
+            allGenes[geneName].push(creature[geneName]);
          }
       }
-   }
-   for (const [ geneName, gene ] of Object.entries(genePool)) {
-      genePool[geneName]! /= creatures.length;
-      if (gene === 0) genePool[geneName] = null;
+      
+      // console.clear();
+      for (const geneName of Object.keys(creatureGeneInfo)) {
+         const geneVals = allGenes[geneName];
+         
+         const n = geneVals.length;
+         let minVal = Number.MAX_SAFE_INTEGER;
+         let maxVal = 0;
+         let average = 0;
+         for (let i = 0; i < n; i++) {
+            const val = geneVals[i];
+            if (val < minVal) minVal = val;
+            if (val > maxVal) maxVal = val;
+            average += val;
+         }
+         average /= n;
+         // console.log("=--=-=-=---=-=-=-=-");
+         // console.log(geneName + ":");
+         // console.log(geneVals);
+         // console.log(`min ${minVal} max ${maxVal} avg ${average}`);
+         
+         genePool[geneName] = {
+            average: average,
+            min: minVal,
+            max: maxVal,
+            standardDeviation: standardDeviation(geneVals)
+         };
+      }
    }
 
    let creatureCount: number | null = Entity.count(Creature);
@@ -141,7 +172,7 @@ const Game: GameType = {
          if (inspectorIsOpen) rerenderInspector();
 
          // Seconds between gene samples
-         const GENE_SAMPLE_INTERVAL = 1;
+         const GENE_SAMPLE_INTERVAL = 10;
          if (this.ticks / this.tps % GENE_SAMPLE_INTERVAL === 0) {
             sampleGenes(creatures);
          }
