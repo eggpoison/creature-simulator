@@ -27,7 +27,7 @@ interface GeneInfo {
 export const creatureGeneInfo: { [key: string]: GeneInfo } = {
    speed: {
       display: "speed",
-      colour: "#e8f52f",
+      colour: "#eeff00",
       min: 3,
       max: 10,
       weight: 1,
@@ -36,7 +36,7 @@ export const creatureGeneInfo: { [key: string]: GeneInfo } = {
    // Size of the creature in px
    size: {
       display: "size",
-      colour: "#cc2900",
+      colour: "#ff8f00",
       min: 10,
       max: 30,
       weight: 1,
@@ -45,7 +45,7 @@ export const creatureGeneInfo: { [key: string]: GeneInfo } = {
    // Vision of the creature in px
    vision: {
       display: "vision",
-      colour: "#322bff",
+      colour: "#5400ff",
       min: 25,
       max: 75,
       weight: 1,
@@ -54,7 +54,7 @@ export const creatureGeneInfo: { [key: string]: GeneInfo } = {
    // How quickly the creature gains reproductive urge
    reproductiveRate: {
       display: "reproductive rate",
-      colour: "#ff1ff4",
+      colour: "#ff00e0",
       min: 0.5,
       max: 2,
       weight: 1

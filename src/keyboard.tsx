@@ -5,7 +5,7 @@ const boardIsVisible = (): boolean => {
    return !getElem("board")!.classList.contains("hidden");
 }
 
-const updateTransform = (): void => {
+export function updateTransform(): void {
    const board = getElem("board");
 
    board.style.top = `calc(50% + ${Game.transform.translate.y}%)`;

@@ -20,13 +20,43 @@
    height: 1px;
    position: absolute;
    transform-origin: top left;
-   /* opacity: 0.8; */
    z-index: 3;
 }
 
 .graph .rect {
    position: absolute;
    z-index: 2;
+}
+
+.graph .triangle {
+   width: 0;
+   height: 0;
+   position: absolute;
+   z-index: 2;
+}
+.graph .triangle.top-left {
+   border-top: var(--width) solid var(--colour);
+   border-right: var(--height) solid transparent;
+   border-bottom: var(--width) solid transparent;
+   border-left: var(--height) solid var(--colour);
+}
+.graph .triangle.top-right {
+   border-top: var(--width) solid var(--colour);
+   border-right: var(--height) solid var(--colour);
+   border-bottom: var(--width) solid transparent;
+   border-left: var(--height) solid transparent;
+}
+.graph .triangle.bottom-right {
+   border-bottom: var(--width) solid var(--colour);
+   border-right: var(--height) solid var(--colour);
+   border-left: var(--height) solid transparent;
+   border-top: var(--width) solid transparent;
+}
+.graph .triangle.bottom-left {
+   border-bottom: var(--width) solid var(--colour);
+   border-left: var(--height) solid var(--colour);
+   border-top: var(--width) solid transparent;
+   border-right: var(--height) solid transparent;
 }
 
 .graph .measurement {

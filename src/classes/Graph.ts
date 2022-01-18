@@ -119,6 +119,22 @@ class Graph {
       rect.style.bottom = pos.y + "px";
    }
 
+   drawTrangle(pos: Vector, width: number, height: number, colour: string, type: "top-left" | "top-right" | "bottom-right" | "bottom-left"): void {
+      const triangle = document.createElement("div");
+      triangle.className = `triangle ${type}`;
+      this.element.appendChild(triangle);
+
+      // triangle.style.width = width + "px";
+      // triangle.style.height = height + "px";
+      triangle.style.setProperty("--width", height / 2 + "px");
+      triangle.style.setProperty("--height", width / 2 + "px");
+      triangle.style.setProperty("--colour", colour);
+      // triangle.style.backgroundColor = colour;
+
+      triangle.style.left = pos.x + "px";
+      triangle.style.bottom = pos.y + "px";
+   }
+
    getData(): GraphData {
       const EXTRAPOLATION_AMOUNT = 75;
       if (!this.settings.shouldExtrapolate || this.data.length <= EXTRAPOLATION_AMOUNT) {
@@ -263,20 +279,34 @@ class Graph {
          const stepSize = this.width / (n-1);
 
          previousAveragePos = this.draw(this.options.colour, stepSize, i, entry.average, previousAveragePos, true);
-         
+
          previousMinPos = this.draw(outerColour.hex, stepSize, i, entry.min, previousMinPos, false);
          previousMaxPos = this.draw(outerColour.hex, stepSize, i, entry.max, previousMaxPos, false);
 
          const stdevMinPos = this.draw(stdevColour.hex, stepSize, i, entry.average - entry.standardDeviation, previousStdevMinPos, false);
          const stdevMaxPos = this.draw(stdevColour.hex, stepSize, i, entry.average + entry.standardDeviation, previousStdevMaxPos, false);
          if (i > 0 && stdevMinPos !== null && stdevMaxPos !== null && previousStdevMinPos !== null && previousStdevMaxPos !== null) {
-            const width = stdevMinPos.x - previousStdevMinPos.x;
+            const rectWidth = stdevMinPos.x - previousStdevMinPos.x;
             const height = Math.min(previousStdevMaxPos.y, stdevMaxPos.y) - Math.max(previousStdevMinPos.y, stdevMinPos.y);
             const rectPos = new Vector(
                previousStdevMinPos.x,
                Math.max(previousStdevMinPos.y, stdevMinPos.y)
             );
-            this.drawRect(rectPos, width, height, stdevColour.hex);
+            this.drawRect(rectPos, rectWidth, height, stdevColour.hex);
+
+            const topTrianglePos = new Vector(previousStdevMaxPos.x, Math.min(stdevMaxPos.y, previousStdevMaxPos.y));
+            if (previousStdevMaxPos.y > stdevMaxPos.y) {
+               this.drawTrangle(topTrianglePos, rectWidth, previousStdevMaxPos.y - stdevMaxPos.y, stdevColour.hex, "bottom-left");
+            } else {
+               this.drawTrangle(topTrianglePos, rectWidth, stdevMaxPos.y - previousStdevMaxPos.y, stdevColour.hex, "bottom-right");
+            }
+            
+            const bottomTrianglePos = new Vector(previousStdevMaxPos.x, Math.min(stdevMinPos.y, previousStdevMinPos.y));
+            if (previousStdevMinPos.y > stdevMinPos.y) {
+               this.drawTrangle(bottomTrianglePos, rectWidth, previousStdevMinPos.y - stdevMinPos.y, stdevColour.hex, "top-right");
+            } else {
+               this.drawTrangle(bottomTrianglePos, rectWidth, stdevMinPos.y - previousStdevMinPos.y, stdevColour.hex, "top-left");
+            }
          }
          
          previousStdevMaxPos = stdevMaxPos;

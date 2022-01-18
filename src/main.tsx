@@ -1,5 +1,6 @@
 import Entity from "./classes/Entity";
 import Game from "./Game";
+import { updateTransform } from "./keyboard";
 import { getElem } from "./utils";
 
 export type Cell = Array<Entity>;
@@ -161,6 +162,9 @@ const hideTitleScreen = () => {
 
 export function StartGame(): void {
    Game.hasStarted = true;
+
+   Game.transform.zoom = 25 / Math.pow(Game.boardSize.width + Game.boardSize.height, 1.1);
+   updateTransform();
 
    createBoard();
 

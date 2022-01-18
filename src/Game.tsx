@@ -178,6 +178,12 @@ const Game: GameType = {
          }
       }
 
+      // if (this.ticks % 50 === 0) {
+      //    setTimeout(() => this.runTick(), 10);
+      // } else {
+
+      //    this.runTick();
+      // }
       setTimeout(() => this.runTick(), 1000 / this.tps / this.timewarp);
    },
    createRenderListener(func: Function): void {
