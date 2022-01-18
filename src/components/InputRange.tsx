@@ -6,7 +6,7 @@ interface InputRangeProps {
    max: number;
    defaultValue: number;
    step: number;
-   func: (inputVal: number) => unknown;
+   func?: (inputVal: number) => unknown;
    button?: string;
    /*** If present, any values above or equal to its value will enable "extreme mode" (purely visual) */
    hasExtremeMode?: boolean;
@@ -19,7 +19,7 @@ const InputRange = ({ text, min, max, defaultValue, step, func, button, hasExtre
    const onInputChange = () => {
       const inputVal = Number((inputRef.current! as HTMLInputElement).value);
 
-      if (button === undefined) func(inputVal);
+      if (func && button === undefined) func(inputVal);
       setVal(inputVal);
    }
 
@@ -41,7 +41,7 @@ const InputRange = ({ text, min, max, defaultValue, step, func, button, hasExtre
          </div>
 
          {button ?
-         <button onClick={() => func(val)}>{button}</button>
+         <button onClick={() => {if (func) func(val)}}>{button}</button>
          : ""}
       </div>
    )

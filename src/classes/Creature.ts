@@ -134,13 +134,7 @@ export function createCreature(): void {
       reproductiveRate: generateGene("reproductiveRate"),
       lifespan: 0
    };
-   attributes.lifespan = calculateLifespan(attributes)
-
-   // Make larger creatures slower
-   // const SPEED_REDUCTION_MULTIPLIER = 1.1;
-   // const MAX_REDUCTION = 3;
-   // const reduction = creatureGeneInfo.size.max / creatureGeneInfo.size.min / MAX_REDUCTION;
-   // attributes.speed /= Math.pow(attributes.size / creatureGeneInfo.size.min / reduction, SPEED_REDUCTION_MULTIPLIER);
+   attributes.lifespan = calculateLifespan(attributes);
 
    // Get a random position for the creature
    const x = randFloat(0, Game.boardSize.width * Game.cellSize);

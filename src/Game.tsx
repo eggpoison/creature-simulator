@@ -4,10 +4,11 @@ import { gameImages } from "./GameImage";
 import { updateMouse } from "./Mouse";
 import { inspectorIsOpen, rerenderInspector } from "./creature-inspector";
 import { updateControlPanel } from "./components/ControlPanel";
-import Creature, { creatureGeneInfo } from "./classes/Creature";
+import Creature, { createCreature, creatureGeneInfo } from "./classes/Creature";
 import Entity from "./classes/Entity";
 import { standardDeviation, Vector } from "./utils";
 import { drawGraphs, graphSettingData } from "./graph-viewer";
+import { updateTransform } from "./keyboard";
 
 const renderListeners: Array<Function> = [];
 
@@ -45,7 +46,6 @@ const sampleGenes = (creatures: ReadonlyArray<Creature>) => {
          }
       }
       
-      // console.clear();
       for (const geneName of Object.keys(creatureGeneInfo)) {
          const geneVals = allGenes[geneName];
          
@@ -60,10 +60,6 @@ const sampleGenes = (creatures: ReadonlyArray<Creature>) => {
             average += val;
          }
          average /= n;
-         // console.log("=--=-=-=---=-=-=-=-");
-         // console.log(geneName + ":");
-         // console.log(geneVals);
-         // console.log(`min ${minVal} max ${maxVal} avg ${average}`);
          
          genePool[geneName] = {
             average: average,
@@ -76,9 +72,7 @@ const sampleGenes = (creatures: ReadonlyArray<Creature>) => {
 
    let creatureCount: number | null = Entity.count(Creature);
    if (creatureCount === 0) creatureCount = null;
-   let fruitCount: number | null = Entity.count(Fruit);
-   if (fruitCount === 0) fruitCount = null;
-
+   const fruitCount: number | null = Entity.count(Fruit);
    geneSamples.push({
       creatures: creatureCount,
       fruit: fruitCount,
@@ -97,6 +91,7 @@ interface GameType {
    readonly tps: number;
    timewarp: number;
    runTick: Function;
+   start: Function;
    createRenderListener: Function;
    removeRenderListener: Function;
    hasRenderListener: Function;
@@ -115,11 +110,17 @@ interface GameType {
 export interface GameSettings {
    fruitSpawnRate: number;
    creatureMutationRate: number;
+   initialCreatures: number;
+   initialFruit: number;
+   equilibrium: number;
 }
 
 export const defaultGameSettings: GameSettings = {
    fruitSpawnRate: 1,
-   creatureMutationRate: 1
+   creatureMutationRate: 1,
+   initialCreatures: 10,
+   initialFruit: 50,
+   equilibrium: 20
 }
 const Game: GameType = {
    hasStarted: false,
@@ -186,6 +187,20 @@ const Game: GameType = {
       // }
       setTimeout(() => this.runTick(), 1000 / this.tps / this.timewarp);
    },
+   start(): void {
+      this.hasStarted = true;
+
+      this.transform.zoom = 25 / Math.pow(this.boardSize.width + this.boardSize.height, 1.1);
+      updateTransform();
+   
+      for (let i = 0; i < this.settings.initialCreatures; i++) {
+         createCreature();
+      }
+      for (let i = 0; i < this.settings.initialFruit; i++) {
+         const cellNumber = Math.floor(Math.random() * this.boardSize.width * this.boardSize.height);
+         createFruit(cellNumber);
+      }
+   },
    createRenderListener(func: Function): void {
       renderListeners.push(func);
    },
@@ -199,8 +214,8 @@ const Game: GameType = {
       return functionIndex >= 0;
    },
    boardSize: {
-      width: 10,
-      height: 10
+      width: 15,
+      height: 15
    },
    transform: {
       zoom: 1,
