@@ -1,18 +1,18 @@
 {
   "files": {
-    "main.css": "/creature-simulator/static/css/main.fdf0127b.chunk.css",
-    "main.js": "/creature-simulator/static/js/main.ff46e1db.chunk.js",
-    "main.js.map": "/creature-simulator/static/js/main.ff46e1db.chunk.js.map",
-    "runtime-main.js": "/creature-simulator/static/js/runtime-main.c6ee5c03.js",
-    "runtime-main.js.map": "/creature-simulator/static/js/runtime-main.c6ee5c03.js.map",
-    "static/js/2.45ec6f69.chunk.js": "/creature-simulator/static/js/2.45ec6f69.chunk.js",
-    "static/js/2.45ec6f69.chunk.js.map": "/creature-simulator/static/js/2.45ec6f69.chunk.js.map",
-    "index.html": "/creature-simulator/index.html",
-    "static/css/main.fdf0127b.chunk.css.map": "/creature-simulator/static/css/main.fdf0127b.chunk.css.map",
-    "static/js/2.45ec6f69.chunk.js.LICENSE.txt": "/creature-simulator/static/js/2.45ec6f69.chunk.js.LICENSE.txt"
+    "main.css": "./static/css/main.fdf0127b.chunk.css",
+    "main.js": "./static/js/main.ff46e1db.chunk.js",
+    "main.js.map": "./static/js/main.ff46e1db.chunk.js.map",
+    "runtime-main.js": "./static/js/runtime-main.1969cb1d.js",
+    "runtime-main.js.map": "./static/js/runtime-main.1969cb1d.js.map",
+    "static/js/2.45ec6f69.chunk.js": "./static/js/2.45ec6f69.chunk.js",
+    "static/js/2.45ec6f69.chunk.js.map": "./static/js/2.45ec6f69.chunk.js.map",
+    "index.html": "./index.html",
+    "static/css/main.fdf0127b.chunk.css.map": "./static/css/main.fdf0127b.chunk.css.map",
+    "static/js/2.45ec6f69.chunk.js.LICENSE.txt": "./static/js/2.45ec6f69.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
-    "static/js/runtime-main.c6ee5c03.js",
+    "static/js/runtime-main.1969cb1d.js",
     "static/js/2.45ec6f69.chunk.js",
     "static/css/main.fdf0127b.chunk.css",
     "static/js/main.ff46e1db.chunk.js"
