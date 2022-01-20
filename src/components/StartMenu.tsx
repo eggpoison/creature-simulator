@@ -35,7 +35,7 @@ const StartMenu = () => {
 
             <h2 className="subheading">Initial Population</h2>
             <InputRange func={newVal => newGameSettings.initialCreatures = newVal} text="Creatures" min={0} max={100} step={1} defaultValue={10} />
-            <InputRange func={newVal => newGameSettings.initialCreatures = newVal} text="Fruit" min={0} max={500} step={5} defaultValue={50} />
+            <InputRange func={newVal => newGameSettings.initialFruit = newVal} text="Fruit" min={0} max={500} step={5} defaultValue={50} />
 
             <h2 className="subheading">Modifiers</h2>
             <InputRange func={newVal => newGameSettings.fruitSpawnRate = newVal} text="Fruit spawn rate" min={0.5} max={5} step={0.5} defaultValue={1} hasExtremeMode={true} />

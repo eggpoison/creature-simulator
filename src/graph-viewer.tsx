@@ -133,6 +133,13 @@ let graphOptions: Array<GraphOptions> = [
       colour: "#19c6ff",
       dependentVariable: "Fruit",
       type: "simple"
+   },
+   {
+      display: "Fruit multiplier",
+      id: "fruit-multiplier",
+      colour: "#31ff2e",
+      dependentVariable: "Multiplier",
+      type: "simple"
    }
 ];
 const createGraphOptions = (): void => {

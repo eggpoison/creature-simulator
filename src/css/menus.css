@@ -58,3 +58,7 @@
 .menu .input-range {
    margin-bottom: 0.5rem;
 }
+
+.menu .input-checkbox + .input-range {
+   margin-top: 0.5rem;
+}

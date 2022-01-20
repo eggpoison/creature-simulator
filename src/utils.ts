@@ -233,3 +233,9 @@ export class Colour {
       return new Colour([col[0], col[1], col[2]]);
    }
 }
+
+export async function sleep(ms: number): Promise<void> {
+   return new Promise(resolve => {
+      setTimeout(resolve, ms);
+   });
+}

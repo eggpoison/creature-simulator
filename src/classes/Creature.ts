@@ -1,5 +1,4 @@
 import Game from "../Game";
-import { Cell, cells } from "../main";
 import { drawRay, PolarVector, randFloat, randInt, randItem, Vector } from "../utils";
 import Entity, { EntityAttributes } from "./Entity";
 import Fruit from "./Fruit";
@@ -244,7 +243,7 @@ class Creature extends Entity {
       // Base amount of reproductive urge gained per second
       if (this.reproductionStage === 0 && (Game.ticks - this.lastReproductionTime) * 1000 / Game.tps > REPRODUCTION_TIME + INCUBATION_TIME + ABSTINENCE_TIME) {
          this.element.classList.remove("abstaining");
-         const BASE_REPRODUCTIVE_RATE = 3;
+         const BASE_REPRODUCTIVE_RATE = 2;
          this.reproductiveUrge += BASE_REPRODUCTIVE_RATE * this.reproductiveRate / Game.tps;
          this.reproductiveUrge = Math.min(100, this.reproductiveUrge);
       } else if (this.reproductionStage >= 2) {
@@ -297,13 +296,9 @@ class Creature extends Entity {
          }
       }
 
-      const visionInCells = Math.floor(((this.size as number)/2 + this.vision) / Game.cellSize) + 1;
-      const surroundingCells = super.getSurroundingCells(visionInCells);
-
-      let surroundingEntities = super.getEntitiesInCells(surroundingCells);
-
-      // Filter out entites which the creature cannot see
-      const entitiesInVision = this.getEntitiesInVision(surroundingEntities);
+      const entitiesInVision = Game.board.getNearby(this.position, this.vision);
+      const selfIdx = entitiesInVision.indexOf(this);
+      if (selfIdx !== -1) entitiesInVision.splice(selfIdx, 1);
 
       // Search through all nearby entities for any that are of use
       let closestFruit: Fruit | null = null;
@@ -360,7 +355,9 @@ class Creature extends Entity {
          // Chance for the creature to move each second
          const MOVE_CHANCE = 0.95;
          if (Math.random() < MOVE_CHANCE / Game.tps) {
-            this.targetPosition = this.findRandomPosition(surroundingCells);
+            // const randomPosition = this.position.randomOffset(this.vision);
+            const randomPosition = Game.board.randomNearbyPosition(this.position, this.vision);
+            this.targetPosition = randomPosition;
          }
       }
    };
@@ -383,15 +380,6 @@ class Creature extends Entity {
 
    canSeeEntity(entity: Entity): boolean {
       return this.position.distanceFrom(entity.position) <= this.vision + (this.size as number)/2;
-   };
-
-   findRandomPosition(surroundingCells: ReadonlyArray<Cell>): Vector {
-      // Pick a random surrounding cell
-      const targetCell: Cell = randItem(surroundingCells as Array<unknown>) as Cell;
-
-      const cellNumber = cells.indexOf(targetCell);
-
-      return Entity.randomPositionInCell(cellNumber);
    };
 
    moveToTargetPosition(): void {
@@ -417,7 +405,7 @@ class Creature extends Entity {
       return dotProduct > 0;
    };
 
-    reachTargetPosition(): void {
+   reachTargetPosition(): void {
       this.isMoving = false;
 
       this.velocity = new Vector(0, 0);

@@ -1,14 +1,14 @@
 import Fruit, { createFruit } from "./classes/Fruit";
-import { cells } from "./main";
 import { gameImages } from "./GameImage";
 import { updateMouse } from "./Mouse";
 import { inspectorIsOpen, rerenderInspector } from "./creature-inspector";
 import { updateControlPanel } from "./components/ControlPanel";
 import Creature, { createCreature, creatureGeneInfo } from "./classes/Creature";
-import Entity from "./classes/Entity";
 import { standardDeviation, Vector } from "./utils";
 import { drawGraphs, graphSettingData } from "./graph-viewer";
 import { updateTransform } from "./keyboard";
+import Entity from "./classes/Entity";
+import { Board } from "./classes/Board";
 
 const renderListeners: Array<Function> = [];
 
@@ -28,9 +28,10 @@ interface GeneSample {
    creatures: number | null;
    fruit: number | null;
    genePool: GenePool | null;
+   fruitMultiplier: number;
 }
 
-const sampleGenes = (creatures: ReadonlyArray<Creature>) => {
+const sampleGenes = (creatures: ReadonlyArray<Creature>, fruit: ReadonlyArray<Fruit>) => {
    let genePool: GenePool | null = {};
    if (creatures.length === 0) {
       genePool = null;
@@ -71,12 +72,15 @@ const sampleGenes = (creatures: ReadonlyArray<Creature>) => {
    }
 
    let creatureCount: number | null = Entity.count(Creature);
+   // let creatureCount: number | null = creatures.length;
    if (creatureCount === 0) creatureCount = null;
    const fruitCount: number | null = Entity.count(Fruit);
+   // const fruitCount: number | null = fruit.length;
    geneSamples.push({
       creatures: creatureCount,
       fruit: fruitCount,
-      genePool: genePool
+      genePool: genePool,
+      fruitMultiplier: Game.fruitMultiplier
    });
 
    if (graphSettingData[1].isChecked) {
@@ -90,6 +94,9 @@ interface GameType {
    ticks: number;
    readonly tps: number;
    timewarp: number;
+   fruitMultiplier: number;
+   previousTime: number;
+   previousTicks: number;
    runTick: Function;
    start: Function;
    createRenderListener: Function;
@@ -106,6 +113,7 @@ interface GameType {
    readonly cellBorderSize: number;
    readonly cellSize: number;
    settings: GameSettings;
+   board: Board;
 }
 export interface GameSettings {
    fruitSpawnRate: number;
@@ -113,15 +121,42 @@ export interface GameSettings {
    initialCreatures: number;
    initialFruit: number;
    equilibrium: number;
+   showDebugOutput: boolean;
 }
-
 export const defaultGameSettings: GameSettings = {
    fruitSpawnRate: 1,
    creatureMutationRate: 1,
-   initialCreatures: 10,
+   initialCreatures: 0,
    initialFruit: 50,
-   equilibrium: 20
+   equilibrium: 20,
+   showDebugOutput: false
 }
+
+interface Entities {
+   creatures: Array<Creature>;
+   fruit: Array<Fruit>;
+}
+const updateEntities = (): Promise<Entities> => {
+   return new Promise(resolve => {
+      let creatures: Array<Creature> = new Array<Creature>();
+      let fruit: Array<Fruit> = new Array<Fruit>();
+   
+      for (const cell of Game.board.cells) {
+         for (const entity of cell) {
+            if (entity instanceof Creature) creatures.push(entity);
+            else if (entity instanceof Fruit) fruit.push(entity);
+            entity.tick();
+         }
+      }
+
+      const entities = {
+         creatures: creatures,
+         fruit: fruit
+      };
+      resolve(entities);
+   });
+}
+
 const Game: GameType = {
    hasStarted: false,
    isPaused: false,
@@ -130,37 +165,41 @@ const Game: GameType = {
    // Effectively changes the number of rerenders each second. Affects everything from confetti to creatures.
    tps: 20,
    timewarp: 1,
+   fruitMultiplier: 1,
+   previousTime: Date.now(),
+   previousTicks: 0,
    // Runs every {tps} seconds.
-   runTick: function(): void {
+   runTick: async function(): Promise<void> {
       if (this.isPaused) {
          setTimeout(() => this.runTick(), 1000 / this.tps / this.timewarp);
          return;
       }
 
+      this.previousTicks++;
+
       // Call all external render listeners
       for (const func of renderListeners) func();
 
+      for (const gameImage of gameImages) gameImage.tick();
+      
       if (this.hasStarted) {
          this.ticks++;
 
          // Remove all rays
          document.querySelectorAll(".ray").forEach(ray => ray.remove());
 
-         let creatures = new Array<Creature>();
-   
-         // Call all entities' tick functions
-         for (const cell of cells) {
-            for (const entity of cell) {
-               if (entity instanceof Creature) creatures.push(entity);
-               entity.tick();
-            }
+         const entities = await updateEntities();
+
+         const creatureCount = entities.creatures.length;
+         if (creatureCount === 0) {
+            this.fruitMultiplier = 1;
+         } else {
+            this.fruitMultiplier = this.settings.equilibrium / creatureCount;
          }
    
-         for (const gameImage of gameImages) gameImage.tick();
-   
          // Number of fruits which spawn in a cell each second
-         const FRUIT_SPAWN_RATE = 0.05 * this.settings.fruitSpawnRate;
-         for (let cellNumber = 0; cellNumber < cells.length; cellNumber++) {
+         const FRUIT_SPAWN_RATE = 0.05 * this.settings.fruitSpawnRate * this.fruitMultiplier;
+         for (let cellNumber = 0; cellNumber < this.boardSize.width * this.boardSize.height; cellNumber++) {
             const rand = Math.random();
             for (let i = 0; rand <= FRUIT_SPAWN_RATE / this.tps - i; i++) {
                createFruit(cellNumber);
@@ -175,19 +214,24 @@ const Game: GameType = {
          // Seconds between gene samples
          const GENE_SAMPLE_INTERVAL = 10;
          if (this.ticks / this.tps % GENE_SAMPLE_INTERVAL === 0) {
-            sampleGenes(creatures);
+            sampleGenes(entities.creatures, entities.fruit);
          }
       }
 
-      // if (this.ticks % 50 === 0) {
-      //    setTimeout(() => this.runTick(), 10);
-      // } else {
+      const time = Date.now();
+      const dt = time - this.previousTime;
+      if (time - this.previousTime >= 1000) {
+         if (this.settings.showDebugOutput) console.log(this.previousTicks + " ticks in " + dt + "ms");
+         this.previousTicks = 0;
+         this.previousTime = time;
+      }
 
-      //    this.runTick();
-      // }
       setTimeout(() => this.runTick(), 1000 / this.tps / this.timewarp);
    },
    start(): void {
+      // Create the board object
+      this.board = new Board(this.boardSize.width, this.boardSize.height, this.cellSize);
+
       this.hasStarted = true;
 
       this.transform.zoom = 25 / Math.pow(this.boardSize.width + this.boardSize.height, 1.1);
@@ -197,8 +241,7 @@ const Game: GameType = {
          createCreature();
       }
       for (let i = 0; i < this.settings.initialFruit; i++) {
-         const cellNumber = Math.floor(Math.random() * this.boardSize.width * this.boardSize.height);
-         createFruit(cellNumber);
+         createFruit();
       }
    },
    createRenderListener(func: Function): void {
@@ -225,7 +268,8 @@ const Game: GameType = {
    cellBorderSize: 2,
    // Width and height of cells in px
    cellSize: 60,
-   settings: defaultGameSettings
+   settings: defaultGameSettings,
+   board: null as unknown as Board
 };
 
 export default Game;

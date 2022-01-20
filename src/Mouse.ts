@@ -1,8 +1,8 @@
 import Creature from "./classes/Creature";
-import { cells } from "./main";
 import { createHoverBox, getElem, Vector } from "./utils";
 import { closeInspector, openInspector } from "./creature-inspector";
 import { closeGraphViewer, graphViewerIsVisible, openGraphViewer } from "./graph-viewer";
+import Game from "./Game";
 
 const MIN_HOVER_DIST: number = 30;
 let hoverBox: HTMLElement | null = null;
@@ -38,7 +38,7 @@ export function updateMouse(): void {
     const board = getElem("board");
 
     let creatures: Array<Creature> = new Array<Creature>();
-    for (const cell of cells) {
+    for (const cell of Game.board.cells) {
         creatures = creatures.concat(cell.filter(entity => entity instanceof Creature) as Array<Creature>);
     }
 

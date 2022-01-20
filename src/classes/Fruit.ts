@@ -1,14 +1,19 @@
 import Game from "../Game";
-import { randItem } from "../utils";
+import { randItem, Vector } from "../utils";
 import Entity, { EntityAttributes } from "./Entity";
 
-export function createFruit(cellNumber: number): void {
+export function createFruit(cellNumber?: number): void {
    const attributes: EntityAttributes = {
       lifespan: 10 * Game.tps,
       size: 8
    };
 
-   const position = Entity.randomPositionInCell(cellNumber);
+   let position: Vector;
+   if (cellNumber) {
+      position = Game.board.randomPositionInCell(cellNumber);
+   } else {
+      position = Game.board.randomPosition();
+   }
 
    new Fruit(position, attributes);
 }
