@@ -144,7 +144,6 @@ export function createCreature(): void {
 }
 
 const REPRODUCTION_TIME = 2000;
-const INCUBATION_TIME = 5000;
 const ABSTINENCE_TIME = 4000;
 
 interface CreatureStats {
@@ -165,7 +164,7 @@ class Creature extends Entity {
    reproductiveUrge: number = 0;
    partner: Creature | null = null;
    reproductionStage: number = 0;
-   lastReproductionTime: number = -REPRODUCTION_TIME - INCUBATION_TIME - ABSTINENCE_TIME;
+   lastReproductionTime: number = -REPRODUCTION_TIME - Game.settings.eggIncubationTime - ABSTINENCE_TIME;
 
    stats: CreatureStats = {
       fruitEaten: 0,
@@ -241,7 +240,7 @@ class Creature extends Entity {
       super.tick();
 
       // Base amount of reproductive urge gained per second
-      if (this.reproductionStage === 0 && (Game.ticks - this.lastReproductionTime) * 1000 / Game.tps > REPRODUCTION_TIME + INCUBATION_TIME + ABSTINENCE_TIME) {
+      if (this.reproductionStage === 0 && (Game.ticks - this.lastReproductionTime) * 1000 / Game.tps > REPRODUCTION_TIME + Game.settings.eggIncubationTime + ABSTINENCE_TIME) {
          this.element.classList.remove("abstaining");
          const BASE_REPRODUCTIVE_RATE = 2;
          this.reproductiveUrge += BASE_REPRODUCTIVE_RATE * this.reproductiveRate / Game.tps;
@@ -355,7 +354,6 @@ class Creature extends Entity {
          // Chance for the creature to move each second
          const MOVE_CHANCE = 0.95;
          if (Math.random() < MOVE_CHANCE / Game.tps) {
-            // const randomPosition = this.position.randomOffset(this.vision);
             const randomPosition = Game.board.randomNearbyPosition(this.position, this.vision);
             this.targetPosition = randomPosition;
          }
@@ -444,7 +442,7 @@ class Creature extends Entity {
    
             const eggAttributes = {
                size: 20,
-               lifespan: INCUBATION_TIME / 1000 * Game.tps
+               lifespan: Game.settings.eggIncubationTime / 1000 * Game.tps
             };
             const eggPos = this.position.randomOffset(10);
             new Egg(eggPos, eggAttributes, childAttributes, this.stats.generation + 1);
@@ -454,7 +452,7 @@ class Creature extends Entity {
 
          setTimeout(() => {
             resolve();
-         }, INCUBATION_TIME);
+         }, Game.settings.eggIncubationTime);
       });
    }
 

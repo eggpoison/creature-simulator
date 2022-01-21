@@ -118,6 +118,7 @@ interface GameType {
 export interface GameSettings {
    fruitSpawnRate: number;
    creatureMutationRate: number;
+   eggIncubationTime: number;
    initialCreatures: number;
    initialFruit: number;
    equilibrium: number;
@@ -126,36 +127,33 @@ export interface GameSettings {
 export const defaultGameSettings: GameSettings = {
    fruitSpawnRate: 1,
    creatureMutationRate: 1,
-   initialCreatures: 0,
+   eggIncubationTime: 5,
+   initialCreatures: 10,
    initialFruit: 50,
    equilibrium: 20,
    showDebugOutput: false
 }
 
-interface Entities {
-   creatures: Array<Creature>;
-   fruit: Array<Fruit>;
-}
-const updateEntities = (): Promise<Entities> => {
-   return new Promise(resolve => {
-      let creatures: Array<Creature> = new Array<Creature>();
-      let fruit: Array<Fruit> = new Array<Fruit>();
+// const updateEntities = (): Promise<Entities> => {
+//    return new Promise(resolve => {
+//       let creatures: Array<Creature> = new Array<Creature>();
+//       let fruit: Array<Fruit> = new Array<Fruit>();
    
-      for (const cell of Game.board.cells) {
-         for (const entity of cell) {
-            if (entity instanceof Creature) creatures.push(entity);
-            else if (entity instanceof Fruit) fruit.push(entity);
-            entity.tick();
-         }
-      }
+//       for (const cell of Game.board.cells) {
+//          for (const entity of cell) {
+//             if (entity instanceof Creature) creatures.push(entity);
+//             else if (entity instanceof Fruit) fruit.push(entity);
+//             entity.tick();
+//          }
+//       }
 
-      const entities = {
-         creatures: creatures,
-         fruit: fruit
-      };
-      resolve(entities);
-   });
-}
+//       const entities = {
+//          creatures: creatures,
+//          fruit: fruit
+//       };
+//       resolve(entities);
+//    });
+// }
 
 const Game: GameType = {
    hasStarted: false,
@@ -188,7 +186,8 @@ const Game: GameType = {
          // Remove all rays
          document.querySelectorAll(".ray").forEach(ray => ray.remove());
 
-         const entities = await updateEntities();
+         // const entities = await updateEntities();
+         const entities = await Game.board.census();
 
          const creatureCount = entities.creatures.length;
          if (creatureCount === 0) {

@@ -118,6 +118,7 @@ export interface GraphOptions {
    type: GraphType;
    min?: number;
    max?: number;
+   isSelected?: boolean;
 }
 let graphOptions: Array<GraphOptions> = [
    {
@@ -168,6 +169,7 @@ export function setupGraphs(): void {
    const optionElems = <>{
       graphOptions.map((option, i) => {
          const clickEvent = (isSelected: boolean) => {
+            option.isSelected = isSelected;
             if (isSelected) {
                let hasInserted = false;
                for (let j = 0; j < selectedGraphOptions.length; j++) {

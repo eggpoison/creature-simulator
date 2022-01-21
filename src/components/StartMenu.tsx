@@ -40,6 +40,7 @@ const StartMenu = () => {
             <h2 className="subheading">Modifiers</h2>
             <InputRange func={newVal => newGameSettings.fruitSpawnRate = newVal} text="Fruit spawn rate" min={0.5} max={5} step={0.5} defaultValue={1} hasExtremeMode={true} />
             <InputRange func={newVal => newGameSettings.creatureMutationRate = newVal} text="Creature mutation rate" min={0.5} max={3} step={0.1} defaultValue={1} hasExtremeMode={true} />
+            <InputRange func={newVal => newGameSettings.eggIncubationTime = newVal} text="Egg incubation time" min={0} max={15} step={1} defaultValue={5} hasExtremeMode={true} />
 
             <h2 className="subheading">Other Stuff</h2>
             <p>I couldn't figure out where to put these so now this is here.</p>

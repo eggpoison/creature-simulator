@@ -1,5 +1,12 @@
 import { randFloat, Vector } from "../utils";
+import Creature from "./Creature";
 import Entity from "./Entity";
+import Fruit from "./Fruit";
+
+interface BoardCensus {
+   creatures: Array<Creature>;
+   fruit: Array<Fruit>;
+}
 
 export class Board {
    private width: number;
@@ -84,6 +91,27 @@ export class Board {
          }
       }
       return nearbyPosition;
+   }
+
+   census(): Promise<BoardCensus> {
+      return new Promise(resolve => {
+         let creatures: Array<Creature> = new Array<Creature>();
+         let fruit: Array<Fruit> = new Array<Fruit>();
+      
+         for (const cell of this.cells) {
+            for (const entity of cell) {
+               if (entity instanceof Creature && !creatures.includes(entity)) creatures.push(entity);
+               else if (entity instanceof Fruit && !fruit.includes(entity)) fruit.push(entity);
+               entity.tick();
+            }
+         }
+   
+         const entities = {
+            creatures: creatures,
+            fruit: fruit
+         };
+         resolve(entities);
+      });
    }
 
    private insertEntity(entity: Entity, cellNumbers: Array<number>) {
