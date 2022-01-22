@@ -4,7 +4,7 @@ import { updateMouse } from "./Mouse";
 import { inspectorIsOpen, rerenderInspector } from "./creature-inspector";
 import { updateControlPanel } from "./components/ControlPanel";
 import Creature, { createCreature, creatureGeneInfo } from "./classes/Creature";
-import { standardDeviation, Vector } from "./utils";
+import { getElem, standardDeviation, Vector } from "./utils";
 import { drawGraphs, graphSettingData } from "./graph-viewer";
 import { updateTransform } from "./keyboard";
 import Entity from "./classes/Entity";
@@ -110,7 +110,6 @@ interface GameType {
       zoom: number;
       translate: Vector;
    },
-   readonly cellBorderSize: number;
    readonly cellSize: number;
    settings: GameSettings;
    board: Board;
@@ -133,27 +132,6 @@ export const defaultGameSettings: GameSettings = {
    equilibrium: 20,
    showDebugOutput: false
 }
-
-// const updateEntities = (): Promise<Entities> => {
-//    return new Promise(resolve => {
-//       let creatures: Array<Creature> = new Array<Creature>();
-//       let fruit: Array<Fruit> = new Array<Fruit>();
-   
-//       for (const cell of Game.board.cells) {
-//          for (const entity of cell) {
-//             if (entity instanceof Creature) creatures.push(entity);
-//             else if (entity instanceof Fruit) fruit.push(entity);
-//             entity.tick();
-//          }
-//       }
-
-//       const entities = {
-//          creatures: creatures,
-//          fruit: fruit
-//       };
-//       resolve(entities);
-//    });
-// }
 
 const Game: GameType = {
    hasStarted: false,
@@ -198,12 +176,19 @@ const Game: GameType = {
    
          // Number of fruits which spawn in a cell each second
          const FRUIT_SPAWN_RATE = 0.05 * this.settings.fruitSpawnRate * this.fruitMultiplier;
-         for (let cellNumber = 0; cellNumber < this.boardSize.width * this.boardSize.height; cellNumber++) {
+         for (let i = 0; i < this.board.landTileIndexes.length; i++) {
+            const cellNumber = this.board.landTileIndexes[i];
             const rand = Math.random();
             for (let i = 0; rand <= FRUIT_SPAWN_RATE / this.tps - i; i++) {
                createFruit(cellNumber);
             }
          }
+         // for (let cellNumber = 0; cellNumber < this.boardSize.width * this.boardSize.height; cellNumber++) {
+         //    const rand = Math.random();
+         //    for (let i = 0; rand <= FRUIT_SPAWN_RATE / this.tps - i; i++) {
+         //       createFruit(cellNumber);
+         //    }
+         // }
    
          updateControlPanel();
          updateMouse();
@@ -228,6 +213,8 @@ const Game: GameType = {
       setTimeout(() => this.runTick(), 1000 / this.tps / this.timewarp);
    },
    start(): void {
+      getElem("title-options-container").classList.add("hidden");
+
       // Create the board object
       this.board = new Board(this.boardSize.width, this.boardSize.height, this.cellSize);
 
@@ -263,8 +250,6 @@ const Game: GameType = {
       zoom: 1,
       translate: new Vector(0, 0)
    },
-   // Size of the border between cells in px
-   cellBorderSize: 2,
    // Width and height of cells in px
    cellSize: 60,
    settings: defaultGameSettings,

@@ -1,5 +1,5 @@
 import Game from "../Game";
-import { randItem, Vector } from "../utils";
+import { Vector } from "../utils";
 import Entity, { EntityAttributes } from "./Entity";
 
 export function createFruit(cellNumber?: number): void {
@@ -15,18 +15,26 @@ export function createFruit(cellNumber?: number): void {
       position = Game.board.randomPosition();
    }
 
-   new Fruit(position, attributes);
+   const colour = Game.board.getFruitColour(position);
+
+   new Fruit(position, attributes, colour);
 }
 
 class Fruit extends Entity {
+   constructor(position: Vector, attributes: EntityAttributes, colour: string) {
+      super(position, attributes);
+
+      this.element.style.backgroundColor = colour;
+   }
+
    instantiate(): HTMLElement {
       const element = document.createElement("div");
       element.className = "fruit";
 
-      const FRUIT_COLOURS: ReadonlyArray<string> = ["red", "green", "pink"];
+      // const FRUIT_COLOURS: ReadonlyArray<string> = ["red", "green", "pink"];
 
-      const colour = randItem(FRUIT_COLOURS as unknown[]) as string;
-      element.style.backgroundColor = colour;
+      // const colour = randItem(FRUIT_COLOURS as unknown[]) as string;
+      // element.style.backgroundColor = colour;
 
       return element;
    }

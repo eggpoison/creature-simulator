@@ -1,4 +1,6 @@
-import { randFloat, Vector } from "../utils";
+import { getTiles } from "../components/TerrainGenerator";
+import { getElem, randFloat, randItem, Vector } from "../utils";
+import { TileType } from "./BoardGenerator";
 import Creature from "./Creature";
 import Entity from "./Entity";
 import Fruit from "./Fruit";
@@ -13,6 +15,8 @@ export class Board {
    private height: number;
    private cellSize: number;
    cells: Array<Array<Entity>>;
+   landTileIndexes = new Array<number>();
+   private tiles: Array<Array<TileType>>;
 
    constructor(width: number, height: number, cellSize: number) {
       this.width = width;
@@ -23,6 +27,55 @@ export class Board {
       for (let i = 0; i < width * height; i++) {
          this.cells[i] = [];
       }
+
+      this.tiles = this.generateTiles();
+   }
+
+   private createCell(): HTMLElement {
+      const cellObj = document.createElement("div");
+      cellObj.className = "cell";
+      return cellObj;
+   }
+   private createCellRow(): HTMLElement {
+      const cellRow = document.createElement("div");
+      cellRow.style.height = `${this.cellSize}px`;
+      cellRow.className = "cell-row";
+      return cellRow;
+   }
+   private generateTiles(): Array<Array<TileType>> {
+      const tileTypes = getTiles();
+
+      const board = getElem("board");
+      board.classList.remove("hidden");
+
+      const CELL_BORDER_SIZE = 2;
+      board.style.setProperty("--cell-size", `${this.cellSize}px`);
+      board.style.setProperty("--cell-border-size", `${CELL_BORDER_SIZE}px`);
+
+      const boardWidth = this.width * this.cellSize;
+      board.style.width = `${boardWidth}px`;
+      const boardHeight = this.height * this.cellSize;
+      board.style.height = `${boardHeight}px`;
+
+      const cellRows = new Array<HTMLElement>();
+      for (let i = 0; i < this.height; i++) {
+         const cellRow = this.createCellRow();
+         board.appendChild(cellRow);
+         cellRows.push(cellRow);
+         for (let j = 0; j < this.width; j++) {
+            const tileType = tileTypes[i][j];
+
+            if (!tileType.isLiquid) {
+               this.landTileIndexes.push(i * this.width + j);
+            }
+
+            const cellObj = this.createCell();
+            cellObj.style.backgroundColor = tileType.colour;
+            cellRow.appendChild(cellObj);
+         }
+      }
+
+      return tileTypes;
    }
 
    createEntity(entity: Entity): void {
@@ -67,9 +120,25 @@ export class Board {
    }
 
    randomPosition(): Vector {
-      const x = randFloat(0, this.width) * this.cellSize;
-      const y = randFloat(0, this.height) * this.cellSize;
-      return new Vector(x, y);
+      const tileIndex = randItem(this.landTileIndexes) as number;
+      const x = tileIndex % this.width;
+      const y = Math.floor(tileIndex / this.width);
+
+      const xo = randFloat(0, this.cellSize);
+      const yo = randFloat(0, this.cellSize);
+
+      return new Vector(x * this.cellSize + xo, y * this.cellSize + yo);
+   }
+
+   getFruitColour(position: Vector): string {
+      const x = Math.floor(position.x / this.cellSize);
+      const y = Math.floor(position.y / this.cellSize);
+
+      const tileType = this.tiles[y][x];
+      if (tileType.isLiquid) {
+         console.warn("Tried to find the fruit colour of a liquid!");
+      }
+      return tileType.fruitColour!;
    }
 
    randomPositionInCell(cellNumber: number): Vector {

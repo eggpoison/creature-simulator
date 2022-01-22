@@ -383,13 +383,13 @@ class Creature extends Entity {
    moveToTargetPosition(): void {
       this.isMoving = true;
 
-      // Convert from cartesian to polar coordinates
-      const angleToTarget = this.position.angleBetween(this.targetPosition!);
-      const nextPosition = new PolarVector(this.moveSpeed, angleToTarget);
-
       if (this === inspectorCreature) {
          drawRay(this.position, this.targetPosition as Vector);
       }
+
+      // Convert from cartesian to polar coordinates
+      const angleToTarget = this.position.angleBetween(this.targetPosition!);
+      const nextPosition = new PolarVector(this.moveSpeed, angleToTarget);
 
       this.velocity = nextPosition.convertToCartesian();
    };

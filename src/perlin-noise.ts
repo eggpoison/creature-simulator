@@ -20,8 +20,6 @@ export function getPerlinNoise(width: number, height: number, scale: number): Ar
       }
       grid.push(row);
    }
-   // console.log("Random unit vectors:");
-   // console.log(grid);
 
    const noise = new Array<Array<number>>();
    for (let y = 0; y < height; y++) {
@@ -51,7 +49,8 @@ export function getPerlinNoise(width: number, height: number, scale: number): Ar
 
          const u = fade(sampleX % 1);
          const v = fade(sampleY % 1);
-         const val = interpolate(dotProducts[0], dotProducts[1], dotProducts[2], dotProducts[3], u, v);
+         let val = interpolate(dotProducts[0], dotProducts[1], dotProducts[2], dotProducts[3], u, v);
+         val = Math.min(Math.max(val, -0.5), 0.5);
          row.push(val);
       }
       noise.push(row);

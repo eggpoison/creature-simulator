@@ -1,10 +1,8 @@
 import '../css/start-menu.css';
 import { getElem } from '../utils';
-import { StartGame } from "../main";
 import InputRange from './InputRange';
-import InputText from './InputText';
 import Game, { defaultGameSettings, GameSettings } from '../Game';
-import BoardPreview from './BoardPreview';
+import TerrainGenerator from './TerrainGenerator';
 
 export function openStartMenu(): void {
    getElem("start-menu").classList.remove("hidden");
@@ -13,7 +11,7 @@ export function openStartMenu(): void {
 const closeStartMenu = (): void => {
    getElem("start-menu").remove();
 
-   StartGame();
+   Game.start();
 }
 
 let newGameSettings: GameSettings = JSON.parse(JSON.stringify(defaultGameSettings));
@@ -29,12 +27,7 @@ const StartMenu = () => {
          <div className="content">
             <h1 className="heading">Settings</h1>
 
-            <BoardPreview />
-         
-            <h2 className="subheading">Board Size</h2>
-            <p>Adjust the size of the environment.</p>
-            <InputText func={newVal => Game.boardSize.width = newVal} text="Width" defaultValue={15} limit={100} />
-            <InputText func={newVal => Game.boardSize.height = newVal} text="Height" defaultValue={15} limit={100} />
+            <TerrainGenerator />
 
             <h2 className="subheading">Initial Population</h2>
             <InputRange func={newVal => newGameSettings.initialCreatures = newVal} text="Creatures" min={0} max={100} step={1} defaultValue={10} />

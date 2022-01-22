@@ -1,0 +1,4 @@
+#terrain-generator button {
+   margin: 0.2rem 0 0.2rem 50%;
+   transform: translateX(-50%);
+}
