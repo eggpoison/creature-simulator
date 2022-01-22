@@ -175,7 +175,7 @@ export const terrainInfo: TerrainInfo = {
       grass: {
          name: "Grass",
          colour: "#23ee2d",
-         fruitColour: "#00c431",
+         fruitColour: "#009124",
          isLiquid: false
       },
       tundra: {

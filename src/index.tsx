@@ -8,7 +8,7 @@ import './css/board.css';
 import Board from './components/Board';
 import ControlPanel from './components/ControlPanel';
 import CreatureInspector from './components/CreatureInspector';
-import { handleMouse, mouseClick } from './Mouse';
+import { handleMouse, mouseClick } from './mouse';
 import GraphViewer from './components/GraphViewer';
 import PauseScreen from './components/PauseScreen';
 import StartMenu from './components/StartMenu';

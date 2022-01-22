@@ -1,6 +1,6 @@
 import Fruit, { createFruit } from "./classes/Fruit";
 import { gameImages } from "./GameImage";
-import { updateMouse } from "./Mouse";
+import { updateMouse } from "./mouse";
 import { inspectorIsOpen, rerenderInspector } from "./creature-inspector";
 import { updateControlPanel } from "./components/ControlPanel";
 import Creature, { createCreature, creatureGeneInfo } from "./classes/Creature";
@@ -191,7 +191,7 @@ const Game: GameType = {
          // }
    
          updateControlPanel();
-         updateMouse();
+         // updateMouse();
    
          if (inspectorIsOpen) rerenderInspector();
 
