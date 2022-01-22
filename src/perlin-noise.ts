@@ -1,0 +1,86 @@
+import { lerp, PolarVector, Vector } from './utils';
+
+const interpolate = (dot0: number, dot1: number, dot2: number, dot3: number, localX: number, localY: number): number => {
+   const a = lerp(dot0, dot1, localX);
+   const b = lerp(dot2, dot3, localX);
+   return lerp(a, b, localY);
+}
+
+const fade = (t: number): number => {
+   return t * t * t * (t * (t * 6 - 15) + 10);
+}
+
+export function getPerlinNoise(width: number, height: number, scale: number): Array<Array<number>> {
+   const grid = new Array<Array<PolarVector>>();
+
+   for (let i = 0; i < height; i++) {
+      const row = new Array<PolarVector>();
+      for (let j = 0; j < width; j++) {
+         row.push(PolarVector.randomUnitVector());
+      }
+      grid.push(row);
+   }
+   // console.log("Random unit vectors:");
+   // console.log(grid);
+
+   const noise = new Array<Array<number>>();
+   for (let y = 0; y < height; y++) {
+      const row = new Array<number>();
+      for (let x = 0; x < width; x++) {
+         const sampleX = x / scale;
+         const sampleY = y / scale;
+         const samplePoint = new Vector(sampleX, sampleY);
+
+         const x0 = Math.floor(sampleX);
+         const x1 = x0 + 1;
+         const y0 = Math.floor(sampleY);
+         const y1 = y0 + 1;
+
+         const cornerCoords = [[y0, x0], [y0, x1], [y1, x0], [y1, x1]]
+
+         const dotProducts = new Array<number>();
+         for (let i = 0; i < 4; i++) {
+            const coords = cornerCoords[i];
+
+            const corner = grid[coords[0]][coords[1]];
+            const cornerPos = new Vector(coords[1], coords[0]);
+            const offsetVector = samplePoint.convertToPolar(cornerPos);
+            const dot = corner.convertToCartesian().dot(offsetVector.convertToCartesian());
+            dotProducts.push(dot);
+         }
+
+         const u = fade(sampleX % 1);
+         const v = fade(sampleY % 1);
+         const val = interpolate(dotProducts[0], dotProducts[1], dotProducts[2], dotProducts[3], u, v);
+         row.push(val);
+      }
+      noise.push(row);
+   }
+   return noise;
+}
+
+/**
+ * 
+ * @param octaves The number of perlin noise layers to use
+ * @param lacunarity Controls the increase in frequency between octaves (1+)
+ * @param persistance Controls the decrease in weight between octaves (0-1)
+ */
+export function getOctavePerlinNoise(width: number, height: number, startingScale: number, octaves: number, lacunarity: number, persistance: number): Array<Array<number>> {
+   let totalNoise = new Array<Array<number>>();
+   for (let i = 0; i < octaves; i++) {
+      const scale = 1 / Math.pow(lacunarity, i) * startingScale;
+      const weightMultiplier = Math.pow(persistance, i);
+
+      const noise = getPerlinNoise(width, height, scale);
+      if (i === 0) {
+         totalNoise = noise;
+      } else {
+         for (let y = 0; y < height; y++) {
+            for (let x = 0; x < width; x++) {
+               totalNoise[y][x] += noise[y][x] * weightMultiplier;
+            }
+         }
+      }
+   }
+   return totalNoise;
+}

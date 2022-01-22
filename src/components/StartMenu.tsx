@@ -4,6 +4,7 @@ import { StartGame } from "../main";
 import InputRange from './InputRange';
 import InputText from './InputText';
 import Game, { defaultGameSettings, GameSettings } from '../Game';
+import BoardPreview from './BoardPreview';
 
 export function openStartMenu(): void {
    getElem("start-menu").classList.remove("hidden");
@@ -27,6 +28,8 @@ const StartMenu = () => {
       <div id="start-menu" className="menu hidden">
          <div className="content">
             <h1 className="heading">Settings</h1>
+
+            <BoardPreview />
          
             <h2 className="subheading">Board Size</h2>
             <p>Adjust the size of the environment.</p>

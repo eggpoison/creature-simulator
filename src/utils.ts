@@ -13,6 +13,11 @@ export class Vector {
       this.y = y;
    };
 
+   static randomUnitVector(): Vector {
+      const theta = Math.random() * 2 * Math.PI;
+      return new Vector(Math.cos(theta), Math.sin(theta));
+   }
+
    add(vec2: Vector): Vector {
       return new Vector(
          this.x + vec2.x,
@@ -74,6 +79,13 @@ export class PolarVector {
       const x = Math.cos(this.direction) * this.magnitude;
       const y = Math.sin(this.direction) * this.magnitude;
       return new Vector(x, y);
+   }
+
+   static randomUnitVector(): PolarVector {
+      const theta = randFloat(0, 360);
+      // const theta = Math.random() * 2 * Math.PI;
+      return new PolarVector(1, theta);
+      // return new Vector(Math.cos(theta), Math.sin(theta));
    }
 }
 
@@ -177,8 +189,6 @@ export class Colour {
       return `rgb(${r}, ${g}, ${b})`;
    }
 
-   private hexDigits = "0123456789abcdef".split("");
-
    constructor(colour: string | [number, number, number] ) {
       if (typeof colour === "string") {
          this._hex = colour.toLowerCase();
@@ -190,26 +200,30 @@ export class Colour {
       } else {
          this._rgb = colour;
 
-         this._hex = this.getHex();
+         this._hex = Colour.getHex(this._rgb);
       }
    }
 
    private getRGB(): [number, number, number] {
+      const hexDigits = "0123456789abcdef".split("");
+
       const rgb: [number, number, number] = [0, 0, 0];
       for (let i = 0; i < 3; i++) {
-         const digit1 = this.hexDigits.indexOf(this._hex[i * 2]);
-         const digit2 = this.hexDigits.indexOf(this._hex[i * 2 + 1]);
+         const digit1 = hexDigits.indexOf(this._hex[i * 2]);
+         const digit2 = hexDigits.indexOf(this._hex[i * 2 + 1]);
          rgb[i] = digit1 * 16 + digit2;
       }
       return rgb;
    }
-   private getHex(): string {
+   private static getHex(rgb: [number, number, number]): string {
+      const hexDigits = "0123456789abcdef".split("");
+
       let hex = "";
       for (let i = 0; i < 3; i++) {
-         const col = this._rgb[i];
+         const col = rgb[i];
          const digit2 = col % 16;
          const digit1 = (col-digit2) / 16;
-         hex += this.hexDigits[digit1] + this.hexDigits[digit2];
+         hex += hexDigits[digit1] + hexDigits[digit2];
       }
       return hex;
    }
@@ -232,6 +246,13 @@ export class Colour {
 
       return new Colour([col[0], col[1], col[2]]);
    }
+
+   static grayscale(val: number): string {
+      const b16 = Math.floor(val * 255);
+
+      const hex = Colour.getHex([b16, b16, b16]);
+      return hex;
+   }
 }
 
 export async function sleep(ms: number): Promise<void> {
@@ -239,3 +260,4 @@ export async function sleep(ms: number): Promise<void> {
       setTimeout(resolve, ms);
    });
 }
+
