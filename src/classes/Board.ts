@@ -1,5 +1,5 @@
 import { getTiles } from "../components/TerrainGenerator";
-import { getElem, randFloat, randItem, Vector } from "../utils";
+import { clamp, getElem, randFloat, randInt, randItem, Vector } from "../utils";
 import { TileType } from "./BoardGenerator";
 import Creature from "./Creature";
 import Entity from "./Entity";
@@ -96,6 +96,10 @@ export class Board {
          this.removeEntity(entity, previousCellNumbers);
          this.insertEntity(entity, cellNumbers);
       }
+
+      if (entity instanceof Creature) {
+         this.runWalkFunc(entity);
+      }
    }
 
    getNearby(position: Vector, radius: number): Array<Entity> {
@@ -181,6 +185,36 @@ export class Board {
          };
          resolve(entities);
       });
+   }
+
+   /** Tick a random couple of tiles each tick. */
+   tick() {
+      const tickAmount = 3;
+
+      for (let i = 0; i < tickAmount; i++) {
+         const x = randInt(0, this.width);
+         const y = randInt(0, this.height);
+         
+         const tileType = this.tiles[y][x];
+         if (tileType.tickFunc) tileType.tickFunc(x, y);
+      }
+   }
+
+   private runWalkFunc(creature: Creature): void {
+      const x = clamp(Math.floor(creature.position.x / this.cellSize), 0, this.width - 1);
+      const y = clamp(Math.floor(creature.position.y / this.cellSize), 0, this.height - 1);
+
+      if (this.tiles[y] === undefined) {
+         console.log(creature);
+         console.log(x);
+         console.log(y);
+      }
+      const tileType = this.tiles[y][x];
+      if (tileType === undefined) {
+         console.log(x);
+         console.log(y);
+      }
+      if (tileType.walkFunc) tileType.walkFunc(creature);
    }
 
    private insertEntity(entity: Entity, cellNumbers: Array<number>) {

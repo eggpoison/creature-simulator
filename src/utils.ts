@@ -104,9 +104,9 @@ export function getSuffix(num: number): string {
  * @param min The lowest possible number.
  * @param max The highest possible number.
  */
-export function randInt(min: number, max: number): number {
+export function randInt(min: number, max: number, isInclusive?: boolean): number {
    if (min >= max) throw new Error(`Min of '${min}' is greater than max of '${max}'`);
-   return Math.floor(Math.random() * (max - min)) + min;
+   return Math.floor(Math.random() * (max - min + (isInclusive ? 1 : 0))) + min;
 }
 
 /**
@@ -261,3 +261,6 @@ export async function sleep(ms: number): Promise<void> {
    });
 }
 
+export function clamp(num: number, lowerBound: number, upperBound: number): number {
+   return Math.max(Math.min(num, upperBound), lowerBound);
+}

@@ -158,8 +158,10 @@ class Creature extends Entity {
    reproductiveRate: number;
 
    birthTime: number;
+   /** A random number from -100 to 100, used for randomness */
+   seed = randInt(-100, 100, true);
 
-   isMoving: boolean;
+   private isMoving: boolean;
    targetPosition: Vector | null = null;
    reproductiveUrge: number = 0;
    partner: Creature | null = null;
@@ -184,7 +186,7 @@ class Creature extends Entity {
       this.moveSpeed = this.calculateMoveSpeed();
    }
 
-   calculateMoveSpeed(): number {
+   private calculateMoveSpeed(): number {
       const SPEED_REDUCTION_MULTIPLIER = 1.1;
       const MAX_REDUCTION = 3;
       const reduction = creatureGeneInfo.size.max / creatureGeneInfo.size.min / MAX_REDUCTION;
@@ -217,7 +219,7 @@ class Creature extends Entity {
       return (this.lifespan - this.age) / this.lifespan * 100;
    }
 
-   updateLifebar(): void {
+   private updateLifebar(): void {
       const lifebar = this.element.querySelector(".life-bar") as HTMLElement;
       
       lifebar.style.width = `${this.life}%`;
@@ -226,7 +228,7 @@ class Creature extends Entity {
       lifebar.style.backgroundColor = `rgb(${color}, 0, 0)`;
    };
 
-   updateReproductionBar(): void {
+   private updateReproductionBar(): void {
       const reproductionBar = this.element.querySelector(".reproduction-bar") as HTMLElement;
       
       reproductionBar.style.width = `${this.reproductiveUrge}%`;
@@ -360,7 +362,7 @@ class Creature extends Entity {
       }
    };
 
-   eatFruit(fruit: Fruit): void {
+   private eatFruit(fruit: Fruit): void {
       this.stats.fruitEaten++;
 
       // Number of seconds of life it gives
@@ -372,15 +374,11 @@ class Creature extends Entity {
       fruit.die();
    };
 
-   getEntitiesInVision(entitiesToCheck: ReadonlyArray<Entity>): ReadonlyArray<Entity> {
-      return entitiesToCheck.filter(entity => this.canSeeEntity(entity));
-   };
+   damage(amount: number): void {
+      this.age += amount;
+   }
 
-   canSeeEntity(entity: Entity): boolean {
-      return this.position.distanceFrom(entity.position) <= this.vision + (this.size as number)/2;
-   };
-
-   moveToTargetPosition(): void {
+   private moveToTargetPosition(): void {
       this.isMoving = true;
 
       if (this === inspectorCreature) {

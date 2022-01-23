@@ -1,5 +1,8 @@
+import Game from "../Game";
+import GameImage from "../GameImage";
 import { getOctavePerlinNoise, getPerlinNoise } from "../perlin-noise";
-import { Colour, getElem } from "../utils";
+import { Colour, getElem, randFloat, randInt, Vector } from "../utils";
+import Creature from "./Creature";
 
 // Generate a height map and a temperature map
 
@@ -10,6 +13,8 @@ export interface TileType {
    colour: string;
    fruitColour?: string;
    isLiquid: boolean;
+   tickFunc?: (x: number, y: number) => void;
+   walkFunc?: (creature: Creature) => void;
 }
 interface TerrainType {
    height?: number | [number, number];
@@ -215,7 +220,32 @@ export const terrainInfo: TerrainInfo = {
       lava: {
          name: "Lava",
          colour: "red",
-         isLiquid: true
+         isLiquid: true,
+         tickFunc: (x: number, y: number) => {
+            const size = randInt(16, 25, true);
+            const pos = new Vector(x * Game.cellSize + randFloat(0, Game.cellSize), y * Game.cellSize + randFloat(0, Game.cellSize));
+            new GameImage("smoke", 5, 2, size, size, pos);
+         },
+         walkFunc: (creature: Creature) => {
+            // Harm creature once a second
+            if ((Game.ticks + creature.seed) % Game.tps === 0) {
+               // Remove 10% of health
+               creature.damage(creature.lifespan / 10);
+
+               // Create smoke
+               const smokeAmount = randInt(2, 5, true);
+               const o = 30;
+               for (let i = 0; i < smokeAmount; i++) {
+                  const size = randInt(20, 35, true);
+                  const pos = creature.position.randomOffset(o);
+                  const ticksPerFrame = randInt(3, 5, true);
+                  const smoke = new GameImage("smoke", 5, ticksPerFrame, size, size, pos);
+                  
+                  const brightness = randInt(5, 10, true) / 10;
+                  smoke.element.style.filter = `brightness(${brightness})`;
+               }
+            }
+         }
       }
    }
 }

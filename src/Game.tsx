@@ -1,6 +1,5 @@
 import Fruit, { createFruit } from "./classes/Fruit";
 import { gameImages } from "./GameImage";
-import { updateMouse } from "./mouse";
 import { inspectorIsOpen, rerenderInspector } from "./creature-inspector";
 import { updateControlPanel } from "./components/ControlPanel";
 import Creature, { createCreature, creatureGeneInfo } from "./classes/Creature";
@@ -161,6 +160,8 @@ const Game: GameType = {
       if (this.hasStarted) {
          this.ticks++;
 
+         this.board.tick();
+
          // Remove all rays
          document.querySelectorAll(".ray").forEach(ray => ray.remove());
 
@@ -183,15 +184,8 @@ const Game: GameType = {
                createFruit(cellNumber);
             }
          }
-         // for (let cellNumber = 0; cellNumber < this.boardSize.width * this.boardSize.height; cellNumber++) {
-         //    const rand = Math.random();
-         //    for (let i = 0; rand <= FRUIT_SPAWN_RATE / this.tps - i; i++) {
-         //       createFruit(cellNumber);
-         //    }
-         // }
    
          updateControlPanel();
-         // updateMouse();
    
          if (inspectorIsOpen) rerenderInspector();
 
