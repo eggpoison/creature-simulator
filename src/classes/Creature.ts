@@ -152,14 +152,14 @@ interface CreatureStats {
 }
 
 class Creature extends Entity {
-   speed: number;
-   moveSpeed: number;
-   vision: number;
-   reproductiveRate: number;
+   readonly speed: number;
+   readonly moveSpeed: number;
+   readonly vision: number;
+   readonly reproductiveRate: number;
 
-   birthTime: number;
+   readonly birthTime: number;
    /** A random number from -100 to 100, used for randomness */
-   seed = randInt(-100, 100, true);
+   readonly seed = randInt(-100, 100, true);
 
    private isMoving: boolean;
    targetPosition: Vector | null = null;
@@ -392,7 +392,7 @@ class Creature extends Entity {
       this.velocity = nextPosition.convertToCartesian();
    };
 
-   hasReachedTargetPosition(): boolean {
+   private hasReachedTargetPosition(): boolean {
       // Use black magic to figure out if the creature is facing towards the target position
 
       const relativeTargetVec = new Vector(this.position.x - this.targetPosition!.x, this.position.y - this.targetPosition!.y);
@@ -401,7 +401,7 @@ class Creature extends Entity {
       return dotProduct > 0;
    };
 
-   reachTargetPosition(): void {
+   private reachTargetPosition(): void {
       this.isMoving = false;
 
       this.velocity = new Vector(0, 0);
@@ -475,25 +475,13 @@ class Creature extends Entity {
       return attributes as CreatureAttributes;
    }
 
-   mutateGene(name: string, initialGeneVal: number): number {
+   private mutateGene(name: string, initialGeneVal: number): number {
       const gene = creatureGeneInfo[name];
-
-      // const minMutateAmount = (gene.min + gene.max) / 150;
 
       // min mutate amount * math.random() (maybe go higher )
       let mutateAmount = (gene.min + gene.max) / 300;
 
       mutateAmount *= randFloat(0.1, 1) * Game.settings.creatureMutationRate;
-      
-      // let mutateAmount = minMutateAmount;
-      // if (dir === 1) {
-      //    const lerpAmount = randFloat(0.01, 0.05);
-      //    mutateAmount += lerp(initialGeneVal, gene.max, lerpAmount) - initialGeneVal;
-      // } else {
-      //    mutateAmount *= -1;
-      //    const lerpAmount = randFloat(0.01, 0.05);
-      //    mutateAmount -= initialGeneVal - lerp(initialGeneVal, gene.min, lerpAmount);
-      // }
 
       const dir = Math.sign(Math.random() - 0.5);
       mutateAmount *= dir;

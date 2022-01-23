@@ -1,7 +1,7 @@
 import Game from "../Game";
 import GameImage from "../GameImage";
 import { getOctavePerlinNoise, getPerlinNoise } from "../perlin-noise";
-import { Colour, getElem, randFloat, randInt, Vector } from "../utils";
+import { Colour, getElem, randFloat, randInt, randItem, Vector } from "../utils";
 import Creature from "./Creature";
 
 // Generate a height map and a temperature map
@@ -10,11 +10,18 @@ type NoiseType = "height" | "temperature";
 
 export interface TileType {
    name: string;
-   colour: string;
-   fruitColour?: string;
+   // A list of potential colours for the tile
+   colour: Array<string>;
+   fruitColour?: Array<string>;
    isLiquid: boolean;
    tickFunc?: (x: number, y: number) => void;
    walkFunc?: (creature: Creature) => void;
+   effects?: {
+      speedMultiplier?: number;
+      fruitSpawnMultiplier?: number;
+      /** Effects how quickly a creature's life decreases while on the tile */
+      survivability?: number;
+   }
 }
 interface TerrainType {
    height?: number | [number, number];
@@ -138,28 +145,50 @@ export const terrainInfo: TerrainInfo = {
          ]
       },
       {
-         name: "???",
+         name: "Swamp",
          noise: ["height"],
          terrainTypes: [
             {
                height: 0.3,
-               type: "grass"
+               type: "deepWater"
             },
             {
                height: 0.4,
+               type: "water"
+            },
+            {
+               height: 1,
+               type: "bog"
+            }
+         ]
+      },
+      {
+         name: "Vomit",
+         noise: ["height"],
+         terrainTypes: [
+            {
+               height: 0.2,
+               type: "grass"
+            },
+            {
+               height: 0.3,
                type: "tundra"
             },
             {
-               height: 0.5,
+               height: 0.4,
                type: "mountain"
             },
             {
-               height: 0.6,
+               height: 0.5,
                type: "desert"
             },
             {
-               height: 0.7,
+               height: 0.6,
                type: "magma"
+            },
+            {
+               height: 0.7,
+               type: "bog"
             },
             {
                height: 0.8,
@@ -179,47 +208,53 @@ export const terrainInfo: TerrainInfo = {
    tiles: {
       grass: {
          name: "Grass",
-         colour: "#23ee2d",
-         fruitColour: "#009124",
+         colour: ["#23ee2d"],
+         fruitColour: ["#009124"],
          isLiquid: false
       },
       tundra: {
          name: "Tundra",
-         colour: "#b8c6db",
-         fruitColour: "#0066ff",
+         colour: ["#b8c6db"],
+         fruitColour: ["#0066ff"],
          isLiquid: false
       },
       mountain: {
          name: "Mountain",
-         colour: "#fff",
-         fruitColour: "#cf13bf",
+         colour: ["#fff"],
+         fruitColour: ["#cf13bf"],
          isLiquid: false
       },
       desert: {
          name: "Desert",
-         colour: "yellow",
-         fruitColour: "#666",
+         colour: ["yellow"],
+         fruitColour: ["#666"],
          isLiquid: false
       },
       magma: {
          name: "Magma",
-         colour: "orange",
-         fruitColour: "red",
+         colour: ["orange"],
+         fruitColour: ["red"],
+         isLiquid: false
+      },
+      bog: {
+         name: "Bog",
+         colour: ["#46911a", "#509121", "#457819"],
+         fruitColour: ["#2d3d20", "#000"],
          isLiquid: false
       },
       water: {
          name: "Water",
-         colour: "blue",
+         colour: ["blue"],
          isLiquid: true
       },
       deepWater: {
          name: "Deep water",
-         colour: "darkblue",
+         colour: ["darkblue"],
          isLiquid: true
       },
       lava: {
          name: "Lava",
-         colour: "red",
+         colour: ["red"],
          isLiquid: true,
          tickFunc: (x: number, y: number) => {
             const size = randInt(16, 25, true);
@@ -240,7 +275,7 @@ export const terrainInfo: TerrainInfo = {
                   const pos = creature.position.randomOffset(o);
                   const ticksPerFrame = randInt(3, 5, true);
                   const smoke = new GameImage("smoke", 5, ticksPerFrame, size, size, pos);
-                  
+
                   const brightness = randInt(5, 10, true) / 10;
                   smoke.element.style.filter = `brightness(${brightness})`;
                }
@@ -334,8 +369,7 @@ export class BoardGenerator {
             const tileType = this.getTileType(terrain, height, temperature);
             this.tiles[y][x] = tileType;
 
-            // console.log(terrain, height, temperature);
-            const colour = tileType.colour;
+            const colour = randItem(tileType.colour) as string;
             
             ctx.beginPath();
             ctx.fillStyle = colour;

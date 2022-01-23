@@ -70,7 +70,8 @@ export class Board {
             }
 
             const cellObj = this.createCell();
-            cellObj.style.backgroundColor = tileType.colour;
+            const colour = randItem(tileType.colour) as string;
+            cellObj.style.backgroundColor = colour;
             cellRow.appendChild(cellObj);
          }
       }
@@ -142,7 +143,7 @@ export class Board {
       if (tileType.isLiquid) {
          console.warn("Tried to find the fruit colour of a liquid!");
       }
-      return tileType.fruitColour!;
+      return randItem(tileType.fruitColour!) as string;
    }
 
    randomPositionInCell(cellNumber: number): Vector {
