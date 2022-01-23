@@ -53,7 +53,7 @@ abstract class Entity {
       return count;
    }
 
-   createEntity(): HTMLElement {
+   private createEntity(): HTMLElement {
       getElem("board").appendChild(this.element);
 
       let width: number, height: number;
@@ -86,7 +86,7 @@ abstract class Entity {
       Game.board.updateEntity(this);
       this.updatePosition();
    };
-   updatePosition(): void {
+   protected updatePosition(): void {
       this.element.style.left = `${this.position.x}px`;
       this.element.style.top = `${this.position.y}px`;
    };
@@ -102,7 +102,6 @@ abstract class Entity {
       if (typeof this.size === "number") {
          return distance - this.size/2 <= 0;
       } else {
-         // TODO: Inaccurate for entites with a different width and height, problem for future self
          if (typeof entity.size === "number") {
             return distance - this.size.x/2 - entity.size/2 <= 0;
          } else {

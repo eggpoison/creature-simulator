@@ -65,6 +65,10 @@ export class Board {
          for (let j = 0; j < this.width; j++) {
             const tileType = tileTypes[i][j];
 
+            if (tileType === undefined) {
+               console.log(i, j);
+               console.log(tileTypes);
+            }
             if (!tileType.isLiquid) {
                this.landTileIndexes.push(i * this.width + j);
             }
@@ -223,9 +227,21 @@ export class Board {
    }
 
    private getEntityReferences(entity: Entity): Array<number> {
+      const xCell = clamp(Math.floor(entity.position.x / this.cellSize), 0, this.width - 1);
+      const yCell = clamp(Math.floor(entity.position.y / this.cellSize), 0, this.height - 1);
+
+      const minX = Math.max(xCell - 2, 0);
+      const maxX = Math.min(xCell + 2, this.width - 1);
+      const minY = Math.max(yCell - 2, 0);
+      const maxY = Math.min(yCell + 2, this.height - 1);
+
       let cells = new Array<number>();
-      for (let i = 0; i < this.cells.length; i++) {
-         if (this.cells[i].includes(entity)) cells.push(i);
+      for (let y = minY; y <= maxY; y++) {
+         for (let x = minX; x <= maxX; x++) {
+            const cellNumber = y * this.width + x;
+            const cell = this.cells[cellNumber];
+            if (cell.includes(entity)) cells.push(cellNumber);
+         }
       }
       return cells;
    }
@@ -250,7 +266,6 @@ export class Board {
       if (positionInCell.x - radius < 0 && positionInCell.y + radius > this.cellSize) cellNumbers.push(baseCellNumber + this.width - 1);
       if (positionInCell.x - radius > this.cellSize && positionInCell.y - radius < 0) cellNumbers.push(baseCellNumber - this.width + 1);
       if (positionInCell.x - radius > this.cellSize && positionInCell.y + radius > this.cellSize) cellNumbers.push(baseCellNumber + this.width + 1);
-      // TODO: Do corners
 
       const maxCellNumber = this.width * this.height - 1;
       for (let i = cellNumbers.length - 1; i >= 0; i--) {
