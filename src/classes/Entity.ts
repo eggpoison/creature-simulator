@@ -45,9 +45,16 @@ abstract class Entity {
 
    static count(entityType: any): number {
       let count = 0;
-      for (const cell of Game.board.cells) {
-         for (const entity of cell) {
-            if (entityType.prototype.isPrototypeOf(entity)) count++;
+      const entities = new Array<Entity>();
+      for (let y = 0; y < Game.board.height; y++) {
+         for (let x = 0; x < Game.board.width; x++) {
+            const cell = Game.board.cells[y][x];
+            for (const entity of cell) {
+               if (entityType.prototype.isPrototypeOf(entity) && !entities.includes(entity)) {
+                  entities.push(entity);
+                  count++;
+               }
+            }
          }
       }
       return count;
@@ -91,9 +98,9 @@ abstract class Entity {
       this.element.style.top = `${this.position.y}px`;
    };
    die(): void {
-      this.element.remove();
-
       Game.board.deleteEntity(this);
+      
+      this.element.remove();
    };
 
    isCollidingWithEntity(entity: Entity): boolean {

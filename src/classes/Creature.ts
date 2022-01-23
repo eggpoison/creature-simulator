@@ -435,12 +435,11 @@ class Creature extends Entity {
          this.reproductionStage = 0;
          // Ensure that only 1 egg is created
          if ((this.partner as Creature).reproductionStage !== 0) {
-
             const childAttributes = this.generateChildGenes(this.partner as Creature);
    
             const eggAttributes = {
                size: 20,
-               lifespan: Game.settings.eggIncubationTime / 1000 * Game.tps
+               lifespan: Game.settings.eggIncubationTime * Game.tps
             };
             const eggPos = this.position.randomOffset(10);
             new Egg(eggPos, eggAttributes, childAttributes, this.stats.generation + 1);
@@ -450,7 +449,7 @@ class Creature extends Entity {
 
          setTimeout(() => {
             resolve();
-         }, Game.settings.eggIncubationTime);
+         }, Game.settings.eggIncubationTime * 1000);
       });
    }
 

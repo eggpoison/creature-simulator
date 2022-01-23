@@ -313,12 +313,14 @@ export class BoardGenerator {
       return canvas;
    }
 
-   changeSize(newWidth: number, newHeight: number) {
+   changeSize(newWidth: number, newHeight: number, showChanges: boolean) {
       this.width = newWidth;
       this.height = newHeight;
 
-      this.canvas.setAttribute("width", this.width * this.tileSize + "px");
-      this.canvas.setAttribute("height", this.height * this.tileSize + "px");
+      if (showChanges) {
+         this.canvas.setAttribute("width", this.width * this.tileSize + "px");
+         this.canvas.setAttribute("height", this.height * this.tileSize + "px");
+      }
    }
 
    getTiles(): Array<Array<TileType>> {
@@ -345,7 +347,7 @@ export class BoardGenerator {
       return tileType!;
    }
 
-   generateNoise(terrain: Terrain, scale: number): void {
+   generateNoise(terrain: Terrain, scale: number, showChanges: boolean): void {
       // Reset tiles
       this.tiles = new Array<Array<TileType>>();
       for (let y = 0; y < this.height; y++) {
@@ -361,26 +363,37 @@ export class BoardGenerator {
          }
       }
 
-      this.clearCanvas();
+      if (showChanges) {
+         this.clearCanvas();
 
-      const ctx = this.canvas.getContext("2d")!;
-      for (let y = 0; y < this.height; y++) {
-         for (let x = 0; x < this.width; x++) {
-            const height = noise.height ? noise.height[y][x] + 0.5 : null;
-            const temperature = noise.temperature ? noise.temperature[y][x] + 0.5 : null;
-            const tileType = this.getTileType(terrain, height, temperature);
-            this.tiles[y][x] = tileType;
-
-            const colour = randItem(tileType.colour) as string;
-            
-            ctx.beginPath();
-            ctx.fillStyle = colour;
-            ctx.rect(x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
-            ctx.fill();
+         const ctx = this.canvas.getContext("2d")!;
+         for (let y = 0; y < this.height; y++) {
+            for (let x = 0; x < this.width; x++) {
+               const height = noise.height ? noise.height[y][x] + 0.5 : null;
+               const temperature = noise.temperature ? noise.temperature[y][x] + 0.5 : null;
+               const tileType = this.getTileType(terrain, height, temperature);
+               this.tiles[y][x] = tileType;
+   
+               const colour = randItem(tileType.colour) as string;
+               
+               ctx.beginPath();
+               ctx.fillStyle = colour;
+               ctx.rect(x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
+               ctx.fill();
+            }
          }
-      }
-
-      this.drawGridLines();
+   
+         this.drawGridLines();
+      } else {
+         for (let y = 0; y < this.height; y++) {
+            for (let x = 0; x < this.width; x++) {
+               const height = noise.height ? noise.height[y][x] + 0.5 : null;
+               const temperature = noise.temperature ? noise.temperature[y][x] + 0.5 : null;
+               const tileType = this.getTileType(terrain, height, temperature);
+               this.tiles[y][x] = tileType;
+            }
+         }
+      }  
    }
 
    generateTestOctaveNoise(scale: number, octaves: number, lacunarity: number, persistance: number): void {

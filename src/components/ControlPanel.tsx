@@ -53,17 +53,14 @@ const snap = () => {
    let fruitSnapCount = 0;
    for (let y = 0; y < Game.boardSize.height; y++) {
       for (let x = 0; x < Game.boardSize.width; x++) {
-         const cell = Game.board.cells[y * Game.boardSize.width + x];
-
+         const cell = Game.board.cells[y][x];
          for (const entity of cell) {
             if (entity instanceof Creature) {
-               creatureSnapCount++;
-               if (creatureSnapCount % 2 === 0) {
+               if (creatureSnapCount++ % 2 === 0) {
                   entity.die();
                }
             } else if (entity instanceof Fruit) {
-               fruitSnapCount++;
-               if (fruitSnapCount % 2 === 0) {
+               if (fruitSnapCount++ % 2 === 0) {
                   entity.die();
                }
             }

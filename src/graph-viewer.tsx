@@ -137,7 +137,7 @@ let graphOptions: Array<GraphOptions> = [
    },
    {
       display: "Fruit multiplier",
-      id: "fruit-multiplier",
+      id: "fruitMultiplier",
       colour: "#31ff2e",
       dependentVariable: "Multiplier",
       type: "simple"

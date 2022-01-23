@@ -11,10 +11,10 @@ interface BoardCensus {
 }
 
 export class Board {
-   private width: number;
-   private height: number;
-   private cellSize: number;
-   cells: Array<Array<Entity>>;
+   readonly width: number;
+   readonly height: number;
+   readonly cellSize: number;
+   readonly cells: Array<Array<Array<Entity>>>;
    landTileIndexes = new Array<number>();
    private tiles: Array<Array<TileType>>;
 
@@ -23,9 +23,12 @@ export class Board {
       this.height = height;
       this.cellSize = cellSize;
 
-      this.cells = new Array<Array<Entity>>(width * height);
-      for (let i = 0; i < width * height; i++) {
-         this.cells[i] = [];
+      this.cells = new Array<Array<Array<Entity>>>();
+      for (let i = 0; i < height; i++) {
+         this.cells.push(new Array<Array<Entity>>());
+         for (let j = 0; j < width; j++) {
+            this.cells[i].push(new Array<Entity>());
+         }
       }
 
       this.tiles = this.generateTiles();
@@ -66,6 +69,7 @@ export class Board {
             const tileType = tileTypes[i][j];
 
             if (tileType === undefined) {
+               console.log(this.width, this.height);
                console.log(i, j);
                console.log(tileTypes);
             }
@@ -84,21 +88,21 @@ export class Board {
    }
 
    createEntity(entity: Entity): void {
-      const cellNumbers = this.getCellNumbers(entity.position, entity.size/2);
+      const cellNumbers = this.getCells(entity.position, entity.size/2);
       this.insertEntity(entity, cellNumbers);
    }
 
    deleteEntity(entity: Entity): void {
-      const cellNumbers = this.getCellNumbers(entity.position, entity.size/2);
+      const cellNumbers = this.getEntityReferences(entity);
       this.removeEntity(entity, cellNumbers);
    }
 
    updateEntity(entity: Entity) {
       const previousCellNumbers = this.getEntityReferences(entity);
-      const cellNumbers = this.getCellNumbers(entity.position, entity.size/2);
+      const cellNumbers = this.getCells(entity.position, entity.size/2);
 
       if (cellNumbers !== previousCellNumbers) {
-         this.removeEntity(entity, previousCellNumbers);
+         if (previousCellNumbers.length !== 0) this.removeEntity(entity, previousCellNumbers);
          this.insertEntity(entity, cellNumbers);
       }
 
@@ -116,8 +120,7 @@ export class Board {
       let nearbyEntities = new Array<Entity>();
       for (let y = minY; y <= maxY; y++) {
          for (let x = minX; x <= maxX; x++) {
-            const cellNumber = y * this.width + x;
-            for (const entity of this.cells[cellNumber]) {
+            for (const entity of this.cells[y][x]) {
                const distanceFromEntity = position.distanceFrom(entity.position);
                if (!nearbyEntities.includes(entity) && distanceFromEntity - entity.size/2 <= radius) {
                   nearbyEntities.push(entity);
@@ -180,7 +183,6 @@ export class Board {
             for (const entity of cell) {
                if (entity instanceof Creature && !creatures.includes(entity)) creatures.push(entity);
                else if (entity instanceof Fruit && !fruit.includes(entity)) fruit.push(entity);
-               entity.tick();
             }
          }
    
@@ -194,9 +196,21 @@ export class Board {
 
    /** Tick a random couple of tiles each tick. */
    tick() {
-      const tickAmount = 3;
+      const tickedEntities = new Array<Entity>();
+      for (let y = 0; y < this.height; y++) {
+         for (let x = 0; x < this.width; x++) {
+            const cell = this.cells[y][x];
+            for (const entity of cell) {
+               if (!tickedEntities.includes(entity)) {
+                  entity.tick();
+                  tickedEntities.push(entity);
+               }
+            }
+         }
+      }
 
-      for (let i = 0; i < tickAmount; i++) {
+      const tileTickAmount = 3;
+      for (let i = 0; i < tileTickAmount; i++) {
          const x = randInt(0, this.width);
          const y = randInt(0, this.height);
          
@@ -213,20 +227,20 @@ export class Board {
       if (tileType.walkFunc) tileType.walkFunc(creature);
    }
 
-   private insertEntity(entity: Entity, cellNumbers: Array<number>) {
-      for (const cellNumber of cellNumbers) {
-         this.cells[cellNumber].push(entity);
+   private insertEntity(entity: Entity, cells: Array<Array<Entity>>) {
+      for (const cell of cells) {
+         cell.push(entity);
       }
    }
 
-   private removeEntity(entity: Entity, cellNumbers: Array<number>) {
-      for (const cellNumber of cellNumbers) {
-         const idx = this.cells[cellNumber].indexOf(entity);
-         this.cells[cellNumber].splice(idx, 1);
+   private removeEntity(entity: Entity, cells: Array<Array<Entity>>) {
+      for (const cell of cells) {
+         const idx = cell.indexOf(entity);
+         cell.splice(idx, 1);
       }
    }
 
-   private getEntityReferences(entity: Entity): Array<number> {
+   private getEntityReferences(entity: Entity): Array<Array<Entity>> {
       const xCell = clamp(Math.floor(entity.position.x / this.cellSize), 0, this.width - 1);
       const yCell = clamp(Math.floor(entity.position.y / this.cellSize), 0, this.height - 1);
 
@@ -235,47 +249,58 @@ export class Board {
       const minY = Math.max(yCell - 2, 0);
       const maxY = Math.min(yCell + 2, this.height - 1);
 
-      let cells = new Array<number>();
+      let cells = new Array<Array<Entity>>();
       for (let y = minY; y <= maxY; y++) {
          for (let x = minX; x <= maxX; x++) {
-            const cellNumber = y * this.width + x;
-            const cell = this.cells[cellNumber];
-            if (cell.includes(entity)) cells.push(cellNumber);
+            const cell = this.cells[y][x];
+            if (cell.includes(entity)) cells.push(cell);
          }
       }
       return cells;
    }
 
-   private getCellNumbers(position: Vector, radius: number): Array<number> {
-      // The (position.x + this.cellSize) part is necessary because sometimes is negative
-      const cellX = (position.x + this.cellSize) % this.cellSize;
-      const cellY = (position.y + this.cellSize) % this.cellSize;
-      
+   private getCells(position: Vector, radius: number): Array<Array<Entity>> {
       const x = Math.floor(position.x / this.cellSize);
       const y = Math.floor(position.y / this.cellSize);
 
-      const positionInCell = new Vector(cellX, cellY);
-      
-      const baseCellNumber = y * this.width + x;
-      let cellNumbers = [baseCellNumber];
-      if (positionInCell.x - radius < 0) cellNumbers.push(baseCellNumber - 1);
-      if (positionInCell.x + radius > this.cellSize) cellNumbers.push(baseCellNumber + 1);
-      if (positionInCell.y - radius < 0) cellNumbers.push(baseCellNumber - this.width);
-      if (positionInCell.y + radius > this.cellSize) cellNumbers.push(baseCellNumber + this.width);
-      if (positionInCell.x - radius < 0 && positionInCell.y - radius < 0) cellNumbers.push(baseCellNumber - this.width - 1);
-      if (positionInCell.x - radius < 0 && positionInCell.y + radius > this.cellSize) cellNumbers.push(baseCellNumber + this.width - 1);
-      if (positionInCell.x - radius > this.cellSize && positionInCell.y - radius < 0) cellNumbers.push(baseCellNumber - this.width + 1);
-      if (positionInCell.x - radius > this.cellSize && positionInCell.y + radius > this.cellSize) cellNumbers.push(baseCellNumber + this.width + 1);
+      // The (position.x + this.cellSize) part is necessary because sometimes is negative
+      const cellX = (position.x + this.cellSize) % this.cellSize;
+      const cellY = (position.y + this.cellSize) % this.cellSize;
 
-      const maxCellNumber = this.width * this.height - 1;
+      const baseCellNumber: [number, number] = [x, y];
+
+      let cellNumbers: Array<[number, number]> = [baseCellNumber];
+
+      // Top
+      if (cellX - radius < 0) cellNumbers.push([x - 1, y]);
+      // Bottom
+      if (cellX + radius > this.cellSize) cellNumbers.push([x + 1, y]);
+      // Left
+      if (cellY - radius < 0) cellNumbers.push([x, y - 1]);
+      // Right
+      if (cellY + radius > this.cellSize) cellNumbers.push([x, y + 1]);
+      // Top left
+      if (cellX - radius < 0 && cellY - radius < 0) cellNumbers.push([x - 1, y - 1]);
+      // Top right
+      if (cellX + radius > this.cellSize && cellY - radius < 0) cellNumbers.push([x - 1, y - 1]);
+      // Bottom left
+      if (cellX - radius < 0 && cellY + radius < this.cellSize) cellNumbers.push([x - 1, y - 1]);
+      // Bottom right
+      if (cellX + radius > this.cellSize && cellY + radius < this.cellSize) cellNumbers.push([x - 1, y - 1]);
+
       for (let i = cellNumbers.length - 1; i >= 0; i--) {
          const cellNumber = cellNumbers[i];
-         if (cellNumber < 0 || cellNumber > maxCellNumber) {
+         if (cellNumber[0] < 0 || cellNumber[0] >= this.width || cellNumber[1] < 0 || cellNumber[1] >= this.height) {
             cellNumbers.splice(i, 1);
          }
       }
 
-      return cellNumbers;
+      const cells = new Array<Array<Entity>>();
+      for (const cellNumber of cellNumbers) {
+         cells.push(this.cells[cellNumber[1]][cellNumber[0]]);
+      }
+
+      return cells;
    }
 
    private positionIsInBoard(position: Vector): boolean {

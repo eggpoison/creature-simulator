@@ -26,8 +26,8 @@ interface GeneSample {
    [key: string]: any;
    creatures: number | null;
    fruit: number | null;
-   genePool: GenePool | null;
    fruitMultiplier: number;
+   genePool: GenePool | null;
 }
 
 const sampleGenes = (creatures: ReadonlyArray<Creature>, fruit: ReadonlyArray<Fruit>) => {
@@ -78,8 +78,8 @@ const sampleGenes = (creatures: ReadonlyArray<Creature>, fruit: ReadonlyArray<Fr
    geneSamples.push({
       creatures: creatureCount,
       fruit: fruitCount,
-      genePool: genePool,
-      fruitMultiplier: Game.fruitMultiplier
+      fruitMultiplier: Game.fruitMultiplier,
+      genePool: genePool
    });
 
    if (graphSettingData[1].isChecked) {
@@ -156,6 +156,8 @@ const Game: GameType = {
       for (const func of renderListeners) func();
 
       for (const gameImage of gameImages) gameImage.tick();
+
+      // Game.board.tick();
       
       if (this.hasStarted) {
          this.ticks++;
@@ -165,38 +167,40 @@ const Game: GameType = {
          // Remove all rays
          document.querySelectorAll(".ray").forEach(ray => ray.remove());
 
-         const entities = await Game.board.census();
+         /** Seconds between samples of the population + genes */
+         const SAMPLE_INTERVAL = 5;
+         if (this.ticks % (SAMPLE_INTERVAL * this.tps) === 0) {
+            const entities = await Game.board.census();
 
-         const creatureCount = entities.creatures.length;
-         if (creatureCount === 0) {
-            this.fruitMultiplier = 1;
-         } else {
-            this.fruitMultiplier = this.settings.equilibrium / creatureCount;
+            const creatureCount = entities.creatures.length;
+            if (creatureCount === 0) {
+               this.fruitMultiplier = 1;
+            } else {
+               this.fruitMultiplier = this.settings.equilibrium / creatureCount;
+            }
+
+            const fruitDensity = entities.fruit.length / this.board.landTileIndexes.length;
+            const MAX_FRUIT_DENSITY = 10;
+            if (fruitDensity > MAX_FRUIT_DENSITY) {
+               console.log("MAX!");
+            }
+
+            sampleGenes(entities.creatures, entities.fruit);
          }
 
-         const fruitDensity = entities.fruit.length / this.board.landTileIndexes.length;
-         const MAX_FRUIT_DENSITY = 10;
-         if (fruitDensity < MAX_FRUIT_DENSITY) {
-            // Number of fruits which spawn in a cell each second
-            const FRUIT_SPAWN_RATE = 0.05 * this.settings.fruitSpawnRate * this.fruitMultiplier;
-            for (let i = 0; i < this.board.landTileIndexes.length; i++) {
-               const cellNumber = this.board.landTileIndexes[i];
-               const rand = Math.random();
-               for (let i = 0; rand <= FRUIT_SPAWN_RATE / this.tps - i; i++) {
-                  createFruit(cellNumber);
-               }
+         // Number of fruits which spawn in a cell each second
+         const FRUIT_SPAWN_RATE = 0.05 * this.settings.fruitSpawnRate * this.fruitMultiplier;
+         for (let i = 0; i < this.board.landTileIndexes.length; i++) {
+            const cellNumber = this.board.landTileIndexes[i];
+            const rand = Math.random();
+            for (let i = 0; rand <= FRUIT_SPAWN_RATE / this.tps - i; i++) {
+               createFruit(cellNumber);
             }
          }
    
          updateControlPanel();
    
          if (inspectorIsOpen) rerenderInspector();
-
-         // Seconds between gene samples
-         const GENE_SAMPLE_INTERVAL = 10;
-         if (this.ticks / this.tps % GENE_SAMPLE_INTERVAL === 0) {
-            sampleGenes(entities.creatures, entities.fruit);
-         }
       }
 
       const time = Date.now();
