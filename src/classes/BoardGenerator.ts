@@ -61,6 +61,10 @@ export const terrainInfo: TerrainInfo = {
          noise: ["height", "temperature"],
          terrainTypes: [
             {
+               height: 0.2,
+               type: "bog"
+            },
+            {
                height: [0.8, 1],
                type: "mountain"
             },
@@ -341,14 +345,12 @@ export class BoardGenerator {
       return tileType!;
    }
 
-   generateNoise(terrain: Terrain): void {
+   generateNoise(terrain: Terrain, scale: number): void {
       // Reset tiles
       this.tiles = new Array<Array<TileType>>();
       for (let y = 0; y < this.height; y++) {
          this.tiles[y] = new Array<TileType>(this.width);
       }
-
-      const scale = 5;
 
       const noise: { [key: string]: Array<Array<number>> } = {};
       for (const noiseType of terrain.noise) {

@@ -4,11 +4,12 @@ import Warning from './Warning';
 interface InputTextProps {
    text: string;
    defaultValue: number;
-   limit?: number;
+   minVal?: number;
+   maxVal?: number;
    func?: (newVal: number) => void;
 }
 
-const InputText = ({ text, defaultValue, func, limit }: InputTextProps) => {
+const InputText = ({ text, defaultValue, func, minVal, maxVal }: InputTextProps) => {
    const inputRef = useRef(null);
    const [val, setVal] = useState<any>(defaultValue);
 
@@ -26,8 +27,10 @@ const InputText = ({ text, defaultValue, func, limit }: InputTextProps) => {
       warningMessage = "You must have an input value.";
    } else if (val % 1 !== 0) {
       warningMessage = "The input must be an integer.";
-   } else if (limit && val > limit) {
-      warningMessage = `The input cannot be greater than ${limit}.`;
+   } else if (minVal && val < minVal) {
+      warningMessage = `The input cannot be less than ${minVal}.`;
+   } else if (maxVal && val > maxVal) {
+      warningMessage = `The input cannot be greater than ${maxVal}.`;
    }
    
    return (

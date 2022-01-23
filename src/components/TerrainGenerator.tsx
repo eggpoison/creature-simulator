@@ -8,10 +8,11 @@ import Game from '../Game';
 
 let boardGenerator: BoardGenerator;
 let currentTerrain: Terrain = terrainInfo.presets[0];
+let scale: number = 5;
 
 const generatePreview = (): void => {
    boardGenerator.changeSize(Game.boardSize.width, Game.boardSize.height);
-   boardGenerator.generateNoise(currentTerrain);
+   boardGenerator.generateNoise(currentTerrain, scale);
 }
 
 export function getTiles(): Array<Array<TileType>> {
@@ -27,7 +28,7 @@ const TerrainGenerator = () => {
 
    useEffect(() => {
       boardGenerator = new BoardGenerator(Game.boardSize.width, Game.boardSize.height, 16);
-      boardGenerator.generateNoise(terrainInfo.presets[0]);
+      boardGenerator.generateNoise(terrainInfo.presets[0], scale);
    }, []);
 
    const presetNames = terrainInfo.presets.map(preset => preset.name);
@@ -37,7 +38,7 @@ const TerrainGenerator = () => {
          if (currentPreset.name === newPresetName) {
             currentTerrain = currentPreset;
             boardGenerator.changeSize(Game.boardSize.width, Game.boardSize.height);
-            boardGenerator.generateNoise(currentPreset);
+            boardGenerator.generateNoise(currentPreset, scale);
             break;
          }
       }
@@ -48,8 +49,10 @@ const TerrainGenerator = () => {
 
       <InputCheckbox name="show-terrain-generator-checkbox" text="Advanced terrain generation" defaultValue={false} func={toggleTerrainGeneratorVisibility} />
 
-      <InputText func={newVal => Game.boardSize.width = newVal} text="Width" defaultValue={15} limit={100} />
-      <InputText func={newVal => Game.boardSize.height = newVal} text="Height" defaultValue={15} limit={100} />
+      <InputText func={newVal => Game.boardSize.width = newVal} text="Width" defaultValue={15} maxVal={100} />
+      <InputText func={newVal => Game.boardSize.height = newVal} text="Height" defaultValue={15} maxVal={100} />
+
+      <InputText func={newVal => scale = newVal} text="Scale" defaultValue={5} minVal={2} maxVal={20} />
 
       {!visible ? <>
          <InputSelect options={presetNames} name="terrain-preset-options" text="Presets:" defaultValue={terrainInfo.presets[0].name} func={onPresetChange} />
@@ -58,7 +61,7 @@ const TerrainGenerator = () => {
 
       </>}
 
-      <button onClick={generatePreview}>Generate</button>
+      <button onClick={generatePreview}>Regenerate</button>
       <div id="board-preview-container"></div>
    </div>;
 };
