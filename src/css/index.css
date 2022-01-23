@@ -12,6 +12,25 @@ body {
 body.dark-mode {
    background-color: var(--matte-black);
 }
+body.flash::after {
+   content: "";
+   position: absolute;
+   top: 0;
+   right: 0;
+   bottom: 0;
+   left: 0;
+   z-index: 9999999;
+   animation: BackgroundFlash 1.5s linear forwards;
+   pointer-events: none;
+}
+@keyframes BackgroundFlash {
+   0% {
+      background-color: #fff;
+   }
+   100% {
+      background-color: transparent;
+   }
+}
 
 button {
    cursor: pointer;

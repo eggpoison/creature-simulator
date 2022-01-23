@@ -204,16 +204,7 @@ export class Board {
       const x = clamp(Math.floor(creature.position.x / this.cellSize), 0, this.width - 1);
       const y = clamp(Math.floor(creature.position.y / this.cellSize), 0, this.height - 1);
 
-      if (this.tiles[y] === undefined) {
-         console.log(creature);
-         console.log(x);
-         console.log(y);
-      }
       const tileType = this.tiles[y][x];
-      if (tileType === undefined) {
-         console.log(x);
-         console.log(y);
-      }
       if (tileType.walkFunc) tileType.walkFunc(creature);
    }
 

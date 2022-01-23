@@ -48,6 +48,35 @@ const collapseControlPanel = (): void => {
    expandIcon.classList.remove("hidden");
 }
 
+const snap = () => {
+   let creatureSnapCount = 0;
+   let fruitSnapCount = 0;
+   for (let y = 0; y < Game.boardSize.height; y++) {
+      for (let x = 0; x < Game.boardSize.width; x++) {
+         const cell = Game.board.cells[y * Game.boardSize.width + x];
+
+         for (const entity of cell) {
+            if (entity instanceof Creature) {
+               creatureSnapCount++;
+               if (creatureSnapCount % 2 === 0) {
+                  entity.die();
+               }
+            } else if (entity instanceof Fruit) {
+               fruitSnapCount++;
+               if (fruitSnapCount % 2 === 0) {
+                  entity.die();
+               }
+            }
+         }
+      }
+   }
+
+   document.body.classList.remove("flash");
+   setTimeout(() => {
+      document.body.classList.add("flash");
+   }, 5);
+}
+
 const ControlPanel = () => {
    const [, updateState] = React.useState({});
    const forceUpdate = React.useCallback(() => updateState({}), []);
@@ -86,10 +115,12 @@ const ControlPanel = () => {
                <p>Fruit: {Entity.count(Fruit)}</p>
                <p>Time elapsed: {roundNum(Game.ticks / 20, 1)} seconds <i>({Game.ticks} ticks)</i></p>
                
-               <h2 className="subheading">Creatures</h2>
+               <h2 className="subheading">Population Control</h2>
                
                <InputRange button="Create" text="Create creatures" min={1} max={10} defaultValue={1} step={1} func={createCreatures} />
                <InputRange button="Create" text="Create fruit" min={5} max={100} defaultValue={5} step={5} func={createFruits} />
+
+               <button onClick={snap}>Snap</button>
 
                <h2 className="subheading">World</h2>
                

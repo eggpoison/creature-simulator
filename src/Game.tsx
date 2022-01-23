@@ -165,7 +165,6 @@ const Game: GameType = {
          // Remove all rays
          document.querySelectorAll(".ray").forEach(ray => ray.remove());
 
-         // const entities = await updateEntities();
          const entities = await Game.board.census();
 
          const creatureCount = entities.creatures.length;
@@ -174,14 +173,18 @@ const Game: GameType = {
          } else {
             this.fruitMultiplier = this.settings.equilibrium / creatureCount;
          }
-   
-         // Number of fruits which spawn in a cell each second
-         const FRUIT_SPAWN_RATE = 0.05 * this.settings.fruitSpawnRate * this.fruitMultiplier;
-         for (let i = 0; i < this.board.landTileIndexes.length; i++) {
-            const cellNumber = this.board.landTileIndexes[i];
-            const rand = Math.random();
-            for (let i = 0; rand <= FRUIT_SPAWN_RATE / this.tps - i; i++) {
-               createFruit(cellNumber);
+
+         const fruitDensity = entities.fruit.length / this.board.landTileIndexes.length;
+         const MAX_FRUIT_DENSITY = 10;
+         if (fruitDensity < MAX_FRUIT_DENSITY) {
+            // Number of fruits which spawn in a cell each second
+            const FRUIT_SPAWN_RATE = 0.05 * this.settings.fruitSpawnRate * this.fruitMultiplier;
+            for (let i = 0; i < this.board.landTileIndexes.length; i++) {
+               const cellNumber = this.board.landTileIndexes[i];
+               const rand = Math.random();
+               for (let i = 0; rand <= FRUIT_SPAWN_RATE / this.tps - i; i++) {
+                  createFruit(cellNumber);
+               }
             }
          }
    
