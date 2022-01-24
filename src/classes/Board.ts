@@ -68,12 +68,6 @@ export class Board {
          cellRows.push(cellRow);
          for (let j = 0; j < this.width; j++) {
             const tileType = tileTypes[i][j];
-
-            if (tileType === undefined) {
-               console.log(this.width, this.height);
-               console.log(i, j);
-               console.log(tileTypes);
-            }
             if (!tileType.isLiquid) {
                this.landTileIndexes.push(i * this.width + j);
             }

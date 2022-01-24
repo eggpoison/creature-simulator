@@ -9,7 +9,6 @@ class Egg extends Entity {
 
    constructor(position: Vector, attributes: EntityAttributes, creatureAttributes: CreatureAttributes, generation: number) {
       super(position, attributes);
-      // console.log(attributes.lifespan);
 
       this.generation = generation;
       this.creatureAttributes = creatureAttributes;
@@ -31,9 +30,6 @@ class Egg extends Entity {
 
    die(): void {
       super.die();
-
-      // console.log("Egg hatched");
-      // console.log(this);
 
       const creature = new Creature(this.position.copy(), this.creatureAttributes);
       creature.stats.generation = this.generation;

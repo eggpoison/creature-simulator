@@ -299,10 +299,6 @@ class Creature extends Entity {
          if (selfIdx !== -1) entitiesInVision.splice(selfIdx, 1);
          else break;
       }
-      if (entitiesInVision.indexOf(this) !== -1) {
-         console.log("FOUND CRINGL!");
-         console.log(this);
-      }
 
       // Search through all nearby entities for any that are of use
       let closestFruit: Fruit | null = null;
@@ -418,15 +414,6 @@ class Creature extends Entity {
    };
 
    reproduce(): Promise<void> {
-      // console.log("a");
-      // console.log(this);
-      // console.log(this.partner);
-      // console.log("MMM");
-      // console.log(this.seed);
-      // console.log(this.age);
-      // console.log(this);
-      // console.log(this.partner);
-
       return new Promise(resolve => {
          this.reproductionStage = 2;
          this.targetPosition = null;
@@ -443,7 +430,6 @@ class Creature extends Entity {
    }
 
    layEgg(): Promise<void> {
-      // console.log("b");
       return new Promise(resolve => {
          this.reproductionStage = 0;
          // Ensure that only 1 egg is created

@@ -16,7 +16,6 @@ const InputSelect = ({ options, name, text, defaultValue, func }: InputSelectPro
 
    const handleChange = (event: any) => {
       const newVal = event.target.value;
-      // console.log(event.target.value);
       setVal(newVal);
 
       if (func) func(newVal);
@@ -25,7 +24,6 @@ const InputSelect = ({ options, name, text, defaultValue, func }: InputSelectPro
    return <div className="input-select">
       <label htmlFor={htmlName}>{text}</label>
 
-      {/* <select ref={selectElemRef} value={val} onChange={() => handleChange(selectElemRef.current!.value)}> */}
       <select ref={selectElemRef} value={val} onChange={handleChange}>
          {options.map((option, idx) => {
             return <option key={idx}>{option}</option>;
