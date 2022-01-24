@@ -135,11 +135,7 @@ export function createCreature(): void {
    };
    attributes.lifespan = calculateLifespan(attributes);
 
-   // Get a random position for the creature
-   const x = randFloat(0, Game.boardSize.width * Game.cellSize);
-   const y = randFloat(0, Game.boardSize.height * Game.cellSize);
-   const position = new Vector(x, y);
-
+   const position = Game.board.randomPosition();
    new Creature(position, attributes);
 }
 
@@ -297,9 +293,16 @@ class Creature extends Entity {
          }
       }
 
-      const entitiesInVision = Game.board.getNearby(this.position, this.vision);
-      const selfIdx = entitiesInVision.indexOf(this);
-      if (selfIdx !== -1) entitiesInVision.splice(selfIdx, 1);
+      let entitiesInVision = Game.board.getNearby(this.position, this.vision);
+      while (true) {
+         const selfIdx = entitiesInVision.indexOf(this);
+         if (selfIdx !== -1) entitiesInVision.splice(selfIdx, 1);
+         else break;
+      }
+      if (entitiesInVision.indexOf(this) !== -1) {
+         console.log("FOUND CRINGL!");
+         console.log(this);
+      }
 
       // Search through all nearby entities for any that are of use
       let closestFruit: Fruit | null = null;
@@ -415,6 +418,15 @@ class Creature extends Entity {
    };
 
    reproduce(): Promise<void> {
+      // console.log("a");
+      // console.log(this);
+      // console.log(this.partner);
+      // console.log("MMM");
+      // console.log(this.seed);
+      // console.log(this.age);
+      // console.log(this);
+      // console.log(this.partner);
+
       return new Promise(resolve => {
          this.reproductionStage = 2;
          this.targetPosition = null;
@@ -431,12 +443,13 @@ class Creature extends Entity {
    }
 
    layEgg(): Promise<void> {
+      // console.log("b");
       return new Promise(resolve => {
          this.reproductionStage = 0;
          // Ensure that only 1 egg is created
          if ((this.partner as Creature).reproductionStage !== 0) {
             const childAttributes = this.generateChildGenes(this.partner as Creature);
-   
+
             const eggAttributes = {
                size: 20,
                lifespan: Game.settings.eggIncubationTime * Game.tps

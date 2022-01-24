@@ -2,6 +2,7 @@ import { getTiles } from "../components/TerrainGenerator";
 import { clamp, getElem, randFloat, randInt, randItem, Vector } from "../utils";
 import { TileType } from "./BoardGenerator";
 import Creature from "./Creature";
+import Egg from "./Egg";
 import Entity from "./Entity";
 import Fruit from "./Fruit";
 
@@ -93,8 +94,8 @@ export class Board {
    }
 
    deleteEntity(entity: Entity): void {
-      const cellNumbers = this.getEntityReferences(entity);
-      this.removeEntity(entity, cellNumbers);
+      const cells = this.getEntityReferences(entity);
+      this.removeEntity(entity, cells);
    }
 
    updateEntity(entity: Entity) {
@@ -179,10 +180,13 @@ export class Board {
          let creatures: Array<Creature> = new Array<Creature>();
          let fruit: Array<Fruit> = new Array<Fruit>();
       
-         for (const cell of this.cells) {
-            for (const entity of cell) {
-               if (entity instanceof Creature && !creatures.includes(entity)) creatures.push(entity);
-               else if (entity instanceof Fruit && !fruit.includes(entity)) fruit.push(entity);
+         for (let y = 0; y < this.height; y++) {
+            for (let x = 0; x < this.width; x++) {
+               const cell = this.cells[y][x];
+               for (const entity of cell) {
+                  if (entity instanceof Creature && !creatures.includes(entity)) creatures.push(entity);
+                  else if (entity instanceof Fruit && !fruit.includes(entity)) fruit.push(entity);
+               }
             }
          }
    
@@ -235,8 +239,14 @@ export class Board {
 
    private removeEntity(entity: Entity, cells: Array<Array<Entity>>) {
       for (const cell of cells) {
-         const idx = cell.indexOf(entity);
-         cell.splice(idx, 1);
+         while (true) {
+            const idx = cell.indexOf(entity);
+            if (idx !== -1) {
+               cell.splice(idx, 1);
+            } else {
+               break;
+            }
+         }
       }
    }
 
@@ -249,13 +259,18 @@ export class Board {
       const minY = Math.max(yCell - 2, 0);
       const maxY = Math.min(yCell + 2, this.height - 1);
 
+      let cellNumbs = [];
       let cells = new Array<Array<Entity>>();
       for (let y = minY; y <= maxY; y++) {
          for (let x = minX; x <= maxX; x++) {
             const cell = this.cells[y][x];
-            if (cell.includes(entity)) cells.push(cell);
+            if (cell.includes(entity)) {
+               cellNumbs.push([x, y]);
+               cells.push(cell);
+            }
          }
       }
+
       return cells;
    }
 

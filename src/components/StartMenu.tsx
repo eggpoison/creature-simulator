@@ -30,7 +30,7 @@ const StartMenu = () => {
             <TerrainGenerator />
 
             <h2 className="subheading">Initial Population</h2>
-            <InputRange func={newVal => newGameSettings.initialCreatures = newVal} text="Creatures" min={0} max={100} step={1} defaultValue={10} />
+            <InputRange func={newVal => newGameSettings.initialCreatures = newVal} text="Creatures" min={0} max={250} step={5} defaultValue={10} />
             <InputRange func={newVal => newGameSettings.initialFruit = newVal} text="Fruit" min={0} max={500} step={5} defaultValue={50} />
 
             <h2 className="subheading">Modifiers</h2>
