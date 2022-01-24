@@ -1,7 +1,7 @@
 import Game from "../Game";
 import { getElem, Vector } from "../utils";
 
-export interface EntityAttributes {
+export interface EntityGenes {
    [key: string]: number | string | Vector | undefined;
    lifespan: number;
    readonly size: number;
@@ -18,7 +18,7 @@ abstract class Entity {
 
    element: HTMLElement;
 
-   constructor(position: Vector, attributes: EntityAttributes) {
+   constructor(position: Vector, genes: EntityGenes) {
       this.position = position;
       // By default all entities has no velocity.
       this.velocity = new Vector(0, 0);
@@ -26,8 +26,8 @@ abstract class Entity {
       this.age = 0;
 
       // Set all attributes
-      for (const attribute of Object.entries(attributes)) {
-         this[attribute[0]] = attribute[1];
+      for (const [geneName, gene] of Object.entries(genes)) {
+         this[geneName] = gene;
       }
 
       this.element = this.instantiate();
@@ -37,7 +37,6 @@ abstract class Entity {
 
       // Add the entity to the cells array
       Game.board.createEntity(this);
-      // this.cellNumber = this.calculateCell();
    };
 
    // Used in derived classes to create the actual visual thing

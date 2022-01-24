@@ -1,13 +1,13 @@
 import Game from "../Game";
 import GameImage from "../GameImage";
 import { Vector } from "../utils";
-import Creature, { CreatureAttributes } from "./Creature";
-import Entity, { EntityAttributes } from "./Entity";
+import Creature, { CreatureGenes } from "./Creature";
+import Entity, { EntityGenes } from "./Entity";
 
 class Egg extends Entity {
    generation: number;
 
-   constructor(position: Vector, attributes: EntityAttributes, creatureAttributes: CreatureAttributes, generation: number) {
+   constructor(position: Vector, attributes: EntityGenes, creatureAttributes: CreatureGenes, generation: number) {
       super(position, attributes);
 
       this.generation = generation;

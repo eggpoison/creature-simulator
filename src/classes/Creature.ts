@@ -1,13 +1,12 @@
 import Game from "../Game";
 import { drawRay, PolarVector, randFloat, randInt, randItem, Vector } from "../utils";
-import Entity, { EntityAttributes } from "./Entity";
+import Entity, { EntityGenes } from "./Entity";
 import Fruit from "./Fruit";
 import Egg from './Egg';
 import GameImage from "../GameImage";
 import { closeInspector, inspectorCreature } from "../creature-inspector";
 
-export interface CreatureAttributes extends EntityAttributes {
-   name: string;
+export interface CreatureGenes extends EntityGenes {
    speed: number;
    vision: number;
    reproductiveRate: number;
@@ -60,7 +59,7 @@ export const creatureGeneInfo: { [key: string]: GeneInfo } = {
    }
 };
 
-const calculateLifespan = (attributes: CreatureAttributes): number => {
+const calculateLifespan = (attributes: CreatureGenes): number => {
    // Base number of seconds that a creature will live.
    const BASE_LIFESPAN: number = 10;
 
@@ -78,55 +77,20 @@ const calculateLifespan = (attributes: CreatureAttributes): number => {
       }
    }
 
+   // Creatures which have less offspring give their offspring a higher lifespan
+   lifespan /= attributes.reproductiveRate;
+
    return lifespan;
 }
 
 // Generate a random gene in a specified range.
-const generateGene = (attributeName: keyof CreatureAttributes): number => {
+const generateGene = (attributeName: keyof CreatureGenes): number => {
    const attribute: GeneInfo = creatureGeneInfo[attributeName];
    return randFloat(attribute.min, attribute.max);
 }
 
-const getRandomName = (): string => {
-   const firstNames = ["Glorb", "James", "Obama", "Gnark"];
-   const adjectives = ["Feeble", "Crippled", "Schizophrenic"];
-   const nouns = ["Amoeba"];
-
-   let chosenAdjectives = [];
-   let potentialAdjectives = adjectives.slice();
-   while (true) {
-      if (potentialAdjectives.length === 0) break;
-      if (Math.random() <= 0.4) {
-         const idx = randInt(0, potentialAdjectives.length);
-         chosenAdjectives.push(potentialAdjectives[idx]);
-         potentialAdjectives.splice(idx, 1);
-      }
-      else break;
-   }
-   const adjectiveList = chosenAdjectives.reduce((previousValue, currentValue, i) => {
-      let newVal = previousValue;
-      if (i > 0 && chosenAdjectives.length - i > 1) newVal += ", ";
-      else if (chosenAdjectives.length > 1 && chosenAdjectives.length - i === 1) newVal += " and ";
-      return newVal + currentValue;
-   }, "");
-
-   const hasNoun = Math.random() <= 0.3;
-
-   let name = randItem(firstNames);
-   if (hasNoun && chosenAdjectives.length > 0) {
-      name += " the " + adjectiveList + " " + randItem(nouns);
-   } else if (chosenAdjectives.length > 0) {
-      name += " the " + adjectiveList;
-   } else if (hasNoun) {
-      name += " the " + randItem(nouns);
-   }
-
-   return name as string;
-}
-
 export function createCreature(): void {
-   const attributes: CreatureAttributes = {
-      name: getRandomName(),
+   const attributes: CreatureGenes = {
       size: generateGene("size"),
       speed: generateGene("speed"),
       vision: generateGene("vision"),
@@ -152,6 +116,7 @@ class Creature extends Entity {
    readonly moveSpeed: number;
    readonly vision: number;
    readonly reproductiveRate: number;
+   readonly name: string;
 
    readonly birthTime: number;
    /** A random number from -100 to 100, used for randomness */
@@ -169,7 +134,7 @@ class Creature extends Entity {
       generation: 1
    }
 
-   constructor(position: Vector, attributes: CreatureAttributes) {
+   constructor(position: Vector, attributes: CreatureGenes) {
       super(position, attributes);
 
       this.speed = attributes.speed;
@@ -180,6 +145,45 @@ class Creature extends Entity {
       this.birthTime = Game.ticks;
 
       this.moveSpeed = this.calculateMoveSpeed();
+
+      this.name = this.getName();
+   }
+
+   private getName(): string {
+      const firstNames = ["Glorb", "James", "Obama", "Gnark", "Norbert"];
+      const adjectives = ["Feeble", "Crippled", "Schizophrenic", "Weak"];
+      const nouns = ["Amoeba"];
+   
+      let chosenAdjectives = [];
+      let potentialAdjectives = adjectives.slice();
+      while (true) {
+         if (potentialAdjectives.length === 0) break;
+         if (Math.random() <= 0.5) {
+            const idx = randInt(0, potentialAdjectives.length);
+            chosenAdjectives.push(potentialAdjectives[idx]);
+            potentialAdjectives.splice(idx, 1);
+         }
+         else break;
+      }
+      const adjectiveList = chosenAdjectives.reduce((previousValue, currentValue, i) => {
+         let newVal = previousValue;
+         if (i > 0 && chosenAdjectives.length - i > 1) newVal += ", ";
+         else if (chosenAdjectives.length > 1 && chosenAdjectives.length - i === 1) newVal += " and ";
+         return newVal + currentValue;
+      }, "");
+   
+      const hasNoun = Math.random() <= 0.3;
+   
+      let name = randItem(firstNames);
+      if (hasNoun && chosenAdjectives.length > 0) {
+         name += " the " + adjectiveList + " " + randItem(nouns);
+      } else if (chosenAdjectives.length > 0) {
+         name += " the " + adjectiveList;
+      } else if (hasNoun) {
+         name += " the " + randItem(nouns);
+      }
+   
+      return name as string;
    }
 
    private calculateMoveSpeed(): number {
@@ -452,10 +456,8 @@ class Creature extends Entity {
       });
    }
 
-   generateChildGenes(partner: Creature): CreatureAttributes {
-      let attributes: { [key: string]: number | string } = {
-         name: getRandomName()
-      };
+   generateChildGenes(partner: Creature): CreatureGenes {
+      let attributes: { [key: string]: number } = {};
 
       for (const geneName of Object.keys(creatureGeneInfo)) {
          // Pick a random allele
@@ -468,9 +470,9 @@ class Creature extends Entity {
          }
       }
 
-      attributes.lifespan = calculateLifespan(attributes as CreatureAttributes);
+      attributes.lifespan = calculateLifespan(attributes as CreatureGenes);
 
-      return attributes as CreatureAttributes;
+      return attributes as CreatureGenes;
    }
 
    private mutateGene(name: string, initialGeneVal: number): number {

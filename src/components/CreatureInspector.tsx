@@ -35,7 +35,7 @@ const CreatureInspector = () => {
                 </div>
             </div>
         })
-    } </>
+    } </>;
 
     return creature === null ? <></> : (
         <div id="creature-inspector">

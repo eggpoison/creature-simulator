@@ -1,9 +1,9 @@
 import Game from "../Game";
 import { Vector } from "../utils";
-import Entity, { EntityAttributes } from "./Entity";
+import Entity, { EntityGenes } from "./Entity";
 
 export function createFruit(cellNumber?: number): void {
-   const attributes: EntityAttributes = {
+   const attributes: EntityGenes = {
       lifespan: 10 * Game.tps,
       size: 8
    };
@@ -21,7 +21,7 @@ export function createFruit(cellNumber?: number): void {
 }
 
 class Fruit extends Entity {
-   constructor(position: Vector, attributes: EntityAttributes, colour: string) {
+   constructor(position: Vector, attributes: EntityGenes, colour: string) {
       super(position, attributes);
 
       this.element.style.backgroundColor = colour;

@@ -2,7 +2,6 @@ import { getTiles } from "../components/TerrainGenerator";
 import { clamp, getElem, randFloat, randInt, randItem, Vector } from "../utils";
 import { TileType } from "./BoardGenerator";
 import Creature from "./Creature";
-import Egg from "./Egg";
 import Entity from "./Entity";
 import Fruit from "./Fruit";
 
