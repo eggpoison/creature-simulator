@@ -11,20 +11,20 @@ export interface GraphSettings {
 export type GraphData = Array<GeneSampleEntry | null> | Array<number | null>;
 export type GraphType = "simple" | "detailed";
 class Graph {
-   data: GraphData;
+   private readonly data: GraphData;
 
-   element: HTMLElement;
-   width: number;
-   height: number;
-   time = Game.ticks;
-   settings: GraphSettings;
-   options: GraphOptions;
+   readonly element: HTMLElement;
+   private readonly width: number;
+   private readonly height: number;
+   private readonly time = Game.ticks;
+   private readonly settings: GraphSettings;
+   private readonly options: GraphOptions;
 
-   minY: number;
-   maxY: number;
+   private readonly minY: number;
+   private readonly maxY: number;
    
-   xAxisMeasurements = 10;
-   timeUnit: timeUnits = this.calculateTimeUnit(this.time);
+   private readonly xAxisMeasurements = 10;
+   private readonly timeUnit: timeUnits = this.calculateTimeUnit(this.time);
 
    constructor(width: number, height: number, data: GraphData, settings: GraphSettings, options: GraphOptions) {
       this.width = width;
@@ -38,6 +38,7 @@ class Graph {
 
       this.element = this.instantiate();
       
+      this.createTitle();
       this.plotData();
       this.createAxes();
       this.createLabels();
@@ -52,11 +53,11 @@ class Graph {
       return element;
    }
 
-   calculateMinY(): number {
+   private calculateMinY(): number {
       if (this.options.min) return this.options.min;
       return 0;
    }
-   calculateMaxY(): number {
+   private calculateMaxY(): number {
       if (this.options.max) return this.options.max;
 
       let maxY = 0;
@@ -72,7 +73,7 @@ class Graph {
       return maxY;
    }
 
-   calculateTimeUnit(time: number): timeUnits {
+   private calculateTimeUnit(time: number): timeUnits {
       const seconds = time / 20;
       if (seconds / this.xAxisMeasurements > 60) {
          return "minutes";
@@ -81,7 +82,7 @@ class Graph {
       }
    }
 
-   drawPoint(pos: Vector, colour: string): void {
+   private drawPoint(pos: Vector, colour: string): void {
       const point = document.createElement("div");
       point.className = "point";
       point.style.backgroundColor = colour;
@@ -91,7 +92,7 @@ class Graph {
       point.style.bottom = pos.y + "px";
    }
 
-   drawLine(previousPos: Vector, pos: Vector, colour: string): void {
+   private drawLine(previousPos: Vector, pos: Vector, colour: string): void {
       const line = document.createElement("div");
       line.className = "line";
       this.element.appendChild(line);
@@ -106,7 +107,7 @@ class Graph {
       line.style.transform = `rotate(${ang}rad)`;
    }
 
-   drawRect(pos: Vector, width: number, height: number, colour: string): void {
+   private drawRect(pos: Vector, width: number, height: number, colour: string): void {
       const rect = document.createElement("div");
       rect.className = "rect";
       this.element.appendChild(rect);
@@ -119,17 +120,14 @@ class Graph {
       rect.style.bottom = pos.y + "px";
    }
 
-   drawTrangle(pos: Vector, width: number, height: number, colour: string, type: "top-left" | "top-right" | "bottom-right" | "bottom-left"): void {
+   private drawTrangle(pos: Vector, width: number, height: number, colour: string, type: "top-left" | "top-right" | "bottom-right" | "bottom-left"): void {
       const triangle = document.createElement("div");
       triangle.className = `triangle ${type}`;
       this.element.appendChild(triangle);
 
-      // triangle.style.width = width + "px";
-      // triangle.style.height = height + "px";
       triangle.style.setProperty("--width", height / 2 + "px");
       triangle.style.setProperty("--height", width / 2 + "px");
       triangle.style.setProperty("--colour", colour);
-      // triangle.style.backgroundColor = colour;
 
       triangle.style.left = pos.x + "px";
       triangle.style.bottom = pos.y + "px";
@@ -324,8 +322,7 @@ class Graph {
       return measurement;
    }
 
-   createAxes(): void {
-      
+   private createAxes(): void {
       // Time
       for (let i = 0; i < this.xAxisMeasurements; i++) {
          let val = this.time / this.xAxisMeasurements * i / Game.tps;
@@ -345,7 +342,7 @@ class Graph {
       }
    }
 
-   createLabels(): void {
+   private createLabels(): void {
       const xLabel = document.createElement("div");
       xLabel.className = "label x-label";
       this.element.appendChild(xLabel);
@@ -360,6 +357,15 @@ class Graph {
       this.element.appendChild(yLabel);
       const val = this.options.dependentVariable;
       yLabel.innerHTML = val;
+   }
+
+   private createTitle(): void {
+      const title = document.createElement("div");
+      title.className = "title";
+      this.element.appendChild(title);
+
+      const text = `${this.options.dependentVariable} over time`;
+      title.innerHTML = text;
    }
 }
 

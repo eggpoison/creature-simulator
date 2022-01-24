@@ -5,8 +5,17 @@
    --point-size: 2px;
 
    border: 1px solid #000;
-   margin: 10px 0 30px;
+   margin: 20px 0 40px;
    position: relative;
+}
+
+.graph .title {
+   font: 600 0.95rem "Source Code Pro";
+   position: absolute;
+   left: 50%;
+   top: -2px;
+   transform: translate(-50%, -100%);
+   white-space: pre;
 }
 
 .graph .point {
@@ -73,14 +82,15 @@
 }
 
 .graph .label {
-   color: rgb(194, 192, 223);
+   color: rgb(212, 211, 226);
+   font: 600 1rem "Source Sans 3";
    font-style: italic;
    font-weight: bold;
    position: absolute;
 }
 .graph .x-label {
    left: 50%;
-   bottom: -13px;
+   bottom: -10px;
    transform: translate(-50%, 100%);
 }
 .graph .y-label {

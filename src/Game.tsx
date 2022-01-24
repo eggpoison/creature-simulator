@@ -3,7 +3,7 @@ import { gameImages } from "./GameImage";
 import { inspectorIsOpen, rerenderInspector } from "./creature-inspector";
 import { updateControlPanel } from "./components/ControlPanel";
 import Creature, { createCreature, creatureGeneInfo } from "./classes/Creature";
-import { getElem, standardDeviation, Vector } from "./utils";
+import { getElem, roundNum, standardDeviation, Vector } from "./utils";
 import { drawGraphs, graphSettingData } from "./graph-viewer";
 import { updateTransform } from "./keyboard";
 import Entity from "./classes/Entity";
@@ -206,7 +206,7 @@ const Game: GameType = {
       const time = Date.now();
       const dt = time - this.previousTime;
       if (time - this.previousTime >= 1000) {
-         if (this.settings.showDebugOutput) console.log(this.previousTicks + " ticks in " + dt + "ms");
+         if (this.settings.showDebugOutput) console.log(this.previousTicks + " ticks (" + roundNum(this.previousTicks / this.tps, 1) + " seconds(s)) in " + dt + "ms");
          this.previousTicks = 0;
          this.previousTime = time;
       }
