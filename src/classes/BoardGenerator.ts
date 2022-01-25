@@ -23,7 +23,7 @@ export interface TileType {
       survivability?: number;
    }
 }
-interface TerrainType {
+export interface TerrainLayer {
    height?: number | [number, number];
    temperature?: number | [number, number];
    type: string;
@@ -31,7 +31,7 @@ interface TerrainType {
 export interface Terrain {
    name: string;
    noise: Array<NoiseType>;
-   terrainTypes: ReadonlyArray<TerrainType>;
+   terrainLayers: ReadonlyArray<TerrainLayer>;
 }
 interface TerrainInfo {
    presets: ReadonlyArray<Terrain>;
@@ -49,7 +49,7 @@ export const terrainInfo: TerrainInfo = {
       {
          name: "Countryside",
          noise: ["height"],
-         terrainTypes: [
+         terrainLayers: [
             {
                height: 1,
                type: "grass"
@@ -59,7 +59,7 @@ export const terrainInfo: TerrainInfo = {
       {
          name: "Biomes",
          noise: ["height", "temperature"],
-         terrainTypes: [
+         terrainLayers: [
             {
                height: 0.2,
                type: "bog"
@@ -85,7 +85,7 @@ export const terrainInfo: TerrainInfo = {
       {
          name: "Archipelago",
          noise: ["height", "temperature"],
-         terrainTypes: [
+         terrainLayers: [
             {
                height: 0.1,
                type: "deepWater"
@@ -111,7 +111,7 @@ export const terrainInfo: TerrainInfo = {
       {
          name: "Hell",
          noise: ["height"],
-         terrainTypes: [
+         terrainLayers: [
             {
                height: 0.35,
                type: "lava"
@@ -129,7 +129,7 @@ export const terrainInfo: TerrainInfo = {
       {
          name: "Russia",
          noise: ["height"],
-         terrainTypes: [
+         terrainLayers: [
             {
                height: 0.1,
                type: "deepWater"
@@ -151,7 +151,7 @@ export const terrainInfo: TerrainInfo = {
       {
          name: "Swamp",
          noise: ["height"],
-         terrainTypes: [
+         terrainLayers: [
             {
                height: 0.3,
                type: "deepWater"
@@ -169,7 +169,7 @@ export const terrainInfo: TerrainInfo = {
       {
          name: "Vomit",
          noise: ["height"],
-         terrainTypes: [
+         terrainLayers: [
             {
                height: 0.2,
                type: "grass"
@@ -329,7 +329,7 @@ export class BoardGenerator {
 
    private getTileType(terrain: Terrain, height: number | null, temperature: number | null): TileType {
       let tileType: TileType;
-      for (const terrainType of terrain.terrainTypes) {
+      for (const terrainType of terrain.terrainLayers) {
          if (terrainType.height) {
             if (typeof terrainType.height === "number") {
                if (height! <= terrainType.height) return terrainInfo.tiles[terrainType.type];

@@ -2,3 +2,49 @@
    margin: 0.2rem 0 0.2rem 50%;
    transform: translateX(-50%);
 }
+
+#advanced-terrain-generator .terrain-layer {
+   border: 2px solid #999;
+   border-radius: 4px;
+   background-color: #111;
+   padding: 0.1rem 0.3rem;
+   position: relative;
+}
+#advanced-terrain-generator .terrain-layer:not(:last-child) {
+   margin-bottom: 0.5rem;
+}
+#advanced-terrain-generator .terrain-layer .remove-button {
+   --offset: 3px;
+   color: #ccc;
+   position: absolute;
+   top: var(--offset);
+   right: var(--offset);
+   cursor: pointer;
+   user-select: none;
+}
+#advanced-terrain-generator .terrain-layer .remove-button::before {
+   content: "[";
+   color: #777;
+}
+#advanced-terrain-generator .terrain-layer .remove-button::after {
+   content: "]";
+   color: #777;
+}
+#advanced-terrain-generator .terrain-layer .remove-button:hover {
+   color: red;
+}
+#advanced-terrain-generator .terrain-layer .remove-button:hover::after {
+   color: #999;
+}
+#advanced-terrain-generator .terrain-layer .remove-button:hover::before {
+   color: #999;
+}
+#advanced-terrain-generator .terrain-layer .remove-button:active {
+   color: rgb(192, 1, 1);
+}
+#advanced-terrain-generator .terrain-layer .remove-button:active::after {
+   color: #666;
+}
+#advanced-terrain-generator .terrain-layer .remove-button:active::before {
+   color: #666;
+}

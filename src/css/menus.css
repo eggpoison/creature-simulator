@@ -62,3 +62,11 @@
 .menu .input-checkbox + .input-range {
    margin-top: 0.5rem;
 }
+
+.menu select {
+   font: 400 0.9rem "Source Sans 3";
+   margin-left: 0.4rem;
+   background-color: #333;
+   border: none;
+   cursor: pointer;
+}

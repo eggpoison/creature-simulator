@@ -186,9 +186,3 @@ button {
 .input-select label {
    font: 400 1rem "Source Sans 3";
 }
-.input-select select {
-   margin-left: 0.4rem;
-   background-color: #333;
-   /* border: 2px solid #000; */
-   border: none;
-}
