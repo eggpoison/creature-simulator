@@ -32,7 +32,7 @@
    font: 400 0.9rem "Source Code Pro";
    letter-spacing: -0.03rem;
    word-spacing: -0.1rem;
-   background-color: transparent;
+   background-color: rgba(0, 0, 0, 0.3);
    border: 2px solid #bbb;
    border-radius: 4px;
    margin: 0 0 0 50%;

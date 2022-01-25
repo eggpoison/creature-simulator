@@ -19,12 +19,6 @@
    display: inline-block;
    box-shadow: 0 0 0 calc(var(--cell-border-size) / 2) #000 inset;
 }
-#board .cell-1 {
-   background-color: rgb(35, 238, 45);
-}
-#board .cell-2 {
-   background-color: rgb(0, 196, 49);
-}
 
 .creature {
    background-color: green;

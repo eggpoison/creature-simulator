@@ -14,6 +14,7 @@ export interface TileType {
    colour: Array<string>;
    fruitColour?: Array<string>;
    isLiquid: boolean;
+   thumbnailFunc?: (thumbnail: HTMLCanvasElement, width: number, height: number, renderFunc: Function) => void;
    tickFunc?: (x: number, y: number) => void;
    walkFunc?: (creature: Creature) => void;
    effects?: {
@@ -260,6 +261,39 @@ export const terrainInfo: TerrainInfo = {
          name: "Lava",
          colour: ["red"],
          isLiquid: true,
+         thumbnailFunc: (thumbnail: HTMLCanvasElement, width: number, height: number, renderFunc: Function): void => {
+            if (thumbnail.offsetParent === null) {
+               Game.removeRenderListener(renderFunc);
+               return;
+            }
+
+            const thumbnailPos = thumbnail.getBoundingClientRect();
+            const thumbnailX = thumbnailPos.x;
+            const thumbnailY = thumbnailPos.y;
+
+            const createSmoke = () => {
+               const size = randInt(10, 20, true);
+               const x = thumbnailX + randFloat(0, width);
+               const y = thumbnailY + randFloat(0, height);
+               const pos = new Vector(x, y);
+
+               const smoke = new GameImage("smoke", 5, 3, size, size, pos).element;
+               smoke.style.zIndex = "4";
+               document.body.appendChild(smoke);
+               
+               const brightness = randFloat(0.6, 1);
+               smoke.style.filter = `brightness(${brightness})`;
+            }
+
+            if (Math.random() < 0.05) {
+               const smokeAmount = randInt(1, 5, true);
+               for (let i = 0; i < smokeAmount; i++) {
+                  createSmoke();
+               }
+            } else if (Math.random() < 0.2) {
+               createSmoke();
+            }
+         },
          tickFunc: (x: number, y: number) => {
             const size = randInt(16, 25, true);
             const pos = new Vector(x * Game.cellSize + randFloat(0, Game.cellSize), y * Game.cellSize + randFloat(0, Game.cellSize));

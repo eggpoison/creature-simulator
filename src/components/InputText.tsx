@@ -2,14 +2,16 @@ import React, { useRef, useState } from 'react';
 import Warning from './Warning';
 
 interface InputTextProps {
-   text: string;
+   text?: string;
    defaultValue: number;
    minVal?: number;
    maxVal?: number;
    func?: (newVal: number) => void;
+   isInline?: boolean;
+   allowDecimals?: boolean;
 }
 
-const InputText = ({ text, defaultValue, func, minVal, maxVal }: InputTextProps) => {
+const InputText = ({ text, defaultValue, func, minVal, maxVal, isInline, allowDecimals }: InputTextProps) => {
    const inputRef = useRef(null);
    const [val, setVal] = useState<any>(defaultValue);
 
@@ -23,9 +25,7 @@ const InputText = ({ text, defaultValue, func, minVal, maxVal }: InputTextProps)
    let warningMessage = null;
    if (isNaN(val)) {
       warningMessage = "The input must be a valid number.";
-   } else if (val === 0) {
-      warningMessage = "You must have an input value.";
-   } else if (val % 1 !== 0) {
+   } else if (val % 1 !== 0 && !allowDecimals) {
       warningMessage = "The input must be an integer.";
    } else if (minVal && val < minVal) {
       warningMessage = `The input cannot be less than ${minVal}.`;
@@ -33,9 +33,13 @@ const InputText = ({ text, defaultValue, func, minVal, maxVal }: InputTextProps)
       warningMessage = `The input cannot be greater than ${maxVal}.`;
    }
    
+   let className = "input-text";
+   if (isInline) {
+      className += " inline";
+   }
    return (
-      <div className="input-text">
-         <span className="text">{text}:</span>
+      <div className={className}>
+         {text ? <span className="text">{text}:</span> : ""}
          <input ref={inputRef} onInput={onInputChange} type="text" defaultValue={defaultValue} />
 
          {warningMessage !== null ? 

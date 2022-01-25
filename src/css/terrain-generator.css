@@ -1,15 +1,42 @@
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600&display=swap');
+
 #terrain-generator button {
    margin: 0.2rem 0 0.2rem 50%;
    transform: translateX(-50%);
+}
+
+#terrain-generator .input-checkbox {
+   margin-bottom: 0.5rem;
 }
 
 #advanced-terrain-generator .terrain-layer {
    border: 2px solid #999;
    border-radius: 4px;
    background-color: #111;
-   padding: 0.1rem 0.3rem;
+   padding: 0.3rem 0.3rem;
+   position: relative;
+   display: flex;
+   align-items: center;
+}
+
+#advanced-terrain-generator .terrain-layer > * {
+   margin: 0 5px;
+}
+
+#advanced-terrain-generator .terrain-layer .thumbnail {
    position: relative;
 }
+#advanced-terrain-generator .terrain-layer .thumbnail::after {
+   content: "";
+   position: absolute;
+   top: 0;
+   right: 0;
+   bottom: 0;
+   left: 0;
+   box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.5) inset;
+   z-index: 999;
+}
+
 #advanced-terrain-generator .terrain-layer:not(:last-child) {
    margin-bottom: 0.5rem;
 }
@@ -47,4 +74,8 @@
 }
 #advanced-terrain-generator .terrain-layer .remove-button:active::before {
    color: #666;
+}
+
+#advanced-terrain-generator .terrain-layer .layer-input {
+   font: 400 1rem "Source Sans 3";
 }

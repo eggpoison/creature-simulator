@@ -19,6 +19,11 @@
 }
 
 body:not(.dark-mode) #start-menu button {
-   background-color: rgba(0, 0, 0, 0.3);
    box-shadow: 0 0 0px 2px rgba(0, 0, 0, 0.1);
+}
+
+#start-menu .next-button {
+   font-weight: 600;
+   padding: 0 0.3rem;
+   margin-top: 0.5rem;
 }

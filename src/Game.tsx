@@ -237,7 +237,7 @@ const Game: GameType = {
    removeRenderListener(func: Function): void {
       const functionIndex = renderListeners.indexOf(func);
       if (functionIndex === -1) throw new Error(`No matching function could be found! Name: ${func.name}`);
-      renderListeners.push(func);
+      renderListeners.splice(functionIndex, 1);
    },
    hasRenderListener(func: Function): boolean {
       const functionIndex = renderListeners.indexOf(func);

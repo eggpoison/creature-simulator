@@ -158,6 +158,26 @@ button {
    margin-left: 5px;
    border: none;
 }
+.input-text.inline {
+   display: inline;
+   margin: 0 0.2rem;
+   position: relative;
+}
+.input-text.inline::after {
+   content: "";
+   height: 2px;
+   background-color: #888;
+   position: absolute;
+   left: 0;
+   right: 0;
+   bottom: 1px;
+   transform: translateY(100%);
+}
+.input-text.inline input {
+   width: 30px;
+   text-align: center;
+   margin-left: 0;
+}
 
 .warning {
    background-color: rgba(0, 0, 0, 0.5);

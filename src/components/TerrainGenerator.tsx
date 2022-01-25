@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { terrainInfo, BoardGenerator, Terrain, TileType, TerrainLayer } from '../classes/BoardGenerator';
 import InputCheckbox from './InputCheckbox';
 import InputSelect from './InputSelect';
 import '../css/terrain-generator.css';
 import InputText from './InputText';
 import Game from '../Game';
+import { randItem } from '../utils';
 
 let boardGenerator: BoardGenerator;
 let currentTerrain: Terrain = terrainInfo.presets[0];
@@ -26,6 +27,52 @@ const changeBoardSize = (dimension: "width" | "height", newVal: number): void =>
    boardGenerator.generateNoise(currentTerrain, scale, false);
 }
 
+interface LayerThumbnailProps {
+   width: number;
+   height: number;
+   tile: TileType;
+}
+const LayerThumbnail = ({ width, height, tile }: LayerThumbnailProps): JSX.Element => {
+   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+   useEffect(() => {
+      const canvas = canvasRef.current!;
+      canvas.style.width = width + "px";
+      canvas.style.height = height + "px";
+
+      if (tile.thumbnailFunc) {
+         const createRenderListener = (): void => {
+            tile.thumbnailFunc!(canvas, width, height, createRenderListener);
+         }
+
+         Game.createRenderListener(createRenderListener);
+      }
+
+      const ctx = canvas.getContext("2d")!;
+      const colours = tile.colour;
+      if (colours.length === 1) {
+         ctx.fillStyle = tile.colour[0];
+         ctx.rect(0, 0, width, height);
+         ctx.fill();
+      } else {
+         const resolution = 8;
+         const w = width / resolution;
+         const h = height / resolution;
+         for (let y = 0; y < resolution; y++) {
+            for (let x = 0; x < resolution; x++) {
+               const colour = randItem(tile.colour) as string;
+               ctx.beginPath();
+               ctx.fillStyle = colour;
+               ctx.rect(x * w, y * h, w, h);
+               ctx.fill();
+            }
+         }
+      }
+   }, [height, tile, tile.colour, width]);
+
+   return <canvas width={width} height={height} className="thumbnail" ref={canvasRef}></canvas>;
+}
+
 interface LayerProps {
    layer: TerrainLayer;
    id: number;
@@ -34,7 +81,8 @@ interface LayerProps {
    hasRemoveButton: boolean;
 }
 const Layer = ({ layer, id, changeFunc, removeFunc, hasRemoveButton: hasRemoveFunction }: LayerProps): JSX.Element => {
-   const layerName = terrainInfo.tiles[layer.type].name;
+   const tile = terrainInfo.tiles[layer.type];
+   const layerName = tile.name;
 
    const changeLayerType = (event: any): void => {
       const newVal = event.target.value;
@@ -49,15 +97,31 @@ const Layer = ({ layer, id, changeFunc, removeFunc, hasRemoveButton: hasRemoveFu
    }
    
    const tileNames = Object.values(terrainInfo.tiles).map(tile => tile.name);
-
+   const thumbnailSize = 64;
    return <div className="terrain-layer">
-      <p>Type:
-         <select value={layerName} onChange={changeLayerType}>
-            {tileNames.map((name, i) => {
-               return <option key={i}>{name}</option>
-            })}
-         </select>
-      </p>
+      <LayerThumbnail width={thumbnailSize} height={thumbnailSize} tile={tile} />
+
+      <div>
+         <p>Type:
+            <select value={layerName} onChange={changeLayerType}>
+               {tileNames.map((name, i) => {
+                  return <option key={i}>{name}</option>
+               })}
+            </select>
+         </p>
+
+         <div className="layer-input">Height:
+            <InputText defaultValue={0} minVal={0} maxVal={1} isInline={true} allowDecimals={true} />
+            to
+            <InputText defaultValue={1} minVal={0} maxVal={1} isInline={true} allowDecimals={true} />
+         </div>
+
+         <div className="layer-input">Temperature:
+            <InputText defaultValue={0} minVal={0} maxVal={1} isInline={true} allowDecimals={true} />
+            to
+            <InputText defaultValue={1} minVal={0} maxVal={1} isInline={true} allowDecimals={true} />
+         </div>
+      </div>
 
       {hasRemoveFunction ? 
       <div onClick={() => removeFunc(id)} className="remove-button">x</div>
@@ -79,7 +143,6 @@ const AdvancedTerrainGenerator = () => {
 
    const createNewLayer = (): void => {
       const newLayer = newTerrainLayer();
-      console.log(newLayer);
 
       const newLayersArray = layers.concat([newLayer]);
       setLayers(newLayersArray);
