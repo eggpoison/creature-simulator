@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;500;600&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600&display=swap');
 
 #terrain-generator button {
@@ -41,7 +42,9 @@
    margin-bottom: 0.5rem;
 }
 #advanced-terrain-generator .terrain-layer .remove-button {
-   --offset: 3px;
+   --offset: 1px;
+   font: 400 1rem "Source Code Pro";
+   /* letter-spacing: */
    color: #ccc;
    position: absolute;
    top: var(--offset);

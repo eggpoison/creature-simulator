@@ -10,9 +10,10 @@ interface InputRangeProps {
    button?: string;
    /*** If present, any values above or equal to its value will enable "extreme mode" (purely visual) */
    hasExtremeMode?: boolean;
+   prefix?: string;
 }
 
-const InputRange = ({ text, min, max, defaultValue, step, func, button, hasExtremeMode }: InputRangeProps) => {
+const InputRange = ({ text, min, max, defaultValue, step, func, button, hasExtremeMode, prefix }: InputRangeProps) => {
    const inputRef = useRef(null);
    const [val, setVal] = useState(defaultValue);
 
@@ -31,7 +32,7 @@ const InputRange = ({ text, min, max, defaultValue, step, func, button, hasExtre
             <div className="text">{text}</div>
 
             <div>
-               <div className="value">{val}</div>
+               <div className="value">{val}{prefix}</div>
                <div className="bar-container">
                   <div className="min">{min}</div>
                   <input ref={inputRef} onInput={onInputChange} type="range" min={min} max={max} step={step} defaultValue={defaultValue} />

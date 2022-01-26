@@ -31,8 +31,9 @@ interface LayerThumbnailProps {
    width: number;
    height: number;
    tile: TileType;
+   tileName: string;
 }
-const LayerThumbnail = ({ width, height, tile }: LayerThumbnailProps): JSX.Element => {
+const LayerThumbnail = ({ width, height, tile, tileName }: LayerThumbnailProps): JSX.Element => {
    const canvasRef = useRef<HTMLCanvasElement>(null);
 
    useEffect(() => {
@@ -70,7 +71,7 @@ const LayerThumbnail = ({ width, height, tile }: LayerThumbnailProps): JSX.Eleme
       }
    }, [height, tile, tile.colour, width]);
 
-   return <canvas width={width} height={height} className="thumbnail" ref={canvasRef}></canvas>;
+   return <canvas width={width} height={height} className={`thumbnail ${tileName}`} ref={canvasRef}></canvas>;
 }
 
 interface LayerProps {
@@ -79,8 +80,9 @@ interface LayerProps {
    changeFunc: (layer: TerrainLayer, layerID: string) => void;
    removeFunc: (id: number) => void;
    hasRemoveButton: boolean;
+   updateFunc: () => void;
 }
-const Layer = ({ layer, id, changeFunc, removeFunc, hasRemoveButton: hasRemoveFunction }: LayerProps): JSX.Element => {
+const Layer = ({ layer, id, changeFunc, removeFunc, hasRemoveButton: hasRemoveFunction, updateFunc: updateCurrentTerrain }: LayerProps): JSX.Element => {
    const tile = terrainInfo.tiles[layer.type];
    const layerName = tile.name;
 
@@ -94,12 +96,15 @@ const Layer = ({ layer, id, changeFunc, removeFunc, hasRemoveButton: hasRemoveFu
             changeFunc(layer, layerID);
          }
       }
+
+      updateCurrentTerrain();
    }
    
    const tileNames = Object.values(terrainInfo.tiles).map(tile => tile.name);
    const thumbnailSize = 64;
    return <div className="terrain-layer">
-      <LayerThumbnail width={thumbnailSize} height={thumbnailSize} tile={tile} />
+      <div className="formatter"></div>
+      <LayerThumbnail width={thumbnailSize} height={thumbnailSize} tile={tile} tileName={layer.type} />
 
       <div>
          <p>Type:
@@ -138,8 +143,22 @@ const newTerrainLayer = (): TerrainLayer => {
    return Object.assign({}, defaultTerrainLayer);
 }
 
-const AdvancedTerrainGenerator = () => {
-   const [layers, setLayers] = useState<Array<TerrainLayer>>([newTerrainLayer()]);
+interface AdvancedTerrainGeneratorProps {
+   terrain: Array<TerrainLayer>;
+}
+const AdvancedTerrainGenerator = (props: AdvancedTerrainGeneratorProps) => {
+   const [layers, setLayers] = useState<Array<TerrainLayer>>(props.terrain);
+
+   const updateCurrentTerrain = (): void => {
+      const newTerrain: Terrain = {
+         name: "a",
+         noise: ["height", "temperature"],
+         terrainLayers: props.terrain
+      };
+      currentTerrain = Object.assign({}, newTerrain);
+
+      generatePreview();
+   }
 
    const createNewLayer = (): void => {
       const newLayer = newTerrainLayer();
@@ -148,10 +167,14 @@ const AdvancedTerrainGenerator = () => {
       setLayers(newLayersArray);
    }
    
-   const changeLayerType = (layer: TerrainLayer, layerID: string) => {
-      setLayers(layers.map(currentLayer => {
-         return currentLayer === layer ? {...currentLayer, type: layerID} : currentLayer;
-      }));
+   const changeLayerType = (layer: TerrainLayer, newType: string): void => {
+      const newLayerArray = layers.slice();
+      for (const currentLayer of newLayerArray) {
+         if (currentLayer === layer) {
+            currentLayer.type = newType;
+         }
+      }
+      setLayers(newLayerArray);
    }
 
    const removeLayer = (id: number): void => {
@@ -165,7 +188,7 @@ const AdvancedTerrainGenerator = () => {
    return <div id="advanced-terrain-generator">
       <button onClick={createNewLayer}>Create new layer</button>
 
-      {layers.map((layer, i) => <Layer layer={layer} key={i} id={i} changeFunc={changeLayerType} removeFunc={removeLayer} hasRemoveButton={layers.length > 1} />)}
+      {layers.map((layer, i) => <Layer layer={layer} key={i} id={i} changeFunc={changeLayerType} removeFunc={removeLayer} hasRemoveButton={layers.length > 1} updateFunc={updateCurrentTerrain} />)}
    </div>;
 };
 
@@ -194,10 +217,11 @@ const TerrainGenerator = () => {
       }
    }
 
+   const terrain = currentTerrain.terrainLayers;
    return <div id="terrain-generator">
       <h2 className="subheading">Terrain Generation</h2>
 
-      <InputCheckbox name="show-terrain-generator-checkbox" text="Advanced terrain generation" defaultValue={false} func={toggleTerrainGeneratorVisibility} />
+      <InputCheckbox func={toggleTerrainGeneratorVisibility} name="show-terrain-generator-checkbox" text="Advanced terrain generation" defaultValue={false} />
 
       <InputText func={newVal => changeBoardSize("width", newVal)} text="Width" defaultValue={15} maxVal={100} />
       <InputText func={newVal => changeBoardSize("height", newVal)} text="Height" defaultValue={15} maxVal={100} />
@@ -208,7 +232,7 @@ const TerrainGenerator = () => {
          <InputSelect options={presetNames} name="terrain-preset-options" text="Presets:" defaultValue={terrainInfo.presets[0].name} func={onPresetChange} />
       </> : 
       <>
-         <AdvancedTerrainGenerator />
+         <AdvancedTerrainGenerator terrain={terrain} />
       </>}
 
       <button onClick={generatePreview}>Regenerate</button>

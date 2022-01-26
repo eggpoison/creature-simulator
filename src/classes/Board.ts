@@ -126,6 +126,11 @@ export class Board {
    }
 
    randomPosition(): Vector {
+      if (this.landTileIndexes.length === 0) {
+         const x = randFloat(0, this.width * this.cellSize);
+         const y = randFloat(0, this.height * this.cellSize);
+         return new Vector(x, y);
+      }
       const tileIndex = randItem(this.landTileIndexes) as number;
       const x = tileIndex % this.width;
       const y = Math.floor(tileIndex / this.width);
@@ -136,7 +141,9 @@ export class Board {
       return new Vector(x * this.cellSize + xo, y * this.cellSize + yo);
    }
 
-   getFruitColour(position: Vector): string {
+   getFruitColour(position: Vector): string | null {
+      if (this.landTileIndexes.length === 0) return null;
+
       const x = Math.floor(position.x / this.cellSize);
       const y = Math.floor(position.y / this.cellSize);
 

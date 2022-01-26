@@ -32,7 +32,7 @@ export interface TerrainLayer {
 export interface Terrain {
    name: string;
    noise: Array<NoiseType>;
-   terrainLayers: ReadonlyArray<TerrainLayer>;
+   terrainLayers: Array<TerrainLayer>;
 }
 interface TerrainInfo {
    presets: ReadonlyArray<Terrain>;
@@ -262,7 +262,7 @@ export const terrainInfo: TerrainInfo = {
          colour: ["red"],
          isLiquid: true,
          thumbnailFunc: (thumbnail: HTMLCanvasElement, width: number, height: number, renderFunc: Function): void => {
-            if (thumbnail.offsetParent === null) {
+            if (thumbnail.offsetParent === null || !thumbnail.classList.contains("lava")) {
                Game.removeRenderListener(renderFunc);
                return;
             }
@@ -273,8 +273,8 @@ export const terrainInfo: TerrainInfo = {
 
             const createSmoke = () => {
                const size = randInt(10, 20, true);
-               const x = thumbnailX + randFloat(0, width);
-               const y = thumbnailY + randFloat(0, height);
+               const x = thumbnailX + size/2 + randFloat(0, width - size/2);
+               const y = thumbnailY + size/2 + randFloat(0, height - size/2);
                const pos = new Vector(x, y);
 
                const smoke = new GameImage("smoke", 5, 3, size, size, pos).element;

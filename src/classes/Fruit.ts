@@ -17,7 +17,9 @@ export function createFruit(cellNumber?: number): void {
 
    const colour = Game.board.getFruitColour(position);
 
-   new Fruit(position, attributes, colour);
+   if (colour !== null) {   
+      new Fruit(position, attributes, colour);
+   }
 }
 
 class Fruit extends Entity {
