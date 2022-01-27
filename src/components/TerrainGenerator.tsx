@@ -83,7 +83,19 @@ interface LayerNoiseTypeProps {
 }
 const LayerNoiseType = ({ layer, type, changeLevelFunc, toggleLevelFunc }: LayerNoiseTypeProps): JSX.Element => {
    const [enabled, setEnabled] = useState(typeof layer[type] !== "undefined");
-   const [val, setVal] = useState<[string, string]>(["0", "1"]);
+   let defaultVal: [string, string];
+   if (typeof layer[type] === "undefined") {
+      // not enabled
+      defaultVal = ["0", "1"];
+   } else if (Array.isArray(layer[type])) {
+      // [number, number]
+      const layerArr = layer[type] as [number, number];
+      defaultVal = [layerArr[0].toString(), layerArr[1].toString()];
+   } else {
+      // number
+      defaultVal = ["0", layer[type]!.toString()];
+   }
+   const [val, setVal] = useState<[string, string]>(defaultVal);
    
    let text;
    if (type === "height") {
