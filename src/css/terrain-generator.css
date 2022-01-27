@@ -20,22 +20,15 @@
    align-items: center;
 }
 
-#advanced-terrain-generator .terrain-layer > * {
-   margin: 0 5px;
+#advanced-terrain-generator .terrain-layer > *:not(:first-child) {
+   margin-left: 5px;
+}
+#advanced-terrain-generator .terrain-layer > *:not(:last-child) {
+   margin-right: 5px;
 }
 
 #advanced-terrain-generator .terrain-layer .thumbnail {
    position: relative;
-}
-#advanced-terrain-generator .terrain-layer .thumbnail::after {
-   content: "";
-   position: absolute;
-   top: 0;
-   right: 0;
-   bottom: 0;
-   left: 0;
-   box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.5) inset;
-   z-index: 999;
 }
 
 #advanced-terrain-generator .terrain-layer:not(:last-child) {
@@ -83,8 +76,11 @@
    display: inline;
 }
 .layer-noise-type:not(.enabled) * {
-   color: #ccc;
+   color: #aaa;
 }
 .layer-noise-type:not(.enabled) input[type=checkbox] {
-   opacity: 0.7;
+   opacity: 0.65
+}
+.layer-noise-type:not(.enabled) .input-container::after {
+   opacity: 0.5;
 }
