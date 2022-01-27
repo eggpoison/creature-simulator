@@ -213,7 +213,7 @@ export class Board {
          }
       }
 
-      const tileTickAmount = 3;
+      const tileTickAmount = this.width * this.height / 100;
       for (let i = 0; i < tileTickAmount; i++) {
          const x = randInt(0, this.width);
          const y = randInt(0, this.height);

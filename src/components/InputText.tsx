@@ -7,11 +7,10 @@ interface InputTextProps {
    minVal?: number;
    maxVal?: number;
    func?: (newVal: number) => void;
-   isInline?: boolean;
    allowDecimals?: boolean;
 }
 
-const InputText = ({ text, defaultValue, func, minVal, maxVal, isInline, allowDecimals }: InputTextProps) => {
+const InputText = ({ text, defaultValue, func, minVal, maxVal, allowDecimals }: InputTextProps) => {
    const inputRef = useRef(null);
    const [val, setVal] = useState<any>(defaultValue);
 
@@ -33,12 +32,8 @@ const InputText = ({ text, defaultValue, func, minVal, maxVal, isInline, allowDe
       warningMessage = `The input cannot be greater than ${maxVal}.`;
    }
    
-   let className = "input-text";
-   if (isInline) {
-      className += " inline";
-   }
    return (
-      <div className={className}>
+      <div className="input-text">
          {text ? <span className="text">{text}:</span> : ""}
          <input ref={inputRef} onInput={onInputChange} type="text" defaultValue={defaultValue} />
 

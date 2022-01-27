@@ -295,9 +295,24 @@ export const terrainInfo: TerrainInfo = {
             }
          },
          tickFunc: (x: number, y: number) => {
-            const size = randInt(16, 25, true);
-            const pos = new Vector(x * Game.cellSize + randFloat(0, Game.cellSize), y * Game.cellSize + randFloat(0, Game.cellSize));
-            new GameImage("smoke", 5, 2, size, size, pos);
+            const createSmoke = (size: number, brightness: number): void => {
+               const pos = new Vector(x * Game.cellSize + randFloat(0, Game.cellSize), y * Game.cellSize + randFloat(0, Game.cellSize));
+               const smoke = new GameImage("smoke", 5, 2, size, size, pos).element;
+   
+               smoke.style.filter = `brightness(${brightness})`;
+            }
+
+            // small smoke
+            createSmoke(randInt(16, 25, true), randFloat(0.5, 1));
+
+            // Big smoke
+            if (Math.random() < 0.02) {
+               const amount = randInt(3, 5);
+               for (let i = 0; i < amount; i++) {
+                  const size = randInt(25, 40, true);
+                  createSmoke(size, 1);
+               }
+            }
          },
          walkFunc: (creature: Creature) => {
             // Harm creature once a second
@@ -362,23 +377,28 @@ export class BoardGenerator {
    }
 
    private getTileType(terrain: Terrain, height: number | null, temperature: number | null): TileType {
-      let tileType: TileType;
-      for (const terrainType of terrain.terrainLayers) {
-         if (terrainType.height) {
-            if (typeof terrainType.height === "number") {
-               if (height! <= terrainType.height) return terrainInfo.tiles[terrainType.type];
-            } else if (Array.isArray(terrainType.height)) {
-               if (height! >= terrainType.height[0] && height! <= terrainType.height[1]) return terrainInfo.tiles[terrainType.type];
-            }
-         } else if (terrainType.temperature) {
-            if (typeof terrainType.temperature === "number") {
-               if (temperature! <= terrainType.temperature) return terrainInfo.tiles[terrainType.type];
-            } else if (Array.isArray(terrainType.height)) {
-               if (temperature! >= terrainType.temperature[0] && temperature! <= terrainType.temperature[1]) return terrainInfo.tiles[terrainType.type];
-            }
+      const testLevel = (type: "height" | "temperature", val: number, terrainType: TerrainLayer): boolean => {
+         if (typeof terrainType[type] === "number") {
+            // number
+            if (val > terrainType[type]!) return false;
+         } else if (Array.isArray(terrainType[type])) {
+            const limitArr = terrainType[type] as [number, number];
+            // [number, number]
+            if (val < limitArr[0] || val > limitArr[1]) return false;
          }
+         return true;
       }
-      return tileType!;
+
+      for (const terrainType of terrain.terrainLayers) {
+         const heightCheck = height !== null ? testLevel("height", height, terrainType) : true;
+         const temperatureCheck = temperature !== null ? testLevel("temperature", temperature, terrainType) : true;
+         
+         if (heightCheck && temperatureCheck) return terrainInfo.tiles[terrainType.type];
+      }
+
+      console.log("Height:", height, "Temperature:", temperature);
+      console.log("Terrain layers:", terrain.terrainLayers);
+      throw new Error(`Unable to find an appropriate tile type!`);
    }
 
    generateNoise(terrain: Terrain, scale: number, showChanges: boolean): void {

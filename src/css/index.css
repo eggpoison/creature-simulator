@@ -206,3 +206,35 @@ button {
 .input-select label {
    font: 400 1rem "Source Sans 3";
 }
+
+.input-text-range {
+   font: 400 1rem "Source Sans 3";
+}
+.input-text-range div {
+   display: inline;
+}
+.input-text-range input {
+   text-align: center;
+   font: 400 1rem "Source Code Pro";
+   width: 30px;
+   background-color: transparent;
+   border: none;
+}
+.input-text-range .input-container {
+   margin: 0 3px;
+   position: relative;
+}
+.input-text-range .input-container::after {
+   content: "";
+   height: 2px;
+   background-color: #bbb;
+   position: absolute;
+   bottom: 0;
+   right: 0;
+   left: 0;
+}
+.input-text-range .warning {
+   left: 50px;
+   bottom: -20px;
+   white-space: pre;
+}

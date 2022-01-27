@@ -2,8 +2,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import { terrainInfo, BoardGenerator, Terrain, TileType, TerrainLayer } from '../classes/BoardGenerator';
 import InputCheckbox from './InputCheckbox';
 import InputSelect from './InputSelect';
-import '../css/terrain-generator.css';
 import InputText from './InputText';
+import InputTextRange from './InputTextRange';
+import '../css/terrain-generator.css';
 import Game from '../Game';
 import { randItem } from '../utils';
 
@@ -74,15 +75,67 @@ const LayerThumbnail = ({ width, height, tile, tileName }: LayerThumbnailProps):
    return <canvas width={width} height={height} className={`thumbnail ${tileName}`} ref={canvasRef}></canvas>;
 }
 
+interface LayerNoiseTypeProps {
+   layer: TerrainLayer;
+   type: "height" | "temperature";
+   changeLevelFunc: (layer: TerrainLayer, type: "height" | "temperature", newVal: [number, number] | null) => void;
+   toggleLevelFunc: (type: "height" | "temperature", newEnabled: boolean) => void;
+}
+const LayerNoiseType = ({ layer, type, changeLevelFunc, toggleLevelFunc }: LayerNoiseTypeProps): JSX.Element => {
+   const [enabled, setEnabled] = useState(typeof layer[type] !== "undefined");
+   const [val, setVal] = useState<[string, string]>(["0", "1"]);
+   
+   let text;
+   if (type === "height") {
+      text = "Height: ";
+   } else {
+      text = "Temperature: ";
+   }
+
+   const toggleEnable = (): void => {
+      const newVal = !enabled;
+      toggleLayerLevel(type, newVal);
+      setEnabled(newVal);
+
+      if (!newVal) {
+         setVal(["0", "1"]);
+      }
+   }
+
+   const changeLayerLevel = (type: "height" | "temperature", newVal: [minVal: string, maxVal: string]): void => {
+      const minVal = parseFloat(newVal[0]);
+      const maxVal = parseFloat(newVal[1]);
+      if (!isNaN(minVal) && !isNaN(maxVal)) {
+         changeLevelFunc(layer, type, enabled ? [minVal, maxVal] : null);
+      }
+
+      setVal(newVal);
+   }
+
+   const toggleLayerLevel = (type: "height" | "temperature", newEnabled: boolean): void => {
+      toggleLevelFunc(type, newEnabled);
+   }
+
+   let className = "layer-noise-type";
+   if (enabled) {
+      className += " enabled";
+   }
+   return <div className={className}>
+      <input type="checkbox" checked={enabled} onChange={toggleEnable} />
+      <InputTextRange func={([minVal, maxVal]) => changeLayerLevel(type, [minVal, maxVal])} text={text} minValLimit={0} maxValLimit={1} minVal={val[0]} maxVal={val[1]} />
+   </div>
+}
+
 interface LayerProps {
    layer: TerrainLayer;
    id: number;
-   changeFunc: (layer: TerrainLayer, layerID: string) => void;
+   changeTypeFunc: (layer: TerrainLayer, layerID: string) => void;
+   changeLevelFunc: (layer: TerrainLayer, type: "height" | "temperature", newVal: [number, number] | null) => void;
+   toggleLevelFunc: (layer: TerrainLayer, type: "height" | "temperature", newEnabled: boolean) => void;
    removeFunc: (id: number) => void;
    hasRemoveButton: boolean;
-   updateFunc: () => void;
 }
-const Layer = ({ layer, id, changeFunc, removeFunc, hasRemoveButton: hasRemoveFunction, updateFunc: updateCurrentTerrain }: LayerProps): JSX.Element => {
+const Layer = ({ layer, id, changeTypeFunc: changeFunc, changeLevelFunc, toggleLevelFunc, removeFunc, hasRemoveButton: hasRemoveFunction }: LayerProps): JSX.Element => {
    const tile = terrainInfo.tiles[layer.type];
    const layerName = tile.name;
 
@@ -96,8 +149,10 @@ const Layer = ({ layer, id, changeFunc, removeFunc, hasRemoveButton: hasRemoveFu
             changeFunc(layer, layerID);
          }
       }
+   }
 
-      updateCurrentTerrain();
+   const toggleLayerLevel = (type: "height" | "temperature", newEnabled: boolean): void => {
+      toggleLevelFunc(layer, type, newEnabled);
    }
    
    const tileNames = Object.values(terrainInfo.tiles).map(tile => tile.name);
@@ -115,17 +170,8 @@ const Layer = ({ layer, id, changeFunc, removeFunc, hasRemoveButton: hasRemoveFu
             </select>
          </p>
 
-         <div className="layer-input">Height:
-            <InputText defaultValue={0} minVal={0} maxVal={1} isInline={true} allowDecimals={true} />
-            to
-            <InputText defaultValue={1} minVal={0} maxVal={1} isInline={true} allowDecimals={true} />
-         </div>
-
-         <div className="layer-input">Temperature:
-            <InputText defaultValue={0} minVal={0} maxVal={1} isInline={true} allowDecimals={true} />
-            to
-            <InputText defaultValue={1} minVal={0} maxVal={1} isInline={true} allowDecimals={true} />
-         </div>
+         <LayerNoiseType layer={layer} type="height" changeLevelFunc={changeLevelFunc} toggleLevelFunc={toggleLayerLevel} />
+         <LayerNoiseType layer={layer} type="temperature" changeLevelFunc={changeLevelFunc} toggleLevelFunc={toggleLayerLevel} />
       </div>
 
       {hasRemoveFunction ? 
@@ -143,17 +189,19 @@ const newTerrainLayer = (): TerrainLayer => {
    return Object.assign({}, defaultTerrainLayer);
 }
 
+let updateCurrentTerrain: () => void;
+
 interface AdvancedTerrainGeneratorProps {
    terrain: Array<TerrainLayer>;
 }
 const AdvancedTerrainGenerator = (props: AdvancedTerrainGeneratorProps) => {
    const [layers, setLayers] = useState<Array<TerrainLayer>>(props.terrain);
 
-   const updateCurrentTerrain = (): void => {
+   updateCurrentTerrain = (): void => {
       const newTerrain: Terrain = {
-         name: "a",
+         name: "",
          noise: ["height", "temperature"],
-         terrainLayers: props.terrain
+         terrainLayers: layers
       };
       currentTerrain = Object.assign({}, newTerrain);
 
@@ -177,6 +225,34 @@ const AdvancedTerrainGenerator = (props: AdvancedTerrainGeneratorProps) => {
       setLayers(newLayerArray);
    }
 
+   const changeLayerLevel = (layer: TerrainLayer, type: "height" | "temperature", newVal: [number, number] | null): void => {
+      const newLayerArray = layers.slice();
+      for (const currentLayer of newLayerArray) {
+         if (currentLayer !== layer) continue;
+
+         if (newVal !== null) {
+            currentLayer[type] = newVal;
+         } else {
+            delete currentLayer[type];
+         }
+      }
+      setLayers(newLayerArray);
+   }
+
+   const toggleLayerLevel = (layer: TerrainLayer, type: "height" | "temperature", isEnabled: boolean, newVal?: [minVal: number, maxVal: number]): void => {
+      const newLayerArray = layers.slice();
+      for (const currentLayer of newLayerArray) {
+         if (currentLayer !== layer) continue;
+
+         if (isEnabled) {
+            currentLayer[type] = [0, 1];
+         } else {
+            delete currentLayer[type];
+         }
+      }
+      setLayers(newLayerArray);
+   }
+
    const removeLayer = (id: number): void => {
       let newArr = new Array<TerrainLayer>();
       for (let i = 0; i < layers.length; i++) {
@@ -185,10 +261,12 @@ const AdvancedTerrainGenerator = (props: AdvancedTerrainGeneratorProps) => {
       setLayers(newArr);
    }
 
+   console.log(layers);
+
    return <div id="advanced-terrain-generator">
       <button onClick={createNewLayer}>Create new layer</button>
 
-      {layers.map((layer, i) => <Layer layer={layer} key={i} id={i} changeFunc={changeLayerType} removeFunc={removeLayer} hasRemoveButton={layers.length > 1} updateFunc={updateCurrentTerrain} />)}
+      {layers.map((layer, i) => <Layer layer={layer} key={i} id={i} changeTypeFunc={changeLayerType} changeLevelFunc={changeLayerLevel} toggleLevelFunc={toggleLayerLevel} removeFunc={removeLayer} hasRemoveButton={layers.length > 1} />)}
    </div>;
 };
 
@@ -230,12 +308,15 @@ const TerrainGenerator = () => {
 
       {!visible ? <>
          <InputSelect options={presetNames} name="terrain-preset-options" text="Presets:" defaultValue={terrainInfo.presets[0].name} func={onPresetChange} />
+         
+         <button onClick={generatePreview}>Regenerate</button>
       </> : 
       <>
          <AdvancedTerrainGenerator terrain={terrain} />
+         
+         <button onClick={() => updateCurrentTerrain()}>Regenerate</button>
       </>}
 
-      <button onClick={generatePreview}>Regenerate</button>
       <div id="board-preview-container"></div>
    </div>;
 };
