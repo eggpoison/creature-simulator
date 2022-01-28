@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Warning from './Warning';
 
 interface InputTextProps {
@@ -12,30 +12,36 @@ interface InputTextProps {
 
 const InputText = ({ text, defaultValue, func, minVal, maxVal, allowDecimals }: InputTextProps) => {
    const inputRef = useRef(null);
-   const [val, setVal] = useState<any>(defaultValue);
+   const [val, setVal] = useState<string>(defaultValue.toString());
 
    const onInputChange = () => {
-      const inputVal = Number((inputRef.current! as HTMLInputElement).value);
+      const inputText = (inputRef.current! as HTMLInputElement).value;
+      const inputVal = Number(inputText);
 
       if (func) func(inputVal);
-      setVal(inputVal);
+      setVal(inputText);
    }
 
+   useEffect(() => {
+      setVal(defaultValue.toString());
+   }, [defaultValue]);
+
    let warningMessage = null;
-   if (isNaN(val)) {
+   const numVal = Number(val);
+   if (isNaN(numVal)) {
       warningMessage = "The input must be a valid number.";
-   } else if (val % 1 !== 0 && !allowDecimals) {
+   } else if (numVal % 1 !== 0 && !allowDecimals) {
       warningMessage = "The input must be an integer.";
-   } else if (minVal && val < minVal) {
+   } else if (minVal && numVal < minVal) {
       warningMessage = `The input cannot be less than ${minVal}.`;
-   } else if (maxVal && val > maxVal) {
+   } else if (maxVal && numVal > maxVal) {
       warningMessage = `The input cannot be greater than ${maxVal}.`;
    }
    
    return (
       <div className="input-text">
          {text ? <span className="text">{text}:</span> : ""}
-         <input ref={inputRef} onInput={onInputChange} type="text" defaultValue={defaultValue} />
+         <input ref={inputRef} onInput={onInputChange} type="text" value={val} />
 
          {warningMessage !== null ? 
             <Warning text={warningMessage} />

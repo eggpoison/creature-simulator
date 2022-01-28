@@ -13,9 +13,9 @@ const fade = (t: number): number => {
 export function getPerlinNoise(width: number, height: number, scale: number): Array<Array<number>> {
    const grid = new Array<Array<PolarVector>>();
 
-   for (let i = 0; i < height; i++) {
+   for (let i = 0; i <= height; i++) {
       const row = new Array<PolarVector>();
-      for (let j = 0; j < width; j++) {
+      for (let j = 0; j <= width; j++) {
          row.push(PolarVector.randomUnitVector());
       }
       grid.push(row);
@@ -25,8 +25,9 @@ export function getPerlinNoise(width: number, height: number, scale: number): Ar
    for (let y = 0; y < height; y++) {
       const row = new Array<number>();
       for (let x = 0; x < width; x++) {
-         const sampleX = x / scale;
-         const sampleY = y / scale;
+         const factor = 4/3;
+         const sampleX = x / scale * factor;
+         const sampleY = y / scale * factor;
          const samplePoint = new Vector(sampleX, sampleY);
 
          const x0 = Math.floor(sampleX);

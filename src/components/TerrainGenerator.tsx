@@ -21,11 +21,89 @@ export function getTiles(): Array<Array<TileType>> {
    return boardGenerator.getTiles();
 }
 
-const changeBoardSize = (dimension: "width" | "height", newVal: number): void => {
+const changeBoardSize = (dimension: "width" | "height", newVal: number, showChanges: boolean = false): void => {
    Game.boardSize[dimension] = newVal;
 
-   boardGenerator.changeSize(Game.boardSize.width, Game.boardSize.height, false);
-   boardGenerator.generateNoise(currentTerrain, scale, false);
+   boardGenerator.changeSize(Game.boardSize.width, Game.boardSize.height, showChanges);
+   boardGenerator.generateNoise(currentTerrain, scale, showChanges);
+}
+
+interface SizeProps {
+   text: string;
+   obj?: SizeProps;
+   size: [number, number] | "custom";
+   isSelected?: boolean;
+   clickEvent?: (size: SizeProps) => void;
+}
+const Size = ({ text, obj, size, isSelected, clickEvent }: SizeProps): JSX.Element => {
+   const onClick = () => {
+      if (clickEvent && obj) clickEvent(obj);
+
+      if (Array.isArray(size)) {
+         changeBoardSize("width", size[0], true);
+         changeBoardSize("height", size[1], true);
+      }
+   }
+
+   let className = "size";
+   if (isSelected) className += " selected";
+   return <div onClick={onClick} className={className}>{text}</div>
+}
+
+const SizeSelect = (): JSX.Element => {
+   const defaultSizes: ReadonlyArray<SizeProps> = [
+      {
+         text: "Small",
+         size: [15, 15],
+         isSelected: true
+      },
+      {
+         text: "Medium",
+         size: [30, 30]
+      },
+      {
+         text: "Large",
+         size: [50, 50]
+      },
+      {
+         text: "Custom",
+         size: "custom"
+      },
+   ];
+   const [sizes, setSize] = useState(defaultSizes);
+   
+   let selectedSize!: [number, number] | "custom";
+   for (const size of sizes) {
+      if (size.isSelected) {
+         selectedSize = size.size;
+      }
+   }
+
+   const clickEvent = (size: SizeProps): void => {
+      const newSizesArray = sizes.slice();
+      for (const currentSize of newSizesArray) {
+         if (currentSize === size) {
+            currentSize.isSelected = true;
+         } else if (currentSize.isSelected) {
+            currentSize.isSelected = false;
+         }
+      }
+      setSize(newSizesArray);
+   }
+
+   const width = Array.isArray(selectedSize) ? selectedSize[0] : 15;
+   const height = Array.isArray(selectedSize) ? selectedSize[1] : 15;
+
+   let containerClassName = "size-container";
+   if (selectedSize === "custom") containerClassName += " custom";
+   return <div className={containerClassName}>
+      <div className="formatter">
+         {sizes.map((size, i) => <Size key={i} obj={size} text={size.text} size={size.size} isSelected={size.isSelected} clickEvent={clickEvent} />)}
+      </div>
+
+      <InputText func={newVal => changeBoardSize("width", newVal)} text="Width" defaultValue={width} maxVal={100} />
+      <InputText func={newVal => changeBoardSize("height", newVal)} text="Height" defaultValue={height} maxVal={100} />
+   </div>
 }
 
 interface LayerThumbnailProps {
@@ -105,6 +183,13 @@ const LayerNoiseType = ({ layer, type, changeLevelFunc, toggleLevelFunc }: Layer
    }
 
    const toggleEnable = (): void => {
+      const otherType = type === "height" ? "temperature" : "height";
+      if (!layer.hasOwnProperty(otherType)) {
+         const e = window.event;
+         e?.preventDefault();
+         return;
+      }
+
       const newVal = !enabled;
       toggleLayerLevel(type, newVal);
       setEnabled(newVal);
@@ -273,8 +358,6 @@ const AdvancedTerrainGenerator = (props: AdvancedTerrainGeneratorProps) => {
       setLayers(newArr);
    }
 
-   console.log(layers);
-
    return <div id="advanced-terrain-generator">
       <button onClick={createNewLayer}>Create new layer</button>
 
@@ -309,12 +392,13 @@ const TerrainGenerator = () => {
 
    const terrain = currentTerrain.terrainLayers;
    return <div id="terrain-generator">
+      <h2 className="subheading">World Size</h2>
+
+      <SizeSelect />
+
       <h2 className="subheading">Terrain Generation</h2>
 
       <InputCheckbox func={toggleTerrainGeneratorVisibility} name="show-terrain-generator-checkbox" text="Advanced terrain generation" defaultValue={false} />
-
-      <InputText func={newVal => changeBoardSize("width", newVal)} text="Width" defaultValue={15} maxVal={100} />
-      <InputText func={newVal => changeBoardSize("height", newVal)} text="Height" defaultValue={15} maxVal={100} />
 
       <InputText func={newVal => scale = newVal} text="Scale" defaultValue={5} minVal={2} maxVal={20} />
 
