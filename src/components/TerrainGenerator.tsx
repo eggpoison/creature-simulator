@@ -7,10 +7,17 @@ import InputTextRange from './InputTextRange';
 import '../css/terrain-generator.css';
 import Game from '../Game';
 import { randItem } from '../utils';
+import InputRange from './InputRange';
 
 let boardGenerator: BoardGenerator;
 let currentTerrain: Terrain = terrainInfo.presets[0];
 let scale: number = 5;
+let octaves: number = 1;
+let lacunarity: number = 1;
+let persistance: number = 0.5;
+// octaves The number of perlin noise layers to use
+//  * @param lacunarity Controls the increase in frequency between octaves (1+)
+//  * @param persistance
 
 const generatePreview = (): void => {
    boardGenerator.changeSize(Game.boardSize.width, Game.boardSize.height, true);
@@ -302,7 +309,8 @@ const AdvancedTerrainGenerator = (props: AdvancedTerrainGeneratorProps) => {
       };
       currentTerrain = Object.assign({}, newTerrain);
 
-      generatePreview();
+      boardGenerator.changeSize(Game.boardSize.width, Game.boardSize.height, true);
+      boardGenerator.generateNoise(currentTerrain, scale, true, octaves, lacunarity, persistance);
    }
 
    const createNewLayer = (): void => {
@@ -400,14 +408,17 @@ const TerrainGenerator = () => {
 
       <InputCheckbox func={toggleTerrainGeneratorVisibility} name="show-terrain-generator-checkbox" text="Advanced terrain generation" defaultValue={false} />
 
-      <InputText func={newVal => scale = newVal} text="Scale" defaultValue={5} minVal={2} maxVal={20} />
-
       {!visible ? <>
          <InputSelect options={presetNames} name="terrain-preset-options" text="Presets:" defaultValue={terrainInfo.presets[0].name} func={onPresetChange} />
          
          <button onClick={generatePreview}>Regenerate</button>
       </> : 
       <>
+         <InputText func={newVal => scale = newVal} text="Scale" defaultValue={5} minVal={2} maxVal={20} />
+         <InputRange func={newVal => octaves = newVal} text="Octaves" defaultValue={1} min={1} max={5} step={1} />
+         <InputRange func={newVal => lacunarity = newVal} text="Lacunarity" defaultValue={1.5} min={1} max={5} step={0.5} />
+         <InputRange func={newVal => persistance = newVal} text="Persistance" defaultValue={0.5} min={0} max={1} step={0.05} />
+
          <AdvancedTerrainGenerator terrain={terrain} />
          
          <button onClick={() => updateCurrentTerrain()}>Regenerate</button>

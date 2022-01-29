@@ -13,9 +13,9 @@ const fade = (t: number): number => {
 export function getPerlinNoise(width: number, height: number, scale: number): Array<Array<number>> {
    const grid = new Array<Array<PolarVector>>();
 
-   for (let i = 0; i <= height; i++) {
+   for (let i = 0; i <= height / scale + 1; i++) {
       const row = new Array<PolarVector>();
-      for (let j = 0; j <= width; j++) {
+      for (let j = 0; j <= width / scale + 1; j++) {
          row.push(PolarVector.randomUnitVector());
       }
       grid.push(row);
@@ -25,9 +25,8 @@ export function getPerlinNoise(width: number, height: number, scale: number): Ar
    for (let y = 0; y < height; y++) {
       const row = new Array<number>();
       for (let x = 0; x < width; x++) {
-         const factor = 4/3;
-         const sampleX = x / scale * factor;
-         const sampleY = y / scale * factor;
+         const sampleX = x / scale;
+         const sampleY = y / scale;
          const samplePoint = new Vector(sampleX, sampleY);
 
          const x0 = Math.floor(sampleX);
@@ -35,7 +34,7 @@ export function getPerlinNoise(width: number, height: number, scale: number): Ar
          const y0 = Math.floor(sampleY);
          const y1 = y0 + 1;
 
-         const cornerCoords = [[y0, x0], [y0, x1], [y1, x0], [y1, x1]]
+         const cornerCoords: ReadonlyArray<[number, number]> = [[y0, x0], [y0, x1], [y1, x0], [y1, x1]];
 
          const dotProducts = new Array<number>();
          for (let i = 0; i < 4; i++) {
@@ -52,7 +51,7 @@ export function getPerlinNoise(width: number, height: number, scale: number): Ar
          const v = fade(sampleY % 1);
          let val = interpolate(dotProducts[0], dotProducts[1], dotProducts[2], dotProducts[3], u, v);
          val = Math.min(Math.max(val, -0.5), 0.5);
-         row.push(val);
+         row.push(val + 0.5);
       }
       noise.push(row);
    }
@@ -63,7 +62,7 @@ export function getPerlinNoise(width: number, height: number, scale: number): Ar
  * 
  * @param octaves The number of perlin noise layers to use
  * @param lacunarity Controls the increase in frequency between octaves (1+)
- * @param persistance Controls the decrease in weight between octaves (0-1)
+ * @param persistance Controls the decrease in scale between octaves (0-1)
  */
 export function getOctavePerlinNoise(width: number, height: number, startingScale: number, octaves: number, lacunarity: number, persistance: number): Array<Array<number>> {
    let totalNoise = new Array<Array<number>>();
@@ -82,5 +81,21 @@ export function getOctavePerlinNoise(width: number, height: number, startingScal
          }
       }
    }
+
+   let maxWeight = 1;
+   for (const row of totalNoise) {
+      for (const weight of row) {
+         if (weight > maxWeight) maxWeight = weight;
+      }
+   }
+   if (maxWeight > 1) {
+      // Adjust weights
+      for (let y = 0; y < height; y++) {
+         for (let x = 0; x < width; x++) {
+            totalNoise[y][x] /= maxWeight;
+         }
+      }
+   }
+
    return totalNoise;
 }

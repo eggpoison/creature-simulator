@@ -396,12 +396,13 @@ export class BoardGenerator {
          if (heightCheck && temperatureCheck) return terrainInfo.tiles[terrainType.type];
       }
 
+      console.log("No tile type found, showing info");
       console.log("Height:", height, "Temperature:", temperature);
       console.log("Terrain layers:", terrain.terrainLayers);
       throw new Error(`Unable to find an appropriate tile type!`);
    }
 
-   generateNoise(terrain: Terrain, scale: number, showChanges: boolean): void {
+   generateNoise(terrain: Terrain, scale: number, showChanges: boolean, octaves: number = 1, lacunarity: number = 1, persistance: number = 1): void {
       // Reset tiles
       this.tiles = new Array<Array<TileType>>();
       for (let y = 0; y < this.height; y++) {
@@ -411,9 +412,9 @@ export class BoardGenerator {
       const noise: { [key: string]: Array<Array<number>> } = {};
       for (const noiseType of terrain.noise) {
          if (noiseType === "height") {
-            noise.height = getPerlinNoise(this.width, this.height, scale);
+            noise.height = getOctavePerlinNoise(this.width, this.height, scale, octaves, lacunarity, persistance);
          } else if (noiseType === "temperature") {
-            noise.temperature = getPerlinNoise(this.width, this.height, scale);
+            noise.temperature = getOctavePerlinNoise(this.width, this.height, scale, octaves, lacunarity, persistance);
          }
       }
 
@@ -423,8 +424,8 @@ export class BoardGenerator {
          const ctx = this.canvas.getContext("2d")!;
          for (let y = 0; y < this.height; y++) {
             for (let x = 0; x < this.width; x++) {
-               const height = noise.height ? noise.height[y][x] + 0.5 : null;
-               const temperature = noise.temperature ? noise.temperature[y][x] + 0.5 : null;
+               const height = noise.height ? noise.height[y][x] : null;
+               const temperature = noise.temperature ? noise.temperature[y][x] : null;
                const tileType = this.getTileType(terrain, height, temperature);
                this.tiles[y][x] = tileType;
    
