@@ -29,6 +29,26 @@
                0 0 0 var(--vision-size) rgba(0, 0, 0, 0.3); /* The creature's shadow */
    z-index: 1;
 }
+.creature.rgb {
+   animation: rgb 2s linear infinite;
+}
+@keyframes rgb {
+   from {
+      background-color: #6666ff;
+   }
+   10% {
+      background-color: #0099ff;
+   }
+   50% {
+      background-color: #00ff00;
+   }
+   75% {
+      background-color: #ff3399;
+   }
+   100% {
+      background-color: #6666ff;
+   }
+}
 
 .creature :is(.life, .reproduction) {
    height: 10px;

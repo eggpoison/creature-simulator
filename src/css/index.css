@@ -90,6 +90,14 @@ button {
    word-spacing: -0.05rem;
    white-space: pre;
 }
+.input-range .description {
+   color: #bbb;
+   font: 400 1rem "Source Sans 3";
+   font-style: italic;
+   text-align: center;
+   text-shadow: 1px 1px 1px #555;
+   margin: 0.2rem;
+}
 .input-range.extreme .text {
    color: rgb(245, 155, 122);
    text-shadow: 0 0 2px red;

@@ -8,12 +8,13 @@ interface InputRangeProps {
    step: number;
    func?: (inputVal: number) => unknown;
    button?: string;
-   /*** If present, any values above or equal to its value will enable "extreme mode" (purely visual) */
+   /*** If present, using the max value will enable "extreme mode" (purely visual) */
    hasExtremeMode?: boolean;
    prefix?: string;
+   description?: string;
 }
 
-const InputRange = ({ text, min, max, defaultValue, step, func, button, hasExtremeMode, prefix }: InputRangeProps) => {
+const InputRange = ({ text, min, max, defaultValue, step, func, button, hasExtremeMode, prefix, description }: InputRangeProps) => {
    const inputRef = useRef(null);
    const [val, setVal] = useState(defaultValue);
 
@@ -41,8 +42,12 @@ const InputRange = ({ text, min, max, defaultValue, step, func, button, hasExtre
             </div>
          </div>
 
+         {description ?
+            <div className="description">{description}</div>
+         : ""}
+
          {button ?
-         <button onClick={() => {if (func) func(val)}}>{button}</button>
+            <button onClick={() => {if (func) func(val)}}>{button}</button>
          : ""}
       </div>
    )

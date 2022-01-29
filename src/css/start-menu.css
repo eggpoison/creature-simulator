@@ -27,3 +27,89 @@ body:not(.dark-mode) #start-menu button {
    padding: 0 0.3rem;
    margin-top: 0.5rem;
 }
+
+#start-menu .colour-options .formatter {
+   margin-bottom: 10px;
+   display: flex;
+   justify-content: center;
+}
+#start-menu .option {
+   color: #ccc;
+   font: 400 1rem "Source Sans 3";
+   margin: 0 7px;
+   cursor: pointer;
+}
+#start-menu .option.selected {
+   color: #fff;
+   font-weight: 600;
+   cursor: default;
+}
+#start-menu .option.selected::before {
+   content: ">";
+   font-weight: 600;
+   font-family: "Source Code Pro";
+   margin-right: 0.1rem;
+   animation: Fade 2s linear infinite;
+}
+#start-menu .option.selected::after {
+   content: "<";
+   font-weight: 600;
+   font-family: "Source Code Pro";
+   margin-left: 0.1rem;
+   animation: Fade 2s linear infinite;
+}
+
+.creature-preview-container {
+   --size: 100px;
+   width: var(--size);
+   height: var(--size);
+   background-color: rgb(129, 241, 38);
+   border: 2px solid #fff;
+   margin-left: 50%;
+   position: relative;
+   transform: translateX(-50%);
+   box-shadow: 0 0 0 2px #000;
+}
+.preview-caption {
+   color: #aaa !important;
+   font: 400 0.95rem "Source Sans 3";
+   text-align: center;
+   font-style: italic;
+}
+.creature-preview {
+   --size: 55px;
+   width: var(--size);
+   height: var(--size);
+   border: 2px solid #000;
+   border-radius: 100%;
+   position: absolute;
+   top: 50%;
+   left: 50%;
+   transform: translate(-50%, -50%);
+}
+.creature-preview.regular {
+   background-color: green;
+}
+.creature-preview.gene-based {
+   background-color: rgba(30, 182, 113);
+}
+.creature-preview.rgb {
+   animation: rgb 2s linear infinite;
+}
+@keyframes rgb {
+   from {
+      background-color: #6666ff;
+   }
+   10% {
+      background-color: #0099ff;
+   }
+   50% {
+      background-color: #00ff00;
+   }
+   75% {
+      background-color: #ff3399;
+   }
+   100% {
+      background-color: #6666ff;
+   }
+}

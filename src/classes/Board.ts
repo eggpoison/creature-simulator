@@ -1,4 +1,5 @@
 import { getTiles } from "../components/TerrainGenerator";
+import Game from "../Game";
 import { clamp, getElem, randFloat, randInt, randItem, Vector } from "../utils";
 import { TileType } from "./BoardGenerator";
 import Creature from "./Creature";
@@ -154,6 +155,13 @@ export class Board {
       return randItem(tileType.fruitColour!) as string;
    }
 
+   getTileType(position: Vector): TileType {
+      const x = clamp(Math.floor(position.x / this.cellSize), 0, this.width - 1);
+      const y = clamp(Math.floor(position.y / this.cellSize), 0, this.height - 1);
+
+      return this.tiles[y][x];
+   }
+
    randomPositionInCell(cellNumber: number): Vector {
       const cellX = cellNumber % this.width;
       const cellY = Math.floor(cellNumber / this.width);
@@ -164,11 +172,14 @@ export class Board {
       return new Vector(cellX * this.cellSize + x, cellY * this.cellSize + y);
    }
 
-   randomNearbyPosition(position: Vector, radius: number): Vector {
+   randomNearbyPosition(position: Vector, radius: number, tilePreference?: TileType): Vector {
       let nearbyPosition: Vector | null = null;
       while (nearbyPosition === null) {
          const pos = position.randomOffset(radius);
          if (this.positionIsInBoard(pos)) {
+            const tileType = this.getTileType(pos);
+            if (tileType !== tilePreference && Math.random() >= Game.settings.tilePreference) continue;
+
             nearbyPosition = pos;
          }
       }

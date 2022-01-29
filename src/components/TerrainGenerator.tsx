@@ -415,9 +415,9 @@ const TerrainGenerator = () => {
       </> : 
       <>
          <InputText func={newVal => scale = newVal} text="Scale" defaultValue={5} minVal={2} maxVal={20} />
-         <InputRange func={newVal => octaves = newVal} text="Octaves" defaultValue={1} min={1} max={5} step={1} />
-         <InputRange func={newVal => lacunarity = newVal} text="Lacunarity" defaultValue={1.5} min={1} max={5} step={0.5} />
-         <InputRange func={newVal => persistance = newVal} text="Persistance" defaultValue={0.5} min={0} max={1} step={0.05} />
+         <InputRange func={newVal => octaves = newVal} text="Octaves" defaultValue={1} min={1} max={5} step={1} description="The number of perlin noise layers." />
+         <InputRange func={newVal => lacunarity = newVal} text="Lacunarity" defaultValue={1.5} min={1} max={5} step={0.5} description="How quickly scale increases between layers." />
+         <InputRange func={newVal => persistance = newVal} text="Persistance" defaultValue={0.5} min={0} max={1} step={0.05} description="How quickly weight diminishes across layers." />
 
          <AdvancedTerrainGenerator terrain={terrain} />
          

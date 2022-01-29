@@ -80,8 +80,9 @@ abstract class Entity {
       return this.element;
    };
 
-   tick(): void {
-      if (this.age++ >= this.lifespan) {
+   tick(ageAmount: number = 1): void {
+      this.age += ageAmount;
+      if (this.age >= this.lifespan) {
          this.die();
          return;
       }

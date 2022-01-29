@@ -1,4 +1,4 @@
-import { getElem, Vector} from './utils';
+import { getElem, Vector} from '../utils';
 
 export const gameImages: Array<GameImage> = new Array<GameImage>();
 
@@ -41,7 +41,7 @@ class GameImage {
 
     updateBackgroundImage() {
         const frame = Math.floor(this.frame);
-        const src = require(`./images/${this.name}/${this.name}-${frame}.png`).default;
+        const src = require(`../images/${this.name}/${this.name}-${frame}.png`).default;
         this.element.style.backgroundImage = `url(${src})`;
     }
 

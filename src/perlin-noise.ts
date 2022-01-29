@@ -61,8 +61,8 @@ export function getPerlinNoise(width: number, height: number, scale: number): Ar
 /**
  * 
  * @param octaves The number of perlin noise layers to use
- * @param lacunarity Controls the increase in frequency between octaves (1+)
- * @param persistance Controls the decrease in scale between octaves (0-1)
+ * @param lacunarity Controls the increase in scale between octaves (1+)
+ * @param persistance Controls the decrease in weight between octaves (0-1)
  */
 export function getOctavePerlinNoise(width: number, height: number, startingScale: number, octaves: number, lacunarity: number, persistance: number): Array<Array<number>> {
    let totalNoise = new Array<Array<number>>();

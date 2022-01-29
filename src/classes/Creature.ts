@@ -3,8 +3,9 @@ import { drawRay, PolarVector, randFloat, randInt, randItem, Vector } from "../u
 import Entity, { EntityGenes } from "./Entity";
 import Fruit from "./Fruit";
 import Egg from './Egg';
-import GameImage from "../GameImage";
+import GameImage from "./GameImage";
 import { closeInspector, inspectorCreature } from "../creature-inspector";
+import { TileType } from "./BoardGenerator";
 
 export interface CreatureGenes extends EntityGenes {
    speed: number;
@@ -78,7 +79,7 @@ const calculateLifespan = (attributes: CreatureGenes): number => {
    }
 
    // Creatures which have less offspring give their offspring a higher lifespan
-   lifespan /= attributes.reproductiveRate;
+   lifespan /= Math.pow(attributes.reproductiveRate, 0.7);
 
    return lifespan;
 }
@@ -118,14 +119,15 @@ class Creature extends Entity {
    readonly reproductiveRate: number;
    readonly name: string;
 
+   private readonly birthTileType: TileType;
    readonly birthTime: number;
    /** A random number from -100 to 100, used for randomness */
    readonly seed = randInt(-100, 100, true);
 
    private isMoving: boolean;
-   targetPosition: Vector | null = null;
-   reproductiveUrge: number = 0;
-   partner: Creature | null = null;
+   private targetPosition: Vector | null = null;
+   protected reproductiveUrge: number = 0;
+   protected partner: Creature | null = null;
    reproductionStage: number = 0;
    lastReproductionTime: number = -REPRODUCTION_TIME - Game.settings.eggIncubationTime - ABSTINENCE_TIME;
 
@@ -141,8 +143,9 @@ class Creature extends Entity {
       this.vision = attributes.vision;
       this.reproductiveRate = attributes.reproductiveRate;
 
-      this.isMoving = false;
+      this.birthTileType = Game.board.getTileType(position);
       this.birthTime = Game.ticks;
+      this.isMoving = false;
 
       this.moveSpeed = this.calculateMoveSpeed();
 
@@ -197,6 +200,19 @@ class Creature extends Entity {
       const element = document.createElement("div");
       element.className = "creature";
 
+      if (Game.settings.creatureColour === "regular") {
+         element.style.backgroundColor = "green";
+      } else if (Game.settings.creatureColour === "gene-based") {
+         const r = (this.speed - creatureGeneInfo.speed.min) * 255 / (creatureGeneInfo.speed.max / creatureGeneInfo.speed.min);
+         const g = (this.size - creatureGeneInfo.size.min) * 255 / (creatureGeneInfo.size.max / creatureGeneInfo.size.min);
+         const b = (this.reproductiveRate - creatureGeneInfo.reproductiveRate.min) * 255 / (creatureGeneInfo.reproductiveRate.max / creatureGeneInfo.reproductiveRate.min);
+         element.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+      } else if (Game.settings.creatureColour === "rgb") {
+         element.classList.add("rgb");
+         const delay = randInt(0, 2000, true);
+         element.style.animationDelay = delay + "ms";
+      }
+
       element.innerHTML = `
       <div class="shadow"></div>
 
@@ -239,7 +255,11 @@ class Creature extends Entity {
    }
 
    tick(): void {
-      super.tick();
+      const currentTile = Game.board.getTileType(this.position);
+      
+      let ageAmount = 1;
+      if (currentTile.effects?.metabolismMultiplier) ageAmount *= currentTile.effects.metabolismMultiplier;
+      super.tick(ageAmount);
 
       // Base amount of reproductive urge gained per second
       if (this.reproductionStage === 0 && (Game.ticks - this.lastReproductionTime) * 1000 / Game.tps > REPRODUCTION_TIME + Game.settings.eggIncubationTime + ABSTINENCE_TIME) {
@@ -262,7 +282,7 @@ class Creature extends Entity {
             this.reachTargetPosition();
          } else {
             // Otherwise continue moving
-            this.moveToTargetPosition();
+            this.moveToTargetPosition(currentTile);
          }
       }
 
@@ -322,10 +342,13 @@ class Creature extends Entity {
             }
          }
          else if (entityIsFruit) {
-            const distanceToFruit = this.position.distanceFrom(entity.position);
-            if (distanceToFruit < distanceToNearestFruit) {
-               closestFruit = entity;
-               distanceToNearestFruit = distanceToFruit;
+            const fruitTileType = Game.board.getTileType(entity.position);
+            if (!(fruitTileType !== this.birthTileType && Math.random() >= Game.settings.tilePreference)) {
+               const distanceToFruit = this.position.distanceFrom(entity.position);
+               if (distanceToFruit < distanceToNearestFruit) {
+                  closestFruit = entity;
+                  distanceToNearestFruit = distanceToFruit;
+               }
             }
          }
 
@@ -359,7 +382,7 @@ class Creature extends Entity {
          // Chance for the creature to move each second
          const MOVE_CHANCE = 0.95;
          if (Math.random() < MOVE_CHANCE / Game.tps) {
-            const randomPosition = Game.board.randomNearbyPosition(this.position, this.vision);
+            const randomPosition = Game.board.randomNearbyPosition(this.position, this.vision, this.birthTileType);
             this.targetPosition = randomPosition;
          }
       }
@@ -381,16 +404,20 @@ class Creature extends Entity {
       this.age += amount;
    }
 
-   private moveToTargetPosition(): void {
+   private moveToTargetPosition(currentTile: TileType): void {
       this.isMoving = true;
 
       if (this === inspectorCreature) {
          drawRay(this.position, this.targetPosition as Vector);
       }
 
+      let moveSpeed = this.moveSpeed;
+
+      if (currentTile.effects?.speedMultiplier) moveSpeed *= currentTile.effects.speedMultiplier;
+
       // Convert from cartesian to polar coordinates
       const angleToTarget = this.position.angleBetween(this.targetPosition!);
-      const nextPosition = new PolarVector(this.moveSpeed, angleToTarget);
+      const nextPosition = new PolarVector(moveSpeed, angleToTarget);
 
       this.velocity = nextPosition.convertToCartesian();
    };

@@ -1,5 +1,5 @@
 import Fruit, { createFruit } from "./classes/Fruit";
-import { gameImages } from "./GameImage";
+import { gameImages } from "./classes/GameImage";
 import { inspectorIsOpen, rerenderInspector } from "./creature-inspector";
 import { updateControlPanel } from "./components/ControlPanel";
 import Creature, { createCreature, creatureGeneInfo } from "./classes/Creature";
@@ -120,6 +120,8 @@ export interface GameSettings {
    initialCreatures: number;
    initialFruit: number;
    equilibrium: number;
+   tilePreference: number;
+   creatureColour: string;
    showDebugOutput: boolean;
 }
 export const defaultGameSettings: GameSettings = {
@@ -129,6 +131,8 @@ export const defaultGameSettings: GameSettings = {
    initialCreatures: 10,
    initialFruit: 50,
    equilibrium: 20,
+   tilePreference: 0.2,
+   creatureColour: "regular",
    showDebugOutput: false
 }
 

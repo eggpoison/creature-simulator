@@ -1,5 +1,5 @@
 import Game from "../Game";
-import GameImage from "../GameImage";
+import GameImage from "./GameImage";
 import { getOctavePerlinNoise, getPerlinNoise } from "../perlin-noise";
 import { Colour, getElem, randFloat, randInt, randItem, Vector } from "../utils";
 import Creature from "./Creature";
@@ -21,7 +21,7 @@ export interface TileType {
       speedMultiplier?: number;
       fruitSpawnMultiplier?: number;
       /** Effects how quickly a creature's life decreases while on the tile */
-      survivability?: number;
+      metabolismMultiplier?: number;
    }
 }
 export interface TerrainLayer {
@@ -221,7 +221,11 @@ export const terrainInfo: TerrainInfo = {
          name: "Tundra",
          colour: ["#b8c6db"],
          fruitColour: ["#0066ff"],
-         isLiquid: false
+         isLiquid: false,
+         effects: {
+            speedMultiplier: 0.7,
+            metabolismMultiplier: 0.6
+         }
       },
       mountain: {
          name: "Mountain",
@@ -233,7 +237,11 @@ export const terrainInfo: TerrainInfo = {
          name: "Desert",
          colour: ["yellow"],
          fruitColour: ["#666"],
-         isLiquid: false
+         isLiquid: false,
+         effects: {
+            speedMultiplier: 1.4,
+            metabolismMultiplier: 1.3
+         }
       },
       magma: {
          name: "Magma",
@@ -245,7 +253,11 @@ export const terrainInfo: TerrainInfo = {
          name: "Bog",
          colour: ["#46911a", "#509121", "#457819"],
          fruitColour: ["#2d3d20", "#000"],
-         isLiquid: false
+         isLiquid: false,
+         effects: {
+            speedMultiplier: 0.4,
+            metabolismMultiplier: 0.3
+         }
       },
       water: {
          name: "Water",

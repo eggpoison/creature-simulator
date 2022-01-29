@@ -48,7 +48,7 @@
 }
 
 #terrain-generator button {
-   margin: 0.2rem 0 0.2rem 50%;
+   margin: 1rem 0 0.2rem 50%;
    transform: translateX(-50%);
 }
 

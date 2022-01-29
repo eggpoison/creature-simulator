@@ -1,5 +1,5 @@
 import Game from "../Game";
-import GameImage from "../GameImage";
+import GameImage from "./GameImage";
 import { Vector } from "../utils";
 import Creature, { CreatureGenes } from "./Creature";
 import Entity, { EntityGenes } from "./Entity";
