@@ -6,6 +6,8 @@ type timeUnits = "seconds" | "minutes";
 
 export interface GraphSettings {
    readonly shouldExtrapolate: boolean;
+   readonly shouldShowPoints: boolean;
+   readonly shouldShowLines: boolean;
 }
 
 export type GraphData = Array<GeneSampleEntry | null> | Array<number | null>;
@@ -83,6 +85,8 @@ class Graph {
    }
 
    private drawPoint(pos: Vector, colour: string): void {
+      if (!this.settings.shouldShowPoints) return;
+
       const point = document.createElement("div");
       point.className = "point";
       point.style.backgroundColor = colour;
@@ -93,6 +97,8 @@ class Graph {
    }
 
    private drawLine(previousPos: Vector, pos: Vector, colour: string): void {
+      if (!this.settings.shouldShowLines) return;
+
       const line = document.createElement("div");
       line.className = "line";
       this.element.appendChild(line);

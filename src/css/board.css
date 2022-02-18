@@ -21,7 +21,6 @@
 }
 
 .creature {
-   background-color: green;
    border-radius: 100%;
    position: absolute;
    transform: translate(-50%, -50%);
@@ -36,7 +35,7 @@
    from {
       background-color: #6666ff;
    }
-   10% {
+   10% { 
       background-color: #0099ff;
    }
    50% {

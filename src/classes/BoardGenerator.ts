@@ -482,7 +482,7 @@ export class BoardGenerator {
             const weight = noise[y][x];
             
             ctx.beginPath();
-            const colour = "#" + Colour.grayscale(weight + 0.5);
+            const colour = "#" + Colour.grayscale(weight);
             ctx.fillStyle = colour;
             ctx.rect(x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
             ctx.fill();

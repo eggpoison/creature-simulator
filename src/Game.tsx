@@ -160,8 +160,6 @@ const Game: GameType = {
       for (const func of renderListeners) func();
 
       for (const gameImage of gameImages) gameImage.tick();
-
-      // Game.board.tick();
       
       if (this.hasStarted) {
          this.ticks++;

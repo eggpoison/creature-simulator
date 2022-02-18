@@ -12,7 +12,6 @@ const fade = (t: number): number => {
 
 export function getPerlinNoise(width: number, height: number, scale: number): Array<Array<number>> {
    const grid = new Array<Array<PolarVector>>();
-
    for (let i = 0; i <= height / scale + 1; i++) {
       const row = new Array<PolarVector>();
       for (let j = 0; j <= width / scale + 1; j++) {
@@ -81,6 +80,8 @@ export function getOctavePerlinNoise(width: number, height: number, startingScal
          }
       }
    }
+
+   // Ensure that all values stay below 1
 
    let maxWeight = 1;
    for (const row of totalNoise) {

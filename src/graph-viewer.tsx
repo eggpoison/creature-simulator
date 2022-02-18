@@ -224,7 +224,9 @@ export function drawGraphs(): void {
    graphContainer.innerHTML = "";
    
    const graphSettings: GraphSettings = {
-      shouldExtrapolate: graphSettingData[0].isChecked!
+      shouldExtrapolate: graphSettingData[0].isChecked!,
+      shouldShowPoints: graphSettingData[2].isChecked!,
+      shouldShowLines: graphSettingData[3].isChecked!
    };
 
    for (const graphOptions of selectedGraphOptions) {
